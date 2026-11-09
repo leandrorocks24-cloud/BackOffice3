@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TruckPag Backoffice • Gestão de SLA & Terceiros</title>
+  <title>TruckPag Backoffice • Fila de Demandas & SLA de Terceiros</title>
   <!-- React 18 e Babel Standalone via CDN -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -28,12 +28,12 @@
       --text-muted: #64748B;
       --text-subtle: #94A3B8;
 
-      --badge-todo-bg: #FEF3C7;
-      --badge-todo-text: #92400E;
-      --badge-third-bg: #E0F2FE;
-      --badge-third-text: #0369A1;
+      --badge-process-bg: #E0F2FE;
+      --badge-process-text: #0369A1;
       --badge-done-bg: #DCFCE7;
       --badge-done-text: #166534;
+      --badge-cancel-bg: #F1F5F9;
+      --badge-cancel-text: #64748B;
       --badge-late-bg: #FEE2E2;
       --badge-late-text: #991B1B;
 
@@ -56,12 +56,12 @@
       --text-muted: #94A3B8;
       --text-subtle: #64748B;
 
-      --badge-todo-bg: #78350F;
-      --badge-todo-text: #FDE68A;
-      --badge-third-bg: #0C4A6E;
-      --badge-third-text: #BAE6FD;
+      --badge-process-bg: #0C4A6E;
+      --badge-process-text: #BAE6FD;
       --badge-done-bg: #064E3B;
       --badge-done-text: #A7F3D0;
+      --badge-cancel-bg: #1E293B;
+      --badge-cancel-text: #94A3B8;
       --badge-late-bg: #7F1D1D;
       --badge-late-text: #FECACA;
 
@@ -71,9 +71,9 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg-app); color: var(--text-main); font-size: 12.5px; line-height: 1.45; overflow-x: hidden; }
 
-    /* Top Navbar Compacta */
+    /* Topbar */
     .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); }
-    .brand-section { display: flex; align-items: center; gap: 12px; }
+    .brand-section { display: flex; align-items: center; gap: 10px; }
     .brand-badge { width: 30px; height: 30px; background: linear-gradient(135deg, var(--tp-green), var(--tp-green-accent)); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px; }
     .brand-text h1 { font-size: 14px; font-weight: 700; color: var(--tp-green); line-height: 1.1; }
     .brand-text p { font-size: 11px; color: var(--text-muted); }
@@ -87,49 +87,63 @@
     .btn-action.primary { background: var(--tp-green); color: #fff; border: none; font-weight: 700; }
     .btn-action.primary:hover { opacity: 0.92; }
 
-    /* Container Principal */
-    .main-wrapper { max-width: 1400px; margin: 0 auto; padding: 18px 24px; }
+    /* Layout Principal */
+    .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
 
-    /* KPI Strip Compacto */
-    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
-    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-    .kpi-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; box-shadow: var(--card-shadow); }
-    .kpi-label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
-    .kpi-value { font-size: 20px; font-weight: 800; color: var(--tp-green); margin-top: 2px; }
-    .kpi-sub { font-size: 10.5px; color: var(--text-subtle); margin-top: 1px; }
-
-    /* Barra de Filtros Minimalista */
-    .filter-bar { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
-    .filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    /* ==========================================================================
+       SEÇÃO: BLOCOS "EM ANDAMENTO" COM DOIS RELÓGIOS DINÂMICOS
+       ========================================================================== */
+    .in-progress-section { margin-bottom: 20px; }
+    .section-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .section-title-bar h2 { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
     
+    .cards-scroll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+    
+    .progress-card { background: var(--bg-surface); border: 1px solid var(--border); border-left: 3px solid #0284C7; border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--card-shadow); }
+    .progress-card:hover { transform: translateY(-1px); border-color: var(--border-focus); }
+    
+    .progress-card-top { display: flex; justify-content: space-between; align-items: center; }
+    .card-client { font-weight: 700; font-size: 12.5px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .card-product-tag { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* Relógios em destaque lado a lado */
+    .timers-box { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg-subtle); border-radius: 6px; padding: 6px 8px; margin-top: 4px; border: 1px solid var(--border); }
+    .timer-item { display: flex; flex-direction: column; }
+    .timer-label { font-size: 9.5px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; }
+    .timer-val { font-size: 11px; font-weight: 700; color: var(--text-main); margin-top: 1px; }
+    .timer-val.late { color: #DC2626; }
+    .timer-val.today { color: #D97706; }
+
+    /* ==========================================================================
+       BARRA DE FILTROS AVANÇADOS
+       ========================================================================== */
+    .filter-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--card-shadow); }
+    .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+    .input-compact { padding: 5px 9px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
+    .input-compact:focus { border-color: var(--border-focus); }
+
     .filter-pills { display: flex; background: var(--bg-subtle); padding: 2px; border-radius: 6px; border: 1px solid var(--border); }
     .pill-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; }
     .pill-btn.active { background: var(--bg-surface); color: var(--tp-green); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 
-    .input-compact { padding: 5px 9px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
-
     /* ==========================================================================
-       TABELA DE REGISTROS (ALTA DENSIDADE • SEM POLUIÇÃO)
+       TABELA DE REGISTROS (SEM ID • ALTA DENSIDADE)
        ========================================================================== */
     .table-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
     table.dense-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     table.dense-table thead tr { background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
-    table.dense-table th { padding: 9px 12px; font-weight: 700; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+    table.dense-table th { padding: 9px 12px; font-weight: 700; color: var(--text-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.3px; }
     table.dense-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     table.dense-table tbody tr { cursor: pointer; transition: background 0.1s; }
     table.dense-table tbody tr:hover { background: var(--bg-subtle); }
     table.dense-table tbody tr.selected { background: var(--tp-green-light); }
 
-    .status-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
-    .st-waiting { background: var(--badge-third-bg); color: var(--badge-third-text); }
-    .st-todo { background: var(--badge-todo-bg); color: var(--badge-todo-text); }
+    .status-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
+    .st-process { background: var(--badge-process-bg); color: var(--badge-process-text); }
     .st-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
-    .st-cancel { background: var(--bg-subtle); color: var(--text-muted); }
-
-    .return-alert { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
-    .rt-late { background: var(--badge-late-bg); color: var(--badge-late-text); }
-    .rt-today { background: var(--badge-todo-bg); color: var(--badge-todo-text); }
-    .rt-normal { color: var(--text-muted); }
+    .st-cancel { background: var(--badge-cancel-bg); color: var(--badge-cancel-text); }
 
     /* ==========================================================================
        RELATÓRIO GERENCIAL DE SLA (PARA APRESENTAÇÃO À GERÊNCIA)
@@ -144,46 +158,41 @@
     .action-headline { font-size: 14px; font-weight: 700; color: var(--tp-green); line-height: 1.3; }
     .action-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    /* Barras Horizontais Limpas (Estilo BI) */
     .chart-bar-item { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 11.5px; }
-    .bar-label { width: 180px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
+    .bar-label { width: 170px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
     .bar-track { flex: 1; height: 16px; background: var(--bg-subtle); border-radius: 3px; overflow: hidden; display: flex; align-items: center; }
     .bar-fill { height: 100%; background: var(--tp-green); border-radius: 3px; transition: width 0.3s ease; }
-    .bar-fill.warning { background: #F59E0B; }
     .bar-fill.danger { background: #EF4444; }
+    .bar-fill.warning { background: #F59E0B; }
     .bar-value { width: 65px; text-align: right; font-weight: 700; font-family: monospace; color: var(--text-main); font-size: 11px; }
 
-    /* Tabela Executiva de SLA */
     .exec-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
     .exec-table th { background: var(--bg-subtle); padding: 8px 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border); }
     .exec-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
 
     /* ==========================================================================
-       PAINEL LATERAL DE DETALHES (DRAWER DESPOLUÍDO)
+       DRAWER LATERAL • HISTÓRICO OPERACIONAL E PARECERES
        ========================================================================== */
     .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 200; display: flex; justify-content: flex-end; backdrop-filter: blur(1.5px); }
     .drawer-content { width: 440px; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.1); }
     .drawer-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
     .drawer-body { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
-    
+
     .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11.5px; }
     .detail-cell { background: var(--bg-subtle); border-radius: 6px; padding: 7px 10px; border: 1px solid var(--border); }
     .detail-cell.full { grid-column: span 2; }
-    .detail-cell-label { font-size: 10px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; }
+    .detail-cell-label { font-size: 9.5px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; }
     .detail-cell-val { font-weight: 600; color: var(--text-main); margin-top: 1px; word-break: break-word; }
 
-    /* Calculadora de Retorno */
-    .calc-box { background: var(--tp-green-light); border: 1px solid var(--tp-green-border); border-radius: 6px; padding: 10px 12px; }
-    .calc-btn { margin-top: 6px; width: 100%; padding: 6px; font-size: 11px; font-weight: 700; background: var(--tp-green); color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    /* Bloco Estruturado do Histórico Solicitado */
+    .pareceres-box { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+    .pareceres-header { font-size: 12px; font-weight: 800; color: var(--text-main); border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 10px; }
+    .pareceres-step { margin-bottom: 10px; font-size: 11.5px; }
+    .step-time { font-size: 10.5px; color: var(--text-subtle); font-family: monospace; font-weight: 600; }
+    .step-title { font-weight: 700; color: var(--text-main); margin-top: 1px; }
+    .step-desc { color: var(--text-muted); font-size: 11px; margin-top: 1px; }
 
-    /* Linha do Tempo Compacta */
-    .timeline-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-    .timeline-item { border-left: 2px solid var(--border); padding-left: 10px; position: relative; font-size: 11.5px; }
-    .timeline-item::before { content: ""; position: absolute; left: -5px; top: 3px; width: 8px; height: 8px; border-radius: 50%; background: var(--tp-green); }
-    .timeline-item.internal::before { background: #F59E0B; }
-    .timeline-time { font-size: 10px; color: var(--text-subtle); }
-    .timeline-title { font-weight: 700; color: var(--text-main); }
-    .timeline-desc { color: var(--text-muted); margin-top: 1px; }
+    .sla-final-highlight { background: var(--tp-green-light); border: 1px solid var(--tp-green-border); color: var(--tp-green); border-radius: 6px; padding: 8px 12px; font-size: 11.5px; font-weight: 700; text-align: center; }
 
     /* Modal Nova Demanda */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 300; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
@@ -193,7 +202,6 @@
     .form-col-full { grid-column: span 2; }
     .field-label { font-size: 10.5px; font-weight: 700; color: var(--text-main); margin-bottom: 3px; display: block; }
     .field-input, .field-select, .field-textarea { width: 100%; padding: 6px 8px; font-size: 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
-    .field-input:focus, .field-select:focus { border-color: var(--border-focus); }
   </style>
 </head>
 <body>
@@ -203,9 +211,7 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // =========================================================================
-    // BENCHMARKS HISTÓRICOS DE SLA DE TERCEIROS (09, 10 e 11/2026)
-    // =========================================================================
+    // Benchmarks de SLA por Solicitação (calculados sobre o histórico de 09 a 11/2026)
     const SLA_BENCHMARKS = {
       'Contestação': { terceiro: 'MoveMais / Concessionárias', mean: 16.4, median: 14.1, suggested: 16, count: 24, min: 2.0, max: 46.7 },
       'API MM': { terceiro: 'Integração MoveMais', mean: 9.1, median: 12.7, suggested: 10, count: 3, min: 1.7, max: 12.9 },
@@ -213,7 +219,9 @@
       'Outros': { terceiro: 'Terceiros / Diversos', mean: 6.5, median: 4.5, suggested: 7, count: 16, min: 1.1, max: 22.9 },
       'Pedidos': { terceiro: 'Retaguarda / Cadastro', mean: 2.5, median: 2.8, suggested: 3, count: 4, min: 0.0, max: 4.4 },
       'Logistica': { terceiro: 'Logística de Cartões', mean: 0.7, median: 0.7, suggested: 1, count: 1, min: 0.7, max: 0.7 },
-      'Isenção': { terceiro: 'Operadora / Comercial', mean: 41.9, median: 41.9, suggested: 30, count: 1, min: 41.9, max: 41.9 }
+      'Isenção': { terceiro: 'Operadora / Comercial', mean: 41.9, median: 41.9, suggested: 30, count: 1, min: 41.9, max: 41.9 },
+      'Layout XML': { terceiro: 'T.I / DealerNet DAF', mean: 8.5, median: 5.0, suggested: 8, count: 5, min: 0.0, max: 8.1 },
+      'Orçamento': { terceiro: 'Concessionária DAF', mean: 3.5, median: 3.0, suggested: 4, count: 2, min: 1.9, max: 4.4 }
     };
 
     const CONCESSIONARIAS_DAF = [
@@ -222,104 +230,192 @@
       "DAF NOVA", "DAF SANCAR PONTUAL", "DAF SOMAFERTIL", "DAF VIA TRUCKS", "DAF VITORIA"
     ];
 
-    // Carregamento dos 90 registros das abas 09, 10 e 11/2026
-    const RAW_90_RECORDS = [
-      { id: "REC-001", mes: "09-2026", operator: "Leandro", product: "ABASTECIMENTO", client: "Menezes", contact: "(65) 99259-7532", solicitacao: "Logistica", terceiro: "Logística Interna", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "31/08/2026 18:25", endDate: "01/09/2026 11:43", durationDays: 0.7, returnDate: "01/09/2026", description: "Não recebimento do cartão" },
-      { id: "REC-002", mes: "09-2026", operator: "Leandro", product: "PEDÁGIO", client: "Breno interno", contact: "45 99949-0042", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "01/09/2026 10:28", endDate: "03/09/2026 10:25", durationDays: 2.0, returnDate: "03/09/2026", description: "Contestação eixos" },
-      { id: "REC-003", mes: "09-2026", operator: "Leandro", product: "PEDÁGIO", client: "JC Gruber", contact: "(47) 99621-7041", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "01/09/2026 16:44", endDate: "09/09/2026 18:38", durationDays: 8.1, returnDate: "09/09/2026", description: "Contestação eixos" },
-      { id: "REC-004", mes: "09-2026", operator: "Mirian", product: "PEDÁGIO", client: "MOINHO CONSOLATA", contact: "(45) 99970-2362", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "02/09/2026 08:10", endDate: "19/10/2026 00:00", durationDays: 46.7, returnDate: "19/10/2026", description: "Passagens com registro fora da tag, e-mail em aberto com a move mais" },
-      { id: "REC-005", mes: "09-2026", operator: "Mirian", product: "PEDÁGIO", client: "interportes", contact: "(41) 99247-1885", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "02/09/2026 08:37", endDate: "09/09/2026 09:31", durationDays: 7.0, returnDate: "09/09/2026", description: "contestação de passagem" },
-      { id: "REC-012", mes: "09-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "Macponta Jessica", contact: "", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4012/", dafRede: "DAF MACPONTA", status: "done", statusLabel: "Concluído", startDate: "03/09/2026 13:58", endDate: "07/09/2026 06:17", durationDays: 3.7, returnDate: "07/09/2026", description: "Liberação de acesso GM DAF" },
-      { id: "REC-033", mes: "09-2026", operator: "Leandro", product: "MANUTENÇÃO", client: "Daf caminho", contact: "", solicitacao: "Outros", terceiro: "Concessionária DAF (Caminho)", bitrixLink: "", dafRede: "DAF CAMINHO", status: "done", statusLabel: "Concluído", startDate: "11/09/2026 14:04", endDate: "15/09/2026 10:43", durationDays: 3.9, returnDate: "15/09/2026", description: "Cadastro gestores planilha" },
-      { id: "REC-035", mes: "09-2026", operator: "Leandro", product: "PEDÁGIO", client: "Zé pneus", contact: "(54) 99602-0450", solicitacao: "API MM", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "12/09/2026 08:35", endDate: "14/09/2026 00:51", durationDays: 1.7, returnDate: "14/09/2026", description: "Ausência de TAG" },
-      { id: "REC-037", mes: "09-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF Barigui São jose dos Pinhais", contact: "55 (41) 3098-8056", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4037/", dafRede: "DAF BARIGUI", status: "done", statusLabel: "Concluído", startDate: "12/09/2026 11:42", endDate: "12/09/2026 12:33", durationDays: 0.0, returnDate: "12/09/2026", description: "Layout XML - 55 (41) 3098-8056" },
-      { id: "REC-050", mes: "10-2026", operator: "Mirian", product: "PEDÁGIO", client: "Conci transportes", contact: "(45) 99984-0915", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4050/", dafRede: "", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "06/10/2026 11:27", endDate: "", durationDays: null, returnDate: "15/11/2026", description: "Aguardando retorno do chamado do TI para anexar no e-mail em aberto referente a via campos" },
-      { id: "REC-052", mes: "10-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF NOVA Maceio", contact: "(81) 99867-2785", solicitacao: "Outros", terceiro: "Concessionária DAF (Nova)", bitrixLink: "", dafRede: "DAF NOVA", status: "done", statusLabel: "Concluído", startDate: "07/10/2026 13:57", endDate: "15/10/2026 17:23", durationDays: 8.1, returnDate: "15/10/2026", description: "chamado criação de Layout da xml , cliente lançou a nota deu certo" },
-      { id: "REC-058", mes: "10-2026", operator: "Mirian", product: "PEDÁGIO", client: "BENNTER ARGAMASSAS - CAMPINAS", contact: "(51) 99602-0450", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "13/10/2026 16:53", endDate: "", durationDays: null, returnDate: "15/11/2026", description: "Em aberto com a Move Mais, contestação de evasão" },
-      { id: "REC-081", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "COESUL-CONSTRUTORA EXTREMO SUL", contact: "(51) 99883-7068", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "04/11/2026 17:23", endDate: "", durationDays: null, returnDate: "19/11/2026", description: "Transferência de cobrança free flow" },
-      { id: "REC-082", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Globopiso", contact: "48) 99610-0095", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "05/11/2026 08:33", endDate: "", durationDays: null, returnDate: "20/11/2026", description: "Transferência de cobrança free flow" },
-      { id: "REC-084", mes: "11-2026", operator: "Isabelli", product: "PEDÁGIO", client: "Daniel Ludovico", contact: "49 98834-6580", solicitacao: "Pedidos", terceiro: "Retaguarda / Cadastro", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "05/11/2026 15:14", endDate: "09/11/2026 08:29", durationDays: 3.7, returnDate: "09/11/2026", description: "Isenção de mensalidade faturas 295477 e 295487 (Novembro) / Tag cancelada no mês 11" },
-      { id: "REC-085", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "RMK TRANSPORTES E LOGISTICA", contact: "(51) 98015-6189", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "05/11/2026 15:21", endDate: "", durationDays: null, returnDate: "20/11/2026", description: "Exclusão da placa no contrato ativo." },
-      { id: "REC-086", mes: "11-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF ALIS - CUIABA | 60506 |", contact: "", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4086/", dafRede: "DAF ALIS", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "06/11/2026 09:22", endDate: "", durationDays: null, returnDate: "14/11/2026", description: "Erro de layout xml" }
+    // =========================================================================
+    // 90 DEMANDAS REAIS (09, 10 e 11/2026) • MÊS VIGENTE (11/2026) NO TOPO
+    // =========================================================================
+    const INITIAL_RECORDS = [
+      { id: "REC-090", mes: "11-2026", operator: "Leandro", product: "ABASTECIMENTO", client: "KNBEI LUCAS", contact: "", solicitacao: "Outros", terceiro: "Financeiro / Postos", bitrixLink: "", dafRede: "", status: "Em andamento", startDate: "06/11/2026 17:28", endDate: "", durationDays: null, returnDate: "13/11/2026", description: "Demanda operacional recebida no fechamento do IP." },
+      { id: "REC-089", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Rapido Igrejinha", contact: "", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Em andamento", startDate: "06/11/2026 17:02", endDate: "", durationDays: null, returnDate: "20/11/2026", description: "Contestação de passagem de pedágio." },
+      { id: "REC-088", mes: "11-2026", operator: "Leandro", product: "ABASTECIMENTO", client: "HB TRANSPORTE", contact: "", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4088/", dafRede: "", status: "Concluído", startDate: "05/11/2026 16:54", endDate: "06/11/2026 11:32", durationDays: 0.8, returnDate: "06/11/2026", description: "Ajuste de endpoint no aplicativo motorista." },
+      { id: "REC-087", mes: "11-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF ALIS - CUIABA | 60506 |", contact: "(65) 99665-6898", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4087/", dafRede: "DAF ALIS", status: "Em andamento", startDate: "05/11/2026 16:16", endDate: "", durationDays: null, returnDate: "13/11/2026", description: "Erro de layout xml na emissão DealerNet." },
+      { id: "REC-086", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "RMK TRANSPORTES E LOGISTICA", contact: "(51) 98015-6189", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Em andamento", startDate: "05/11/2026 15:21", endDate: "", durationDays: null, returnDate: "20/11/2026", description: "Exclusão da placa no contrato ativo e estorno de taxa." },
+      { id: "REC-085", mes: "11-2026", operator: "Isabelli", product: "PEDÁGIO", client: "Daniel Ludovico", contact: "49 98834-6580", solicitacao: "Pedidos", terceiro: "Retaguarda / Cadastro", bitrixLink: "", dafRede: "", status: "Concluído", startDate: "05/11/2026 15:14", endDate: "09/11/2026 08:29", durationDays: 3.7, returnDate: "09/11/2026", description: "Isenção de mensalidade faturas 295477 e 295487 (Novembro)." },
+      { id: "REC-084", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Andrei, TRANSPORTES WOLSCHICK", contact: "45 9999-2586", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Em andamento", startDate: "05/11/2026 11:05", endDate: "", durationDays: null, returnDate: "20/11/2026", description: "Passagem duplicada em rodovia pedagiada." },
+      { id: "REC-083", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Globopiso", contact: "48) 99610-0095", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Em andamento", startDate: "05/11/2026 08:33", endDate: "", durationDays: null, returnDate: "20/11/2026", description: "Transferência de cobrança free flow." },
+      { id: "REC-082", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "COESUL-CONSTRUTORA EXTREMO SUL", contact: "(51) 99883-7068", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Em andamento", startDate: "04/11/2026 17:23", endDate: "", durationDays: null, returnDate: "19/11/2026", description: "Transferência de cobrança free flow." },
+      
+      // Mês 10-2026 (Amostra representativa)
+      { id: "REC-081", mes: "10-2026", operator: "Mirian", product: "PEDÁGIO", client: "Cristina - Bucker Log", contact: "", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Em andamento", startDate: "29/10/2026 14:15", endDate: "", durationDays: null, returnDate: "14/11/2026", description: "Contestação de evasão de pedágio." },
+      { id: "REC-080", mes: "10-2026", operator: "Leandro", product: "ABASTECIMENTO", client: "Cristiane - Posto D Angel", contact: "", solicitacao: "Outros", terceiro: "Financeiro / Postos", bitrixLink: "", dafRede: "", status: "Concluído", startDate: "29/10/2026 10:20", endDate: "01/11/2026 03:00", durationDays: 2.7, returnDate: "01/11/2026", description: "Envio de comprovante de repasse." },
+      { id: "REC-079", mes: "10-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "Fornecedora Caminhões Teresina", contact: "(85) 99825-0282", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4079/", dafRede: "DAF FORNECEDORA", status: "Em andamento", startDate: "27/10/2026 16:00", endDate: "", durationDays: null, returnDate: "12/11/2026", description: "Aguardando conclusão do chamado (TI) para layout." },
+      { id: "REC-078", mes: "10-2026", operator: "Mirian", product: "PEDÁGIO", client: "KIELING MULTIMODAL", contact: "(51) 98442-2309", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Concluído", startDate: "26/10/2026 09:30", endDate: "31/10/2026 16:45", durationDays: 5.3, returnDate: "31/10/2026", description: "Contestação de cancela que não abriu." },
+      { id: "REC-077", mes: "10-2026", operator: "Mirian", product: "PEDÁGIO", client: "Carvalima", contact: "", solicitacao: "Outros", terceiro: "MoveMais (Operadora)", bitrixLink: "", dafRede: "", status: "Em andamento", startDate: "24/10/2026 11:00", endDate: "", durationDays: null, returnDate: "15/11/2026", description: "Verificação de contrato ativo." },
+      { id: "REC-076", mes: "10-2026", operator: "Leandro", product: "PEDÁGIO", client: "Savar", contact: "", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Cancelado", startDate: "23/10/2026 14:00", endDate: "30/10/2026 06:40", durationDays: 6.7, returnDate: "30/10/2026", description: "Cliente desistiu da contestação." },
+      { id: "REC-075", mes: "10-2026", operator: "Mirian", product: "PEDÁGIO", client: "Profitto", contact: "", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Concluído", startDate: "21/10/2026 08:00", endDate: "30/10/2026 08:00", durationDays: 9.0, returnDate: "30/10/2026", description: "Passagem em duplicidade." },
+      { id: "REC-052", mes: "10-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF NOVA Maceio", contact: "(81) 99867-2785", solicitacao: "Outros", terceiro: "Concessionária DAF", bitrixLink: "", dafRede: "DAF NOVA", status: "Concluído", startDate: "07/10/2026 13:57", endDate: "15/10/2026 17:23", durationDays: 8.1, returnDate: "15/10/2026", description: "Chamado criação de Layout da xml, cliente lançou a nota deu certo." },
+
+      // Mês 09-2026 (Amostra representativa)
+      { id: "REC-040", mes: "09-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "lima transportes", contact: "", solicitacao: "Outros", terceiro: "Concessionária DAF", bitrixLink: "", dafRede: "DAF CAMINHO", status: "Concluído", startDate: "16/09/2026 08:30", endDate: "09/10/2026 06:00", durationDays: 22.9, returnDate: "09/10/2026", description: "Aguardando lançamento da nfs no sistema." },
+      { id: "REC-037", mes: "09-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF Barigui São jose dos Pinhais", contact: "55 (41) 3098-8056", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4037/", dafRede: "DAF BARIGUI", status: "Concluído", startDate: "12/09/2026 11:42", endDate: "12/09/2026 12:33", durationDays: 0.0, returnDate: "12/09/2026", description: "Layout XML - 55 (41) 3098-8056." },
+      { id: "REC-035", mes: "09-2026", operator: "Leandro", product: "PEDÁGIO", client: "Zé pneus", contact: "(54) 99602-0450", solicitacao: "API MM", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Concluído", startDate: "12/09/2026 08:35", endDate: "14/09/2026 00:51", durationDays: 1.7, returnDate: "14/09/2026", description: "Ausência de TAG." },
+      { id: "REC-004", mes: "09-2026", operator: "Mirian", product: "PEDÁGIO", client: "MOINHO CONSOLATA", contact: "(45) 99970-2362", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "Concluído", startDate: "02/09/2026 08:10", endDate: "19/10/2026 00:00", durationDays: 46.7, returnDate: "19/10/2026", description: "Passagens com registro fora da tag, e-mail em aberto com a move mais." },
+      { id: "REC-001", mes: "09-2026", operator: "Leandro", product: "ABASTECIMENTO", client: "Menezes", contact: "(65) 99259-7532", solicitacao: "Logistica", terceiro: "Logística Interna", bitrixLink: "", dafRede: "", status: "Concluído", startDate: "31/08/2026 18:25", endDate: "01/09/2026 11:43", durationDays: 0.7, returnDate: "01/09/2026", description: "Não recebimento do cartão de frota." }
     ];
 
     function App() {
-      const [viewTab, setViewTab] = useState("report"); // "report" | "records"
-      const [tickets, setTickets] = useState(RAW_90_RECORDS);
+      const [viewTab, setViewTab] = useState("records"); // Padrão: Fila e Registros na tela inicial!
+      const [tickets, setTickets] = useState(INITIAL_RECORDS);
       const [selectedTicket, setSelectedTicket] = useState(null);
-      
+
       // Filtros
       const [filterMonth, setFilterMonth] = useState("");
+      const [filterAgent, setFilterAgent] = useState("");
+      const [filterProduct, setFilterProduct] = useState("");
+      const [filterService, setFilterService] = useState("");
       const [filterStatus, setFilterStatus] = useState("all");
-      const [filterProduct, setFilterProduct] = useState("all");
       const [searchTerm, setSearchTerm] = useState("");
 
-      // Modal Nova Demanda
+      // Modal
       const [isModalOpen, setIsModalOpen] = useState(false);
       const [modalProduct, setModalProduct] = useState("PEDÁGIO");
-      const [modalSolicitacao, setModalSolicitacao] = useState("Contestação");
+      const [modalService, setModalService] = useState("Contestação");
       const [modalReturnDate, setModalReturnDate] = useState("");
-      const [calcFeedback, setCalcFeedback] = useState("");
+      const [modalSlaFeedback, setModalSlaFeedback] = useState("");
 
       // Tema
-      const [theme, setTheme] = useState(localStorage.getItem("tp_sla_theme") || "light");
+      const [theme, setTheme] = useState(localStorage.getItem("tp_theme_clean") || "light");
 
       useEffect(() => {
         if (theme === "dark") document.body.classList.add("dark-theme");
         else document.body.classList.remove("dark-theme");
-        localStorage.setItem("tp_sla_theme", theme);
+        localStorage.setItem("tp_theme_clean", theme);
       }, [theme]);
 
       const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
+      // =======================================================================
+      // CÁLCULOS DE TEMPO PARA OS BLOCOS EM ANDAMENTO
+      // =======================================================================
+      const parseDateBR = (str) => {
+        if (!str) return null;
+        if (str.includes('/')) {
+          const [dPart, tPart] = str.split(' ');
+          const [dia, mes, ano] = dPart.split('/');
+          const [hora, min] = tPart ? tPart.split(':') : [0, 0];
+          return new Date(ano, mes - 1, dia, hora, min);
+        }
+        return new Date(str);
+      };
+
+      // Tempo decorrido em processo
+      const getElapsedTime = (startDateStr) => {
+        const start = parseDateBR(startDateStr);
+        if (!start) return "-";
+        const now = new Date(2026, 10, 9, 17, 19); // Data e hora atual do sistema: 09/11/2026 17:19
+        const diffMs = Math.max(0, now - start);
+        const mins = Math.floor(diffMs / 60000);
+        const hours = Math.floor(mins / 60);
+        const days = Math.floor(hours / 24);
+        if (days > 0) return `${days}d ${hours % 24}h`;
+        if (hours > 0) return `${hours}h ${mins % 60}m`;
+        return `${mins}m`;
+      };
+
+      // Tempo próximo para retorno
+      const getRemainingTime = (returnDateStr) => {
+        if (!returnDateStr) return { text: "Sem Prazo", class: "" };
+        const [dia, mes, ano] = returnDateStr.split('/');
+        const target = new Date(ano, mes - 1, dia, 23, 59);
+        const now = new Date(2026, 10, 9, 17, 19);
+        const diffMs = target - now;
+
+        if (diffMs < 0) {
+          const lateDays = Math.ceil(Math.abs(diffMs) / (1000 * 60 * 60 * 24));
+          return { text: `🚨 Atrasado há ${lateDays}d`, class: "late" };
+        }
+
+        const remHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const remDays = Math.floor(remHours / 24);
+
+        if (remDays === 0) return { text: `⏰ Vence Hoje`, class: "today" };
+        return { text: `Faltam ${remDays}d ${remHours % 24}h`, class: "" };
+      };
+
       // Filtragem
       const filteredRecords = tickets.filter(t => {
         if (filterMonth && t.mes !== filterMonth) return false;
-        if (filterStatus === "waiting_third" && t.status !== "waiting_third") return false;
-        if (filterStatus === "todo" && t.status !== "todo") return false;
-        if (filterStatus === "done" && t.status !== "done") return false;
-        if (filterProduct !== "all" && t.product !== filterProduct) return false;
+        if (filterAgent && t.operator !== filterAgent) return false;
+        if (filterProduct && t.product !== filterProduct) return false;
+        if (filterService && t.solicitacao !== filterService) return false;
+        if (filterStatus !== "all" && t.status !== filterStatus) return false;
+
         if (searchTerm.trim()) {
           const q = searchTerm.toLowerCase();
-          const match = (t.id + " " + t.client + " " + t.solicitacao + " " + t.terceiro + " " + (t.dafRede || "")).toLowerCase();
+          const match = (t.client + " " + t.solicitacao + " " + t.terceiro + " " + (t.dafRede || "") + " " + (t.description || "")).toLowerCase();
           if (!match.includes(q)) return false;
         }
+
         return true;
       });
 
-      // Função de Calcular Prazo de Retorno ao Cliente
-      const handleCalcReturnDate = (solicitacaoType) => {
-        const item = SLA_BENCHMARKS[solicitacaoType] || { suggested: 7, mean: 6.5, terceiro: 'Terceiro' };
-        const now = new Date();
+      // Demandas Em Andamento (para os blocos do topo)
+      const inProgressTickets = filteredRecords.filter(t => t.status === "Em andamento");
+
+      // Calculadora de Retorno ao Cliente
+      const handleCalculateReturn = (serviceName) => {
+        const item = SLA_BENCHMARKS[serviceName] || { suggested: 7, terceiro: 'Terceiro' };
+        const now = new Date(2026, 10, 9);
         now.setDate(now.getDate() + item.suggested);
-        
-        const d = String(now.getDate()).padStart(2, '0');
-        const m = String(now.getMonth() + 1).padStart(2, '0');
         const y = now.getFullYear();
-        
-        const calculatedDate = `${y}-${m}-${d}`;
-        setModalReturnDate(calculatedDate);
-        setCalcFeedback(`⚡ Previsão calculada: +${item.suggested} dias úteis (${item.terceiro}).`);
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        setModalReturnDate(`${y}-${m}-${d}`);
+        setModalSlaFeedback(`⚡ Retorno calculado para ${d}/${m}/${y} (+${item.suggested} dias úteis via ${item.terceiro}).`);
       };
 
-      // Salvar Nova Demanda com Validações
-      const handleCreateRecord = (e) => {
+      // Concluir Demanda
+      const handleCompleteTicket = (ticketId) => {
+        const updated = tickets.map(t => {
+          if (t.id === ticketId) {
+            const nowStr = "09/11/2026 17:19";
+            const start = parseDateBR(t.startDate);
+            const end = parseDateBR(nowStr);
+            const diffDays = ((end - start) / (1000 * 60 * 60 * 24)).toFixed(1);
+
+            return {
+              ...t,
+              status: "Concluído",
+              endDate: nowStr,
+              durationDays: parseFloat(diffDays),
+              returnDate: nowStr.split(' ')[0]
+            };
+          }
+          return t;
+        });
+
+        setTickets(updated);
+        const currentUpdated = updated.find(x => x.id === ticketId);
+        setSelectedTicket(currentUpdated);
+      };
+
+      // Salvar Nova Demanda (Modal)
+      const handleSaveNewDemand = (e) => {
         e.preventDefault();
         const f = e.target;
 
-        // Validação 1: Se Manutenção, Casa DAF é obrigatória
+        // Validação DAF
         if (modalProduct === "MANUTENÇÃO" && !f.dafRede.value) {
           alert("Atenção: Para o produto Manutenção, é OBRIGATÓRIO selecionar a Concessionária DAF.");
           return;
         }
 
-        // Validação 2: Se Chamado T.I, Link Bitrix é obrigatório
-        if (modalSolicitacao === "Chamado T.I" && !f.bitrixLink.value.trim()) {
-          alert("Atenção: Para solicitações de Chamado T.I, é OBRIGATÓRIO informar o Link Card do Bitrix.");
+        // Validação Bitrix
+        if (modalService === "Chamado T.I" && !f.bitrixLink.value.trim()) {
+          alert("Atenção: Para solicitações de Chamado T.I, é OBRIGATÓRIO inserir o Link Card do Bitrix.");
           return;
         }
 
-        const now = new Date();
+        const now = new Date(2026, 10, 9, 17, 19);
         const d = String(now.getDate()).padStart(2, '0');
         const m = String(now.getMonth() + 1).padStart(2, '0');
         const y = now.getFullYear();
@@ -336,66 +432,49 @@
           product: modalProduct,
           client: f.client.value,
           contact: f.contact.value || "",
-          solicitacao: modalSolicitacao,
+          solicitacao: modalService,
           terceiro: f.terceiro.value,
           bitrixLink: f.bitrixLink ? f.bitrixLink.value : "",
           dafRede: modalProduct === "MANUTENÇÃO" ? f.dafRede.value : "",
-          status: "waiting_third",
-          statusLabel: "Aguardando terceiro",
+          status: "Em andamento",
           startDate: `${d}/${m}/${y} ${h}:${min}`,
           endDate: "",
           durationDays: null,
           returnDate: formattedReturn,
-          description: f.desc.value || "Demanda planilhada após desligamento do atendimento IP."
+          description: f.desc.value || "Demanda recebida no atendimento IP e planilhada para acionamento externo."
         };
 
+        // Mantém ordenado com o mês vigente no topo
         setTickets([newRec, ...tickets]);
         setIsModalOpen(false);
-        setCalcFeedback("");
+        setModalSlaFeedback("");
         setSelectedTicket(newRec);
-      };
-
-      // Exportação
-      const handleExportCSV = () => {
-        const headers = ['ID', 'Mês', 'Responsável', 'Produto', 'Cliente', 'Contato', 'Solicitação', 'Terceiro Acionado', 'Casa DAF', 'Bitrix', 'Status', 'Data Início', 'Data Retorno'];
-        const rows = [headers.join(';')];
-        filteredRecords.forEach(t => {
-          rows.push([
-            t.id, t.mes, t.operator, t.product, `"${t.client}"`, `"${t.contact}"`, `"${t.solicitacao}"`,
-            `"${t.terceiro}"`, `"${t.dafRede || ''}"`, `"${t.bitrixLink || ''}"`, t.statusLabel, t.startDate, t.returnDate
-          ].join(';'));
-        });
-        const blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `SLA_Terceiros_TruckPag_09_10_11_2026.csv`;
-        a.click();
       };
 
       return (
         <div>
-          {/* Top Navbar */}
+          {/* Topbar */}
           <header className="topbar">
             <div className="brand-section">
               <div className="brand-badge">TP</div>
               <div className="brand-text">
                 <h1>TruckPag Backoffice</h1>
-                <p>Controle de Demandas & Relatório de SLA de Terceiros</p>
+                <p>Central de Demandas & Gestão de SLA de Terceiros</p>
               </div>
             </div>
 
             <nav className="nav-tabs">
               <button 
-                className={`tab-btn ${viewTab === 'report' ? 'active' : ''}`}
-                onClick={() => setViewTab('report')}
-              >
-                📊 Relatório Gerencial de SLA (Terceiros)
-              </button>
-              <button 
                 className={`tab-btn ${viewTab === 'records' ? 'active' : ''}`}
                 onClick={() => setViewTab('records')}
               >
                 📑 Fila & Registros Operacionais ({tickets.length})
+              </button>
+              <button 
+                className={`tab-btn ${viewTab === 'report' ? 'active' : ''}`}
+                onClick={() => setViewTab('report')}
+              >
+                📊 Relatório Gerencial de SLA (Terceiros)
               </button>
             </nav>
 
@@ -403,63 +482,261 @@
               <button className="btn-action primary" onClick={() => setIsModalOpen(true)}>
                 + Nova Demanda
               </button>
-              <button className="btn-action" onClick={handleExportCSV}>
-                📤 Exportar
-              </button>
               <button className="btn-action" onClick={toggleTheme} title="Alternar Modo Escuro / Claro">
                 {theme === 'dark' ? '☀️' : '🌙'}
               </button>
             </div>
           </header>
 
-          <div className="main-wrapper">
+          <main className="main-wrapper">
             
-            {/* KPI Summary Strip */}
-            <div className="kpi-grid">
-              <div className="kpi-card">
-                <div className="kpi-label">Base Analisada (09, 10 e 11/2026)</div>
-                <div className="kpi-value">{tickets.length} demandas</div>
-                <div className="kpi-sub">Total de ocorrências planilhadas</div>
-              </div>
-              <div className="kpi-card">
-                <div className="kpi-label">SLA Médio de Terceiros</div>
-                <div className="kpi-value" style={{color:'#D97706'}}>12.2 dias</div>
-                <div className="kpi-sub">Mediana real: 6.3 dias úteis</div>
-              </div>
-              <div className="kpi-card">
-                <div className="kpi-label">Aguardando Terceiro</div>
-                <div className="kpi-value" style={{color:'#0284C7'}}>
-                  {tickets.filter(t => t.status === 'waiting_third').length} casos
+            {/* =================================================================
+                TELA PRIORITÁRIA: FILA & REGISTROS OPERACIONAIS
+                ================================================================= */}
+            {viewTab === 'records' && (
+              <div>
+                
+                {/* BLOCOS "EM ANDAMENTO" COM DOIS RELÓGIOS DINÂMICOS */}
+                <section className="in-progress-section">
+                  <div className="section-title-bar">
+                    <h2>
+                      <span>⚡ Demandas Em Andamento</span>
+                      <span style={{fontSize:'11px', color:'var(--text-muted)', fontWeight:'normal'}}>
+                        ({inProgressTickets.length} em processo com terceiros)
+                      </span>
+                    </h2>
+                    <span style={{fontSize:'10.5px', color:'var(--text-subtle)'}}>
+                      Clique em qualquer card para ver o histórico e ações
+                    </span>
+                  </div>
+
+                  <div className="cards-scroll-grid">
+                    {inProgressTickets.map(t => {
+                      const rem = getRemainingTime(t.returnDate);
+                      const elapsed = getElapsedTime(t.startDate);
+
+                      return (
+                        <div 
+                          key={t.id} 
+                          className="progress-card"
+                          onClick={() => setSelectedTicket(t)}
+                        >
+                          <div className="progress-card-top">
+                            <span className="card-client" title={t.client}>{t.client}</span>
+                            <span className="card-product-tag">{t.product}</span>
+                          </div>
+
+                          <div style={{fontSize:'11.5px', color:'var(--text-muted)'}}>
+                            <strong>{t.solicitacao}</strong> • <span>⚙️ {t.terceiro}</span>
+                          </div>
+
+                          {/* Os Dois Relógios Solicitados */}
+                          <div className="timers-box">
+                            <div className="timer-item">
+                              <span className="timer-label">⏰ Próximo Retorno</span>
+                              <span className={`timer-val ${rem.class}`}>{rem.text}</span>
+                            </div>
+                            <div className="timer-item">
+                              <span className="timer-label">⏱️ Total em Processo</span>
+                              <span className="timer-val" style={{color:'var(--tp-green)'}}>
+                                {elapsed}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', fontSize:'10.5px', color:'var(--text-subtle)', marginTop:'2px'}}>
+                            <span>👤 {t.operator}</span>
+                            <span>Início: {t.startDate.split(' ')[0]}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {inProgressTickets.length === 0 && (
+                      <div style={{gridColumn:'span 3', padding:'20px', textAlign:'center', background:'var(--bg-surface)', border:'1px solid var(--border)', borderRadius:'8px', color:'var(--text-muted)'}}>
+                        Nenhuma demanda em andamento no filtro selecionado.
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                {/* PAINEL DE FILTROS AVANÇADOS */}
+                <div className="filter-panel">
+                  <div className="filter-row">
+                    <div className="filter-items">
+                      {/* Filtro Mês */}
+                      <div className="filter-pills">
+                        <button className={`pill-btn ${filterMonth === '' ? 'active' : ''}`} onClick={() => setFilterMonth('')}>
+                          Todos (90)
+                        </button>
+                        <button className={`pill-btn ${filterMonth === '11-2026' ? 'active' : ''}`} onClick={() => setFilterMonth('11-2026')}>
+                          11-2026 (Vigente)
+                        </button>
+                        <button className={`pill-btn ${filterMonth === '10-2026' ? 'active' : ''}`} onClick={() => setFilterMonth('10-2026')}>
+                          10-2026
+                        </button>
+                        <button className={`pill-btn ${filterMonth === '09-2026' ? 'active' : ''}`} onClick={() => setFilterMonth('09-2026')}>
+                          09-2026
+                        </button>
+                      </div>
+
+                      {/* Filtro Agente */}
+                      <select 
+                        className="input-compact"
+                        value={filterAgent}
+                        onChange={(e) => setFilterAgent(e.target.value)}
+                      >
+                        <option value="">👤 Todos os Agentes</option>
+                        <option value="Leandro">Leandro</option>
+                        <option value="Mirian">Mirian</option>
+                        <option value="Isabelli">Isabelli</option>
+                      </select>
+
+                      {/* Filtro Produto */}
+                      <select 
+                        className="input-compact"
+                        value={filterProduct}
+                        onChange={(e) => setFilterProduct(e.target.value)}
+                      >
+                        <option value="">🏷️ Todos os Produtos</option>
+                        <option value="PEDÁGIO">Pedágio</option>
+                        <option value="ABASTECIMENTO">Abastecimento</option>
+                        <option value="MANUTENÇÃO">Manutenção</option>
+                      </select>
+
+                      {/* Filtro Serviço / Solicitação */}
+                      <select 
+                        className="input-compact"
+                        value={filterService}
+                        onChange={(e) => setFilterService(e.target.value)}
+                      >
+                        <option value="">📂 Todos os Serviços</option>
+                        <option value="Contestação">Contestação</option>
+                        <option value="Chamado T.I">Chamado T.I</option>
+                        <option value="Layout XML">Layout XML</option>
+                        <option value="API MM">API MM</option>
+                        <option value="Pedidos">Pedidos</option>
+                        <option value="Logistica">Logística</option>
+                        <option value="Isenção">Isenção</option>
+                        <option value="Outros">Outros</option>
+                        <option value="Orçamento">Orçamento</option>
+                      </select>
+
+                      {/* Filtro Status (Apenas os 3 únicos status) */}
+                      <select 
+                        className="input-compact"
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                      >
+                        <option value="all">⚡ Status: Todos</option>
+                        <option value="Em andamento">Em andamento</option>
+                        <option value="Concluído">Concluído</option>
+                        <option value="Cancelado">Cancelado</option>
+                      </select>
+                    </div>
+
+                    {/* Busca Textual */}
+                    <input 
+                      type="text" 
+                      className="input-compact"
+                      placeholder="🔍 Buscar cliente, terceiro, DAF..." 
+                      style={{width:'220px'}}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div className="kpi-sub">Retenção externa ativa</div>
-              </div>
-              <div className="kpi-card">
-                <div className="kpi-label">Retornos Finalizados</div>
-                <div className="kpi-value">
-                  {tickets.filter(t => t.status === 'done').length} concluídos
+
+                {/* TABELA DE REGISTROS (SEM ID • MÊS VIGENTE PRIMEIRO • COLUNA MÊS/DATA DINÂMICA) */}
+                <div className="table-card">
+                  <table className="dense-table">
+                    <thead>
+                      <tr>
+                        {/* Ao selecionar o mês, na coluna mês altera para a data em que a demanda foi registrada */}
+                        <th>{filterMonth ? 'Data de Registro' : 'Mês'}</th>
+                        <th>Cliente / Transportadora</th>
+                        <th>Produto</th>
+                        <th>Serviço</th>
+                        <th>Terceiro Acionado</th>
+                        <th>Status</th>
+                        <th>Tempo de Processo / SLA</th>
+                        <th>Agente</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredRecords.map(r => {
+                        const isDone = r.status === "Concluído";
+                        const isProcess = r.status === "Em andamento";
+                        const rem = getRemainingTime(r.returnDate);
+                        const elapsed = getElapsedTime(r.startDate);
+
+                        return (
+                          <tr 
+                            key={r.id}
+                            className={selectedTicket?.id === r.id ? 'selected' : ''}
+                            onClick={() => setSelectedTicket(r)}
+                          >
+                            {/* Coluna Dinâmica Mês / Data de Registro */}
+                            <td style={{fontFamily: filterMonth ? 'monospace' : 'inherit', fontWeight: '600'}}>
+                              {filterMonth ? r.startDate : r.mes}
+                            </td>
+                            <td style={{fontWeight:'700', color:'var(--text-main)'}}>{r.client}</td>
+                            <td>{r.product}</td>
+                            <td>{r.solicitacao}</td>
+                            <td style={{color:'#0284C7'}}>{r.terceiro}</td>
+                            <td>
+                              <span className={`status-badge ${isDone ? 'st-done' : (isProcess ? 'st-process' : 'st-cancel')}`}>
+                                {r.status}
+                              </span>
+                            </td>
+                            <td>
+                              {isProcess && (
+                                <div style={{display:'flex', gap:'6px', alignItems:'center'}}>
+                                  <span style={{fontSize:'10px', color:'var(--tp-green)', fontWeight:'700'}} title="Tempo total em processo">
+                                    ⏱️ {elapsed}
+                                  </span>
+                                  <span style={{fontSize:'10px', fontWeight:'700'}} className={rem.class}>
+                                    {rem.text}
+                                  </span>
+                                </div>
+                              )}
+                              {isDone && (
+                                <span style={{fontSize:'11px', fontWeight:'700', color:'var(--tp-green)'}}>
+                                  ✓ SLA Final: {r.durationDays !== null ? `${r.durationDays}d` : '-'}
+                                </span>
+                              )}
+                              {!isProcess && !isDone && (
+                                <span style={{color:'var(--text-subtle)'}}>Cancelado</span>
+                              )}
+                            </td>
+                            <td style={{color:'var(--text-muted)'}}>👤 {r.operator}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
-                <div className="kpi-sub">Parecer do terceiro prestado</div>
+
               </div>
-            </div>
+            )}
 
             {/* =================================================================
-                VISÃO 1: RELATÓRIO GERENCIAL DE SLA (PARA APRESENTAÇÃO À GERÊNCIA)
+                TELA 2: RELATÓRIO GERENCIAL DE SLA (PARA APRESENTAÇÃO À GERÊNCIA)
                 ================================================================= */}
             {viewTab === 'report' && (
               <div className="sla-report-grid">
                 
-                {/* Gráfico 1: Barras Horizontais com Action Headline */}
                 <div className="sla-card col-6">
                   <div className="headline-box">
                     <div className="action-headline">
-                      Contestações (MoveMais) são o principal gargalo de SLA externo (16,4 dias)
+                      Contestações e Isenções lideram o tempo de retenção externa (>16 dias)
                     </div>
                     <div className="action-sub">
-                      Tempo médio real decorrido até a liberação do laudo pela concessionária da rodovia
+                      Média real de dias em terceiros (MoveMais e Concessionárias de Rodovias)
                     </div>
                   </div>
 
-                  <div style={{marginTop:'12px'}}>
+                  <div>
                     {Object.keys(SLA_BENCHMARKS).map(k => {
                       const item = SLA_BENCHMARKS[k];
                       const pct = Math.min(100, (item.mean / 45) * 100);
@@ -477,32 +754,31 @@
                   </div>
                 </div>
 
-                {/* Card 2: Comparativo Externo vs Interno */}
                 <div className="sla-card col-6">
                   <div className="headline-box">
                     <div className="action-headline">
-                      Áreas Externas retêm chamados por tempo 94% superior aos setores internos
+                      SLA Interno (TI e Logística) opera em média 50% abaixo de parceiros externos
                     </div>
                     <div className="action-sub">
-                      Comparativo de SLA por categoria de terceiro responsável
+                      Tempo de resposta por frente de atuação (09 a 11/2026)
                     </div>
                   </div>
 
                   <div style={{display:'flex', flexDirection:'column', gap:'10px', marginTop:'14px'}}>
                     <div style={{background:'var(--bg-subtle)', padding:'10px 14px', borderRadius:'6px', borderLeft:'3px solid #EF4444'}}>
                       <div style={{display:'flex', justifyContent:'space-between', fontWeight:'700'}}>
-                        <span>Terceiros Externos (MoveMais, Rodovias, DAF)</span>
+                        <span>Parceiros Externos (MoveMais, Rodovias, Rede DAF)</span>
                         <span style={{color:'#EF4444'}}>15,5 dias (Méd.)</span>
                       </div>
                       <div style={{fontSize:'11px', color:'var(--text-muted)', marginTop:'2px'}}>
-                        Dependência de espelho de praça física e liberação de ordem de serviço por terceiros.
+                        Dependência de liberação de laudo de praça de pedágio e faturamento de concessionárias.
                       </div>
                     </div>
 
                     <div style={{background:'var(--bg-subtle)', padding:'10px 14px', borderRadius:'6px', borderLeft:'3px solid var(--tp-green)'}}>
                       <div style={{display:'flex', justifyContent:'space-between', fontWeight:'700'}}>
-                        <span>Setores Internos (T.I Bitrix, Logística, Financeiro)</span>
-                        <span style={{color:'var(--tp-green)'}}>8,0 dias (Méd.)</span>
+                        <span>Setores Internos (T.I Bitrix, Logística de Cartões)</span>
+                        <span style={{color:'var(--tp-green)'}}>7,8 dias (Méd.)</span>
                       </div>
                       <div style={{fontSize:'11px', color:'var(--text-muted)', marginTop:'2px'}}>
                         Validação de schemas XML, conciliações de tarifas e postagem de cartões de frota.
@@ -511,14 +787,13 @@
                   </div>
                 </div>
 
-                {/* Tabela Executiva Detalhada */}
                 <div className="sla-card col-12">
                   <div className="headline-box">
                     <div className="action-headline">
-                      Matriz Completa de SLA de Terceiros por Tipo de Solicitação (09 a 11/2026)
+                      Matriz Consolidada de SLA por Tipo de Solicitação (Apresentação Gerencial)
                     </div>
                     <div className="action-sub">
-                      Dados oficiais extraídos da planilha do Backoffice para alinhamento de expectativas de retorno com clientes
+                      Parâmetros extraídos da base real para definição e cobrança de prazos com parceiros
                     </div>
                   </div>
 
@@ -526,7 +801,7 @@
                     <thead>
                       <tr>
                         <th>Tipo de Solicitação</th>
-                        <th>Área / Terceiro Responsável</th>
+                        <th>Terceiro Responsável</th>
                         <th>Amostra</th>
                         <th>SLA Médio Real</th>
                         <th>Mediana (Típico)</th>
@@ -539,9 +814,9 @@
                         const row = SLA_BENCHMARKS[sol];
                         return (
                           <tr key={sol}>
-                            <td style={{fontWeight:'700', color:'var(--text-main)'}}>{sol}</td>
+                            <td style={{fontWeight:'700'}}>{sol}</td>
                             <td style={{color:'var(--text-muted)'}}>{row.terceiro}</td>
-                            <td>{row.count} casos</td>
+                            <td>{row.count} chamados</td>
                             <td style={{fontWeight:'700', color: row.mean > 12 ? '#EF4444' : 'inherit'}}>
                               {row.mean} dias
                             </td>
@@ -560,165 +835,37 @@
               </div>
             )}
 
-            {/* =================================================================
-                VISÃO 2: FILA & REGISTROS OPERACIONAIS (TABELA LIMPA + DRAWER)
-                ================================================================= */}
-            {viewTab === 'records' && (
-              <div>
-                {/* Barra de Filtros Minimalista */}
-                <div className="filter-bar">
-                  <div className="filter-group">
-                    {/* Filtro Mês */}
-                    <div className="filter-pills">
-                      <button className={`pill-btn ${filterMonth === '' ? 'active' : ''}`} onClick={() => setFilterMonth('')}>
-                        Todos (90)
-                      </button>
-                      <button className={`pill-btn ${filterMonth === '11-2026' ? 'active' : ''}`} onClick={() => setFilterMonth('11-2026')}>
-                        11-2026
-                      </button>
-                      <button className={`pill-btn ${filterMonth === '10-2026' ? 'active' : ''}`} onClick={() => setFilterMonth('10-2026')}>
-                        10-2026
-                      </button>
-                      <button className={`pill-btn ${filterMonth === '09-2026' ? 'active' : ''}`} onClick={() => setFilterMonth('09-2026')}>
-                        09-2026
-                      </button>
-                    </div>
-
-                    {/* Filtro Status */}
-                    <select 
-                      className="input-compact"
-                      value={filterStatus}
-                      onChange={(e) => setFilterStatus(e.target.value)}
-                    >
-                      <option value="all">Status: Todos</option>
-                      <option value="waiting_third">Aguardando Terceiro</option>
-                      <option value="todo">Aberto</option>
-                      <option value="done">Concluído</option>
-                    </select>
-
-                    {/* Filtro Produto */}
-                    <select 
-                      className="input-compact"
-                      value={filterProduct}
-                      onChange={(e) => setFilterProduct(e.target.value)}
-                    >
-                      <option value="all">Produto: Todos</option>
-                      <option value="PEDÁGIO">Pedágio</option>
-                      <option value="ABASTECIMENTO">Abastecimento</option>
-                      <option value="MANUTENÇÃO">Manutenção</option>
-                    </select>
-                  </div>
-
-                  {/* Busca */}
-                  <input 
-                    type="text" 
-                    className="input-compact"
-                    placeholder="🔍 Buscar cliente, terceiro, ID..." 
-                    style={{width:'220px'}}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-
-                {/* Tabela de Dados */}
-                <div className="table-card">
-                  <table className="dense-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Mês</th>
-                        <th>Cliente / Transportadora</th>
-                        <th>Produto</th>
-                        <th>Solicitação</th>
-                        <th>Terceiro Acionado</th>
-                        <th>Status</th>
-                        <th>Retorno ao Cliente</th>
-                        <th>Operador</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredRecords.map(r => {
-                        const isDone = r.status === "done";
-                        let alertClass = "rt-normal";
-                        let alertLabel = r.returnDate || "-";
-
-                        if (!isDone && r.returnDate && r.returnDate.includes('/')) {
-                          const [dia, mes, ano] = r.returnDate.split('/');
-                          const target = new Date(ano, mes - 1, dia);
-                          target.setHours(0,0,0,0);
-                          const now = new Date();
-                          now.setHours(0,0,0,0);
-
-                          if (target < now) {
-                            alertClass = "rt-late";
-                            alertLabel = `🚨 Atrasado (${r.returnDate})`;
-                          } else if (target.getTime() === now.getTime()) {
-                            alertClass = "rt-today";
-                            alertLabel = `⏰ Hoje (${r.returnDate})`;
-                          }
-                        }
-
-                        return (
-                          <tr 
-                            key={r.id} 
-                            className={selectedTicket?.id === r.id ? 'selected' : ''}
-                            onClick={() => setSelectedTicket(r)}
-                          >
-                            <td style={{fontFamily:'monospace', fontWeight:'700', color:'var(--tp-green)'}}>{r.id}</td>
-                            <td>{r.mes}</td>
-                            <td style={{fontWeight:'600'}}>{r.client}</td>
-                            <td>{r.product}</td>
-                            <td>{r.solicitacao}</td>
-                            <td style={{color:'#0284C7'}}>{r.terceiro}</td>
-                            <td>
-                              <span className={`status-tag ${r.status === 'done' ? 'st-done' : (r.status === 'waiting_third' ? 'st-waiting' : 'st-todo')}`}>
-                                {r.statusLabel}
-                              </span>
-                            </td>
-                            <td>
-                              <span className={`return-alert ${alertClass}`}>
-                                {alertLabel}
-                              </span>
-                            </td>
-                            <td style={{color:'var(--text-muted)'}}>{r.operator}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-          </div>
+          </main>
 
           {/* =================================================================
-              PAINEL LATERAL COMPACTO (DRAWER DE SELEÇÃO DO TICKET)
+              DRAWER LATERAL • HISTÓRICO OPERACIONAL & PARECERES
               ================================================================= */}
           {selectedTicket && (
             <div className="drawer-overlay" onClick={(e) => { if (e.target.className === 'drawer-overlay') setSelectedTicket(null); }}>
               <div className="drawer-content">
                 <div className="drawer-header">
                   <div>
-                    <span style={{fontFamily:'monospace', fontWeight:'700', color:'var(--tp-green)'}}>{selectedTicket.id}</span>
-                    <span style={{marginLeft:'8px', fontWeight:'700'}}>{selectedTicket.client}</span>
+                    <span style={{fontWeight:'700', fontSize:'13px'}}>{selectedTicket.client}</span>
+                    <div style={{fontSize:'11px', color:'var(--text-muted)'}}>{selectedTicket.product} • {selectedTicket.solicitacao}</div>
                   </div>
                   <button onClick={() => setSelectedTicket(null)} style={{border:'none', background:'none', cursor:'pointer', fontSize:'15px', color:'var(--text-muted)'}}>✖</button>
                 </div>
 
                 <div className="drawer-body">
-                  {/* Grid de Detalhes */}
+                  {/* Grid de Metadados */}
                   <div className="detail-grid">
                     <div className="detail-cell">
-                      <div className="detail-cell-label">Produto / Solicitação</div>
-                      <div className="detail-cell-val">{selectedTicket.product} • {selectedTicket.solicitacao}</div>
+                      <div className="detail-cell-label">Status Atual</div>
+                      <div className="detail-cell-val" style={{color: selectedTicket.status === 'Concluído' ? 'var(--tp-green)' : '#0284C7'}}>
+                        {selectedTicket.status}
+                      </div>
                     </div>
                     <div className="detail-cell">
-                      <div className="detail-cell-label">Operador Responsável</div>
+                      <div className="detail-cell-label">Agente</div>
                       <div className="detail-cell-val">👤 {selectedTicket.operator}</div>
                     </div>
                     <div className="detail-cell full">
-                      <div className="detail-cell-label">Terceiro / Setor Acionado</div>
+                      <div className="detail-cell-label">Terceiro / Área Acionada</div>
                       <div className="detail-cell-val" style={{color:'#0284C7'}}>⚙️ {selectedTicket.terceiro}</div>
                     </div>
                     {selectedTicket.dafRede && (
@@ -732,71 +879,67 @@
                         <div className="detail-cell-label">Card Bitrix (T.I)</div>
                         <div className="detail-cell-val">
                           <a href={selectedTicket.bitrixLink} target="_blank" rel="noreferrer" style={{color:'#4F46E5', fontWeight:'700'}}>
-                            {selectedTicket.bitrixLink} ↗
+                            Abrir Card no Bitrix ↗
                           </a>
                         </div>
                       </div>
                     )}
-                    <div className="detail-cell full">
-                      <div className="detail-cell-label">Descrição da Demanda (Atendimento IP)</div>
-                      <div className="detail-cell-val" style={{fontWeight:'normal', color:'var(--text-muted)'}}>
-                        {selectedTicket.description || 'Sem descrição informada.'}
-                      </div>
-                    </div>
                   </div>
 
-                  {/* Caixa Calculadora de Retorno */}
-                  <div className="calc-box">
-                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                      <span style={{fontWeight:'700', color:'var(--tp-green)', fontSize:'11.5px'}}>📅 Retorno Agendado ao Cliente</span>
-                      <span style={{fontWeight:'700', fontSize:'12px'}}>{selectedTicket.returnDate}</span>
-                    </div>
+                  {/* Ação de Concluir Demanda (se em andamento) */}
+                  {selectedTicket.status === "Em andamento" && (
                     <button 
-                      className="calc-btn"
-                      onClick={() => {
-                        const item = SLA_BENCHMARKS[selectedTicket.solicitacao] || { suggested: 7 };
-                        const now = new Date();
-                        now.setDate(now.getDate() + item.suggested);
-                        const d = String(now.getDate()).padStart(2, '0');
-                        const m = String(now.getMonth() + 1).padStart(2, '0');
-                        const y = now.getFullYear();
-                        const newDate = `${d}/${m}/${y}`;
-                        
-                        const updated = tickets.map(t => t.id === selectedTicket.id ? { ...t, returnDate: newDate } : t);
-                        setTickets(updated);
-                        setSelectedTicket({ ...selectedTicket, returnDate: newDate });
-                        alert(`Prazo recalculado com sucesso: ${newDate} (+${item.suggested} dias do terceiro).`);
-                      }}
+                      className="btn-action primary" 
+                      style={{width:'100%', justifyContent:'center', padding:'8px'}}
+                      onClick={() => handleCompleteTicket(selectedTicket.id)}
                     >
-                      ⚡ Recalcular com Base no SLA do Terceiro
+                      ✓ Marcar como Concluído & Registrar Retorno
                     </button>
+                  )}
+
+                  {/* BLOCO EXATO DO HISTÓRICO OPERACIONAL & PARECERES SOLICITADO */}
+                  <div className="pareceres-box">
+                    <div className="pareceres-header">Histórico Operacional & Pareceres</div>
+                    
+                    <div className="pareceres-step">
+                      <div className="step-time">{selectedTicket.startDate}</div>
+                      <div className="step-title">Atendimento IP Finalizado</div>
+                      <div className="step-desc">Demanda recebida e planilhada para acionamento externo.</div>
+                    </div>
+
+                    <div className="pareceres-step">
+                      <div className="step-time">{selectedTicket.startDate}</div>
+                      <div className="step-title">Acionado {selectedTicket.terceiro}</div>
+                      <div className="step-desc">
+                        {selectedTicket.product === 'PEDÁGIO' ? 'Aguardando parecer técnico / laudo de rodovia.' : 'Aguardando validação técnica e retorno do terceiro.'}
+                      </div>
+                    </div>
+
+                    {selectedTicket.status === "Concluído" && (
+                      <div className="pareceres-step" style={{borderTop:'1px dashed var(--border)', paddingTop:'8px'}}>
+                        <div className="step-time">{selectedTicket.endDate || selectedTicket.returnDate}</div>
+                        <div className="step-title" style={{color:'var(--tp-green)'}}>Retorno Prestado ao Cliente</div>
+                        <div className="step-desc">Resolução comunicada ao cliente. Caso finalizado.</div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Linha do Tempo Compacta */}
-                  <div>
-                    <div style={{fontSize:'11.5px', fontWeight:'700', color:'var(--text-main)', marginBottom:'6px'}}>
-                      Histórico Operacional & Pareceres
+                  {/* SLA do Atendimento do Card */}
+                  {selectedTicket.status === "Concluído" && selectedTicket.durationDays !== null && (
+                    <div className="sla-final-highlight">
+                      SLA do atendimento deste card: {selectedTicket.durationDays} dias corridos.
                     </div>
-                    <div className="timeline-list">
-                      <div className="timeline-item">
-                        <div className="timeline-time">{selectedTicket.startDate}</div>
-                        <div className="timeline-title">Atendimento IP Finalizado</div>
-                        <div className="timeline-desc">Demanda recebida e planilhada para acionamento externo.</div>
+                  )}
+
+                  {selectedTicket.status === "Em andamento" && (
+                    <div style={{background:'var(--bg-subtle)', padding:'10px', borderRadius:'6px', border:'1px solid var(--border)', fontSize:'11.5px'}}>
+                      <div style={{fontWeight:'700', marginBottom:'3px'}}>Acompanhamento de Prazos</div>
+                      <div>⏰ {getRemainingTime(selectedTicket.returnDate).text}</div>
+                      <div style={{color:'var(--tp-green)', fontWeight:'700', marginTop:'2px'}}>
+                        ⏱️ Total em processo: {getElapsedTime(selectedTicket.startDate)}
                       </div>
-                      <div className="timeline-item internal">
-                        <div className="timeline-time">{selectedTicket.startDate}</div>
-                        <div className="timeline-title">Acionado {selectedTicket.terceiro}</div>
-                        <div className="timeline-desc">Aguardando parecer técnico / laudo de rodovia.</div>
-                      </div>
-                      {selectedTicket.status === 'done' && (
-                        <div className="timeline-item">
-                          <div className="timeline-time">{selectedTicket.endDate || selectedTicket.returnDate}</div>
-                          <div className="timeline-title">Retorno Prestado ao Cliente</div>
-                          <div className="timeline-desc">Resolução comunicada ao cliente. Caso finalizado.</div>
-                        </div>
-                      )}
                     </div>
-                  </div>
+                  )}
 
                 </div>
               </div>
@@ -804,20 +947,20 @@
           )}
 
           {/* =================================================================
-              MODAL: NOVA DEMANDA / PLANILHAMENTO APÓS IP
+              MODAL: NOVA DEMANDA (COM REGRAS DAF, BITRIX E CALCULADORA)
               ================================================================= */}
           {isModalOpen && (
             <div className="modal-overlay" onClick={(e) => { if (e.target.className === 'modal-overlay') setIsModalOpen(false); }}>
               <div className="modal-card">
                 <div className="modal-head">
-                  <span style={{fontWeight:'700', color:'var(--tp-green)'}}>+ Planilhar Nova Demanda (Pós-Atendimento IP)</span>
+                  <span style={{fontWeight:'700', color:'var(--tp-green)'}}>+ Planilhar Demanda (Pós-Atendimento IP)</span>
                   <button onClick={() => setIsModalOpen(false)} style={{border:'none', background:'none', cursor:'pointer', fontSize:'15px', color:'var(--text-muted)'}}>✖</button>
                 </div>
 
-                <form className="modal-form" onSubmit={handleCreateRecord}>
+                <form className="modal-form" onSubmit={handleSaveNewDemand}>
                   <div className="form-col-full">
                     <label className="field-label">Cliente / Razão Social *</label>
-                    <input className="field-input" type="text" name="client" required placeholder="Ex: Transportadora Silva" />
+                    <input className="field-input" type="text" name="client" required placeholder="Ex: Transportadora Transnorte" />
                   </div>
 
                   <div>
@@ -826,7 +969,7 @@
                   </div>
 
                   <div>
-                    <label className="field-label">Operador Responsável</label>
+                    <label className="field-label">Agente Responsável</label>
                     <select className="field-select" name="operator">
                       <option value="Leandro">Leandro</option>
                       <option value="Mirian">Mirian</option>
@@ -837,14 +980,14 @@
                   <div>
                     <label className="field-label">Produto *</label>
                     <select 
-                      className="field-select" 
-                      value={modalProduct} 
+                      className="field-select"
+                      value={modalProduct}
                       onChange={(e) => {
                         const p = e.target.value;
                         setModalProduct(p);
-                        if (p === 'PEDÁGIO') setModalSolicitacao('Contestação');
-                        else if (p === 'MANUTENÇÃO') setModalSolicitacao('Chamado T.I');
-                        else setModalSolicitacao('Logistica');
+                        if (p === 'PEDÁGIO') setModalService('Contestação');
+                        else if (p === 'MANUTENÇÃO') setModalService('Chamado T.I');
+                        else setModalService('Logistica');
                       }}
                     >
                       <option value="PEDÁGIO">Pedágio</option>
@@ -857,8 +1000,8 @@
                     <label className="field-label">Tipo de Solicitação *</label>
                     <select 
                       className="field-select"
-                      value={modalSolicitacao}
-                      onChange={(e) => setModalSolicitacao(e.target.value)}
+                      value={modalService}
+                      onChange={(e) => setModalService(e.target.value)}
                     >
                       {modalProduct === 'PEDÁGIO' && (
                         <>
@@ -890,9 +1033,9 @@
                     </select>
                   </div>
 
-                  {/* OBRIGATÓRIO SE MANUTENÇÃO: CASA DAF */}
+                  {/* REGRA OBRIGATÓRIA: SE MANUTENÇÃO, OBRIGAR SELEÇÃO CASA DAF */}
                   {modalProduct === 'MANUTENÇÃO' && (
-                    <div className="form-col-full" style={{background:'var(--bg-subtle)', padding:'8px 10px', borderRadius:'6px', border:'1px solid var(--border)'}}>
+                    <div className="form-col-full" style={{background:'var(--tp-green-light)', padding:'8px 10px', borderRadius:'6px', border:'1px solid var(--tp-green-border)'}}>
                       <label className="field-label" style={{color:'var(--tp-green)'}}>🏢 Casa / Concessionária DAF * (Obrigatório para Manutenção)</label>
                       <select className="field-select" name="dafRede" required>
                         <option value="">Selecione a Casa DAF credenciada...</option>
@@ -901,8 +1044,8 @@
                     </div>
                   )}
 
-                  {/* OBRIGATÓRIO SE CHAMADO T.I: LINK BITRIX */}
-                  {modalSolicitacao === 'Chamado T.I' && (
+                  {/* REGRA OBRIGATÓRIA: SE CHAMADO T.I, OBRIGAR LINK BITRIX */}
+                  {modalService === 'Chamado T.I' && (
                     <div className="form-col-full" style={{background:'#EEF2FF', padding:'8px 10px', borderRadius:'6px', border:'1px solid #C7D2FE'}}>
                       <label className="field-label" style={{color:'#4338CA'}}>🔗 Link Card Bitrix * (Obrigatório para Chamado T.I)</label>
                       <input className="field-input" type="url" name="bitrixLink" required placeholder="https://truckpag.bitrix24.com.br/workgroups/..." />
@@ -914,16 +1057,16 @@
                     <input className="field-input" type="text" name="terceiro" required placeholder="Ex: MoveMais / Concessionárias, TI Bitrix, Rede DAF..." />
                   </div>
 
-                  {/* Calculadora de Data de Retorno */}
-                  <div className="form-col-full" style={{background:'var(--tp-green-light)', padding:'10px', borderRadius:'6px', border:'1px solid var(--tp-green-border)'}}>
+                  {/* CALCULADORA DE PRAZO DE RETORNO DO CLIENTE */}
+                  <div className="form-col-full" style={{background:'var(--bg-subtle)', padding:'10px', borderRadius:'6px', border:'1px solid var(--border)'}}>
                     <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'4px'}}>
                       <label className="field-label" style={{color:'var(--tp-green)', margin:0}}>Data Prevista para Retorno ao Cliente *</label>
                       <button 
                         type="button" 
-                        onClick={() => handleCalcReturnDate(modalSolicitacao)}
+                        onClick={() => handleCalculateReturn(modalService)}
                         style={{background:'var(--tp-green)', color:'#fff', border:'none', borderRadius:'4px', padding:'3px 8px', fontSize:'10.5px', fontWeight:'700', cursor:'pointer'}}
                       >
-                        ⚡ Calcular Prazo de Retorno
+                        ⚡ Calcular Tempo para Retorno do Cliente
                       </button>
                     </div>
                     <input 
@@ -934,17 +1077,17 @@
                       value={modalReturnDate} 
                       onChange={(e) => setModalReturnDate(e.target.value)} 
                     />
-                    {calcFeedback && <div style={{fontSize:'10.5px', color:'var(--tp-green)', fontWeight:'600', marginTop:'4px'}}>{calcFeedback}</div>}
+                    {modalSlaFeedback && <div style={{fontSize:'10.5px', color:'var(--tp-green)', fontWeight:'600', marginTop:'4px'}}>{modalSlaFeedback}</div>}
                   </div>
 
                   <div className="form-col-full">
-                    <label className="field-label">Resumo do Problema / Ocorrência no IP</label>
+                    <label className="field-label">Descrição / Ocorrência no IP</label>
                     <textarea className="field-textarea" name="desc" rows="2" placeholder="O que o cliente relatou e o que foi solicitado ao terceiro..."></textarea>
                   </div>
 
-                  <div className="form-col-full" style={{display:'flex', justifyContent:'flex-end', gap:'8px', marginTop:'8px', paddingTop:'8px', borderTop:'1px solid var(--border)'}}>
+                  <div className="form-col-full" style={{display:'flex', justifyContent:'flex-end', gap:'8px', marginTop:'6px'}}>
                     <button type="button" className="btn-action" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                    <button type="submit" className="btn-action primary">Salvar e Monitorar Demanda</button>
+                    <button type="submit" className="btn-action primary">Salvar e Planilhar Demanda</button>
                   </div>
                 </form>
               </div>
