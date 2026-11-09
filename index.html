@@ -1,316 +1,73 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Backoffice</title>
+  <title>Painel de Operações - TruckPag</title>
   <style>
     :root {
-      --bg: #ffffff;
-      --surface: #f7f6f3;
-      --card-bg: #ffffff;
-      --border: #e9e8e4;
-      --text: #37352f;
-      --text-muted: #787774;
-      --primary: #2eaadc;
-      --danger: #eb5757;
-      --success: #27ae60;
-      --warning: #f2994a;
+      /* Paleta TruckPag */
+      --tp-blue: #003876;
+      --tp-orange: #F37021;
+      --tp-light-blue: #E6F0FA;
+      
+      --bg: #F4F7F9;
+      --surface: #FFFFFF;
+      --border: #E0E6ED;
+      --text-main: #1E293B;
+      --text-muted: #64748B;
+      
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --success: #10B981;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 24px; }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-    .header-title h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); padding: 20px; font-size: 14px; }
+    
+    /* Header & Navbar */
+    header { background: var(--surface); padding: 20px 24px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,56,118,0.05); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--tp-blue); }
+    .header-title h1 { font-size: 22px; color: var(--tp-blue); margin-bottom: 4px; }
     .header-title p { color: var(--text-muted); font-size: 13px; }
-    .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--success); background: #eaf7ed; padding: 4px 10px; border-radius: 20px; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
-    .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-    .filters { display: flex; gap: 8px; flex-wrap: wrap; }
-    select, button, input { font-size: 13px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: var(--text); outline: none; }
-    button { cursor: pointer; font-weight: 500; }
-    button.primary { background: var(--text); color: #fff; border: none; }
-    button.primary:hover { opacity: 0.9; }
+    
+    /* Buttons & Inputs */
+    button, select, input { font-size: 13px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: var(--text-main); outline: none; transition: 0.2s; }
+    button { cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    button:hover { border-color: var(--text-muted); }
+    button.primary { background: var(--tp-orange); color: #fff; border: none; }
+    button.primary:hover { background: #d9621c; }
+    button.secondary { background: var(--tp-blue); color: #fff; border: none; }
+    button.secondary:hover { background: #002855; }
+    
+    /* Toolbar */
+    .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; background: var(--surface); padding: 12px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .filter-label { font-weight: 600; color: var(--text-muted); font-size: 12px; }
+    
+    /* Kanban Board */
     .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; align-items: start; }
-    .column { background: var(--surface); border-radius: 8px; padding: 12px; min-height: 450px; }
-    .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .count { background: #e3e2de; padding: 2px 6px; border-radius: 10px; font-size: 11px; }
-    .cards-list { display: flex; flex-direction: column; gap: 10px; min-height: 100px; }
-    .card { background: var(--card-bg); border-radius: 6px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--border); cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
-    .card-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
-    .card-meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px; margin-bottom: 8px; }
-    .tag { padding: 2px 6px; border-radius: 4px; font-weight: 500; }
-    .tag-op { background: #e8deee; color: #6940a5; }
-    .tag-prod { background: #d3e5ef; color: #183347; }
-    .tag-prio-Alta { background: #ffe2dd; color: #d44c47; }
-    .tag-prio-Média { background: #fadec9; color: #d9730d; }
-    .tag-prio-Baixa { background: #dbeddb; color: #28456c; }
-    .card-footer { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 6px; margin-top: 6px; }
-    /* Modal */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 100; }
-    .modal-content { background: #fff; width: 100%; max-width: 480px; padding: 24px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-    .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
-  </style>
-</head>
-<body>
-
-  <header>
-    <div class="header-title">
-      <h1>Painel de Backoffice</h1>
-      <p>Gestão de demandas operacionais e follow-up</p>
-    </div>
-    <div style="display: flex; gap: 10px; align-items: center;">
-      <span class="status-badge"><span class="status-dot"></span> Ativo (Armazenamento Seguro)</span>
-      <button class="primary" onclick="openModal()">+ Nova Demanda</button>
-    </div>
-  </header>
-
-  <div class="toolbar">
-    <div class="filters">
-      <select id="filterOperator" onchange="renderCards()">
-        <option value="">Todos os Operadores</option>
-        <option value="Operador 1">Operador 1</option>
-        <option value="Operador 2">Operador 2</option>
-        <option value="Operador 3">Operador 3</option>
-      </select>
-      <select id="filterPriority" onchange="renderCards()">
-        <option value="">Todas as Prioridades</option>
-        <option value="Alta">Alta</option>
-        <option value="Média">Média</option>
-        <option value="Baixa">Baixa</option>
-      </select>
-    </div>
-    <div style="display: flex; gap: 8px;">
-      <button onclick="exportData()">💾 Descarregar Backup</button>
-      <button onclick="document.getElementById('importInput').click()">📂 Carregar Dados</button>
-      <input type="file" id="importInput" style="display:none" accept=".json" onchange="importData(event)">
-    </div>
-  </div>
-
-  <div class="board">
-    <div class="column">
-      <div class="col-header"><span>Não Iniciado</span><span class="count" id="count-todo">0</span></div>
-      <div class="cards-list" id="col-todo"></div>
-    </div>
-    <div class="column">
-      <div class="col-header"><span>Em Andamento</span><span class="count" id="count-in_progress">0</span></div>
-      <div class="cards-list" id="col-in_progress"></div>
-    </div>
-    <div class="column">
-      <div class="col-header"><span>Aguardando Cliente</span><span class="count" id="count-waiting">0</span></div>
-      <div class="cards-list" id="col-waiting"></div>
-    </div>
-    <div class="column">
-      <div class="col-header"><span>Concluído</span><span class="count" id="count-done">0</span></div>
-      <div class="cards-list" id="col-done"></div>
-    </div>
-  </div>
-
-  <!-- Modal Formulário -->
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <h2 style="font-size: 18px; margin-bottom: 16px;" id="modalTitle">Nova Demanda</h2>
-      <form id="taskForm" onsubmit="saveTask(event)">
-        <input type="hidden" id="taskId">
-        <div class="form-group">
-          <label>Título da Demanda</label>
-          <input type="text" id="taskTitle" required placeholder="Ex: Correção de fatura">
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label>Cliente</label>
-            <input type="text" id="taskClient" required placeholder="Ex: Cliente Alpha">
-          </div>
-          <div class="form-group">
-            <label>Operador</label>
-            <select id="taskOperator" required>
-              <option value="Operador 1">Operador 1</option>
-              <option value="Operador 2">Operador 2</option>
-              <option value="Operador 3">Operador 3</option>
-            </select>
-          </div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label>Produto / Serviço</label>
-            <select id="taskProduct">
-              <option value="Produto 1">Produto 1</option>
-              <option value="Produto 2">Produto 2</option>
-              <option value="Serviço 1">Serviço 1</option>
-              <option value="Serviço 2">Serviço 2</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Estado</label>
-            <select id="taskStatus">
-              <option value="todo">Não Iniciado</option>
-              <option value="in_progress">Em Andamento</option>
-              <option value="waiting">Aguardando Cliente</option>
-              <option value="done">Concluído</option>
-            </select>
-          </div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label>Prioridade</label>
-            <select id="taskPriority">
-              <option value="Alta">Alta</option>
-              <option value="Média" selected>Média</option>
-              <option value="Baixa">Baixa</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Data de Retorno</label>
-            <input type="date" id="taskDueDate">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Ação / Observações</label>
-          <input type="text" id="taskAction" placeholder="Ex: Enviar e-mail com 2ª via">
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
-          <button type="button" onclick="closeModal()">Cancelar</button>
-          <button type="button" id="btnDelete" onclick="deleteCurrentTask()" style="display:none; color: var(--danger);">Eliminar</button>
-          <button type="submit" class="primary">Guardar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    const INITIAL_TASKS = [
-      { id: '1', title: 'Correção de Faturamento', client: 'Alpha', operator: 'Operador 1', product: 'Produto 1', status: 'todo', priority: 'Alta', dueDate: '2026-11-10', action: 'E-mail com 2ª via' },
-      { id: '2', title: 'Dúvida na Integração', client: 'Beta', operator: 'Operador 2', product: 'Produto 2', status: 'in_progress', priority: 'Média', dueDate: '2026-11-12', action: 'Aguardar log de erro' },
-      { id: '3', title: 'Atualização de Cadastro', client: 'Gama', operator: 'Operador 3', product: 'Serviço 1', status: 'done', priority: 'Baixa', dueDate: '', action: 'Concluído' }
-    ];
-
-    let tasks = JSON.parse(localStorage.getItem('backoffice_tasks')) || INITIAL_TASKS;
-
-    function saveToStorage() {
-      localStorage.setItem('backoffice_tasks', JSON.stringify(tasks));
-      renderCards();
-    }
-
-    function renderCards() {
-      const opFilter = document.getElementById('filterOperator').value;
-      const prioFilter = document.getElementById('filterPriority').value;
-
-      ['todo', 'in_progress', 'waiting', 'done'].forEach(col => {
-        document.getElementById(`col-${col}`).innerHTML = '';
-      });
-
-      const counts = { todo: 0, in_progress: 0, waiting: 0, done: 0 };
-
-      tasks.filter(t => (!opFilter || t.operator === opFilter) && (!prioFilter || t.priority === prioFilter))
-        .forEach(t => {
-          counts[t.status]++;
-          const el = document.createElement('div');
-          el.className = 'card';
-          el.onclick = () => openModal(t.id);
-          el.innerHTML = `
-            <div class="card-title">${t.title}</div>
-            <div class="card-meta">
-              <span class="tag tag-op">${t.operator}</span>
-              <span class="tag tag-prod">${t.product}</span>
-              <span class="tag tag-prio-${t.priority}">${t.priority}</span>
-            </div>
-            <div style="font-size: 12px; color: #555;">${t.client} ${t.action ? '• ' + t.action : ''}</div>
-            <div class="card-footer">
-              <span>${t.dueDate ? '📅 Retorno: ' + t.dueDate : 'Sem data'}</span>
-            </div>
-          `;
-          const container = document.getElementById(`col-${t.status}`);
-          if (container) container.appendChild(el);
-        });
-
-      Object.keys(counts).forEach(k => {
-        document.getElementById(`count-${k}`).innerText = counts[k];
-      });
-    }
-
-    function openModal(id = null) {
-      document.getElementById('taskForm').reset();
-      document.getElementById('taskId').value = id || '';
-      document.getElementById('btnDelete').style.display = id ? 'inline-block' : 'none';
-      document.getElementById('modalTitle').innerText = id ? 'Editar Demanda' : 'Nova Demanda';
-
-      if (id) {
-        const task = tasks.find(t => t.id === id);
-        if (task) {
-          document.getElementById('taskTitle').value = task.title;
-          document.getElementById('taskClient').value = task.client;
-          document.getElementById('taskOperator').value = task.operator;
-          document.getElementById('taskProduct').value = task.product;
-          document.getElementById('taskStatus').value = task.status;
-          document.getElementById('taskPriority').value = task.priority;
-          document.getElementById('taskDueDate').value = task.dueDate || '';
-          document.getElementById('taskAction').value = task.action || '';
-        }
-      }
-      document.getElementById('modal').style.display = 'flex';
-    }
-
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
-
-    function saveTask(e) {
-      e.preventDefault();
-      const id = document.getElementById('taskId').value;
-      const data = {
-        id: id || Date.now().toString(),
-        title: document.getElementById('taskTitle').value,
-        client: document.getElementById('taskClient').value,
-        operator: document.getElementById('taskOperator').value,
-        product: document.getElementById('taskProduct').value,
-        status: document.getElementById('taskStatus').value,
-        priority: document.getElementById('taskPriority').value,
-        dueDate: document.getElementById('taskDueDate').value,
-        action: document.getElementById('taskAction').value
-      };
-
-      if (id) {
-        tasks = tasks.map(t => t.id === id ? data : t);
-      } else {
-        tasks.push(data);
-      }
-      saveToStorage();
-      closeModal();
-    }
-
-    function deleteCurrentTask() {
-      const id = document.getElementById('taskId').value;
-      if (id && confirm('Eliminar esta demanda?')) {
-        tasks = tasks.filter(t => t.id !== id);
-        saveToStorage();
-        closeModal();
-      }
-    }
-
-    function exportData() {
-      const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `backoffice-backup-${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-    }
-
-    function importData(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          tasks = JSON.parse(event.target.result);
-          saveToStorage();
-          alert('Dados carregados com sucesso!');
-        } catch {
-          alert('Ficheiro inválido.');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    renderCards();
-  </script>
-</body>
-</html>
+    .column { background: var(--tp-light-blue); border-radius: 8px; padding: 12px; min-height: 500px; border: 1px solid #D1E3F5; }
+    .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 13px; font-weight: 700; color: var(--tp-blue); text-transform: uppercase; }
+    .count { background: var(--tp-blue); color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 11px; }
+    
+    /* Cards */
+    .cards-list { display: flex; flex-direction: column; gap: 12px; }
+    .card { background: var(--surface); border-radius: 8px; padding: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border: 1px solid var(--border); cursor: pointer; border-left: 4px solid transparent; transition: all 0.2s; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
+    
+    .card.prio-Alta { border-left-color: var(--danger); }
+    .card.prio-Média { border-left-color: var(--warning); }
+    .card.prio-Baixa { border-left-color: var(--success); }
+    
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .card-title { font-weight: 700; font-size: 14px; color: var(--tp-blue); }
+    
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .tag { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+    .tag-op { background: #F1F5F9; color: var(--text-muted); border: 1px solid var(--border); }
+    .tag-type { background: #FEF3C7; color: #92400E; }
+    
+    .card-details { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px; }
+    .card-details strong { color: var(--text-main); }
+    
+    .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 8px
