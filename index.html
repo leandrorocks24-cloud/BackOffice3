@@ -3,196 +3,331 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Backoffice - TruckPag</title>
-  <!-- Chart.js para Relatórios -->
+  <title>TruckPag Backoffice • Painel de Demandas</title>
+  <!-- Chart.js para Relatórios Executivos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --tp-blue: #003876;
-      --tp-blue-hover: #002752;
+      --tp-navy: #003876;
+      --tp-navy-dark: #002248;
       --tp-orange: #F37021;
-      --tp-orange-hover: #d85e13;
-      --tp-light-blue: #EEF5FC;
-      --bg: #F4F7FB;
+      --tp-orange-hover: #D85C13;
+      --tp-blue-soft: #F0F6FC;
+      --bg: #F8FAFC;
       --surface: #FFFFFF;
-      --border: #D2DFED;
-      --text-main: #1E293B;
+      --border: #E2E8F0;
+      --border-focus: #CBD5E1;
+      --text-main: #0F172A;
       --text-muted: #64748B;
-      --danger: #EF4444;
-      --warning: #F59E0B;
-      --success: #10B981;
+      --text-subtle: #94A3B8;
+      
+      --status-done-bg: #DCFCE7;
+      --status-done-text: #166534;
+      --status-progress-bg: #DBEAFE;
+      --status-progress-text: #1E40AF;
+      --status-waiting-bg: #EDE9FE;
+      --status-waiting-text: #5B21B6;
+      --status-todo-bg: #FEF3C7;
+      --status-todo-text: #92400E;
+      --status-danger-bg: #FEE2E2;
+      --status-danger-text: #991B1B;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); padding: 16px; font-size: 13px; }
+    body { background-color: var(--bg); color: var(--text-main); padding: 20px; font-size: 13px; line-height: 1.5; }
 
-    /* Header */
-    header { background: var(--surface); padding: 16px 20px; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,56,118,0.08); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--tp-blue); }
-    .header-info h1 { font-size: 20px; color: var(--tp-blue); font-weight: 700; }
-    .header-info p { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
-    .header-actions { display: flex; gap: 8px; align-items: center; }
+    /* Header Corporativo */
+    header { background: var(--surface); padding: 18px 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid var(--border); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .brand-group { display: flex; align-items: center; gap: 14px; }
+    .brand-logo { width: 38px; height: 38px; background: linear-gradient(135deg, var(--tp-navy), var(--tp-orange)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+    .brand-title h1 { font-size: 18px; color: var(--tp-navy); font-weight: 700; letter-spacing: -0.3px; }
+    .brand-title p { color: var(--text-muted); font-size: 12px; }
 
-    /* Botões & Controles */
-    button, select, input { font-size: 12px; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: var(--text-main); outline: none; transition: 0.2s; }
+    .nav-tabs { display: flex; background: #F1F5F9; padding: 4px; border-radius: 8px; gap: 4px; }
+    .nav-btn { padding: 6px 14px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; }
+    .nav-btn.active { background: var(--surface); color: var(--tp-navy); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+
+    /* Botões Padrão */
+    button, select, input { font-size: 12px; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); outline: none; transition: 0.15s; }
     button { cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
     button.primary { background: var(--tp-orange); color: #fff; border: none; }
     button.primary:hover { background: var(--tp-orange-hover); }
-    button.secondary { background: var(--tp-blue); color: #fff; border: none; }
-    button.secondary:hover { background: var(--tp-blue-hover); }
-    button.tab-btn { background: #E2E8F0; border: none; color: #475569; }
-    button.tab-btn.active { background: var(--tp-blue); color: #fff; }
+    button.secondary { background: var(--tp-navy); color: #fff; border: none; }
+    button.secondary:hover { background: var(--tp-navy-dark); }
+    button.outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+    button.outline:hover { background: #F8FAFC; color: var(--text-main); }
 
-    /* Toolbar */
-    .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 16px; background: var(--surface); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); }
+    /* KPIs Executivos */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .kpi-card { background: var(--surface); padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .kpi-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .kpi-value { font-size: 24px; font-weight: 700; color: var(--tp-navy); }
+    .kpi-sub { font-size: 11px; color: var(--text-subtle); margin-top: 2px; }
+
+    /* Barra de Filtros */
+    .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; background: var(--surface); padding: 12px 18px; border-radius: 10px; border: 1px solid var(--border); }
     .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
     /* Kanban */
-    .view-container { display: block; }
-    .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; align-items: start; }
-    .column { background: var(--tp-light-blue); border-radius: 8px; padding: 12px; min-height: 520px; border: 1px solid #D5E4F3; }
-    .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; font-weight: 700; color: var(--tp-blue); text-transform: uppercase; }
-    .count { background: var(--tp-blue); color: #fff; padding: 2px 7px; border-radius: 10px; font-size: 11px; }
+    .view-content { display: block; }
+    .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: start; }
+    @media (max-width: 1100px) { .board { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 650px) { .board { grid-template-columns: 1fr; } }
+
+    .column { background: #F1F5F9; border-radius: 10px; padding: 14px; min-height: 580px; border: 1px solid #E2E8F0; }
+    .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 12px; font-weight: 700; color: var(--tp-navy); text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge-count { background: #E2E8F0; color: var(--text-muted); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; }
 
     /* Cards */
     .cards-list { display: flex; flex-direction: column; gap: 10px; }
-    .card { background: var(--surface); border-radius: 6px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border); cursor: pointer; border-left: 4px solid transparent; transition: transform 0.15s ease; }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-    
-    .card.prio-Alta { border-left-color: var(--danger); }
-    .card.prio-Média { border-left-color: var(--warning); }
-    .card.prio-Baixa { border-left-color: var(--success); }
+    .card { background: var(--surface); border-radius: 8px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s ease; border-left: 4px solid var(--tp-navy); }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.06); border-color: var(--border-focus); }
+    .card.prio-alta { border-left-color: #EF4444; }
+    .card.prio-media { border-left-color: var(--tp-orange); }
 
-    .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-    .card-title { font-weight: 700; font-size: 13px; color: var(--tp-blue); }
-    
-    .card-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
-    .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; }
-    .badge-op { background: #E2E8F0; color: #334155; }
-    .badge-prod { background: #DCEAF7; color: var(--tp-blue); font-weight: 700; }
-    .badge-demand { background: #FFF3DC; color: #9A5B00; }
-    .badge-oficina { background: #E6F4EA; color: #137333; }
-    .badge-alert { font-weight: bold; font-size: 10px; }
-    .badge-danger { background: #FEE2E2; color: var(--danger); }
-    .badge-warning { background: #FEF3C7; color: #B45309; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .tag { padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.2px; }
+    .tag-prod-pedagio { background: #E0F2FE; color: #0369A1; }
+    .tag-prod-manutencao { background: #DCFCE7; color: #15803D; }
+    .tag-prod-abastecimento { background: #FEF3C7; color: #B45309; }
+    .tag-solicitacao { background: #F1F5F9; color: var(--text-muted); border: 1px solid #E2E8F0; }
+    .tag-urgent { background: #FEE2E2; color: #B91C1C; font-weight: 700; }
 
-    .card-body { font-size: 11px; color: var(--text-muted); line-height: 1.45; margin-bottom: 8px; }
-    .card-body strong { color: var(--text-main); }
-    .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 6px; }
+    .card-title { font-weight: 700; font-size: 13px; color: var(--text-main); margin-bottom: 6px; }
+    .card-client { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+    .card-desc { font-size: 11px; color: #475569; line-height: 1.4; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); border-top: 1px solid #F1F5F9; padding-top: 8px; }
 
-    /* Indicadores & Gráficos */
-    .metrics-container { display: none; background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
-    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 16px; }
-    .chart-box { background: #FAFBFD; border: 1px solid var(--border); border-radius: 8px; padding: 16px; min-height: 300px; }
-    .chart-box h3 { font-size: 13px; color: var(--tp-blue); margin-bottom: 12px; font-weight: 700; }
+    /* Dashboard de Gráficos (Clean & Simple) */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 10px; }
+    .chart-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .chart-box.col-4 { grid-column: span 4; }
+    .chart-box.col-6 { grid-column: span 6; }
+    .chart-box.col-8 { grid-column: span 8; }
+    .chart-box.col-12 { grid-column: span 12; }
+    @media (max-width: 900px) { .chart-box.col-4, .chart-box.col-6, .chart-box.col-8 { grid-column: span 12; } }
+
+    .chart-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .chart-box-header h3 { font-size: 13px; font-weight: 700; color: var(--tp-navy); text-transform: uppercase; letter-spacing: 0.4px; }
+    .chart-box-header span { font-size: 11px; color: var(--text-muted); }
+    .chart-canvas-container { position: relative; height: 260px; width: 100%; }
+
+    /* Tabela de Dados */
+    .table-container { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+    thead tr { background: #F8FAFC; border-bottom: 1px solid var(--border); }
+    th { padding: 10px 14px; font-weight: 700; color: var(--tp-navy); }
+    td { padding: 10px 14px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
+    tbody tr:hover { background: #F8FAFC; cursor: pointer; }
 
     /* Modal */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px); }
-    .modal-content { background: var(--surface); width: 95%; max-width: 600px; padding: 22px; border-radius: 8px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .modal-header h2 { font-size: 16px; color: var(--tp-blue); }
-
+    .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
+    .modal-content { background: var(--surface); width: 95%; max-width: 620px; padding: 24px; border-radius: 12px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .modal-header h2 { font-size: 16px; color: var(--tp-navy); font-weight: 700; }
+    
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
     .form-group.full { grid-column: span 2; }
-    .form-group label { font-size: 11px; font-weight: 700; color: var(--tp-blue); }
-    .form-group input[readonly] { background: var(--bg); cursor: not-allowed; }
+    .form-group label { font-size: 11px; font-weight: 700; color: var(--tp-navy); }
+    .form-group input[readonly] { background: #F1F5F9; cursor: not-allowed; }
 
-    .oficina-box { grid-column: span 2; background: #F0F6FD; padding: 12px; border-radius: 6px; border: 1px solid #C9DEFA; display: none; margin-bottom: 8px; }
-    .return-box { grid-column: span 2; background: #FFF8EE; padding: 10px; border-radius: 6px; border: 1px solid #FFE4B8; display: flex; align-items: center; gap: 12px; }
+    .oficina-section { grid-column: span 2; background: #F0F7FF; border: 1px solid #BFDBFE; padding: 12px; border-radius: 8px; display: none; margin-bottom: 6px; }
   </style>
 </head>
 <body>
 
-  <!-- Topo -->
+  <!-- Topo & Navegação -->
   <header>
-    <div class="header-info">
-      <h1>Central de Atendimento Backoffice</h1>
-      <p>Gestão Operacional de Demandas e Oficinas Credenciadas • TruckPag</p>
+    <div class="brand-group">
+      <div class="brand-logo">TP</div>
+      <div class="brand-title">
+        <h1>Central de Demandas • Backoffice</h1>
+        <p>Monitoramento Operacional e Gestão de Chamados</p>
+      </div>
     </div>
-    <div class="header-actions">
-      <button class="tab-btn active" id="btnTabKanban" onclick="switchView('kanban')">📋 Quadro Kanban</button>
-      <button class="tab-btn" id="btnTabMetrics" onclick="switchView('metrics')">📊 Relatórios & Gráficos</button>
+    
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <div class="nav-tabs">
+        <button class="nav-btn active" id="tabKanban" onclick="switchTab('kanban')">📋 Quadro</button>
+        <button class="nav-btn" id="tabMetrics" onclick="switchTab('metrics')">📊 Dashboard</button>
+        <button class="nav-btn" id="tabTable" onclick="switchTab('table')">📑 Registros</button>
+      </div>
       <button class="primary" onclick="openModal()">+ Nova Demanda</button>
     </div>
   </header>
 
-  <!-- Barra de Filtros -->
-  <div class="toolbar">
-    <div class="filters">
-      <select id="filterProduct" onchange="renderCards()">
-        <option value="">Todos os Serviços</option>
-        <option value="PEDÁGIO">PEDÁGIO</option>
-        <option value="ABASTECIMENTO">ABASTECIMENTO</option>
-        <option value="MANUTENÇÃO">MANUTENÇÃO</option>
-      </select>
-      <select id="filterOperator" onchange="renderCards()">
-        <option value="">Todos os Operadores</option>
-        <option value="Leandro">Leandro</option>
-        <option value="Isabelli">Isabelli</option>
-        <option value="Mirian">Mirian</option>
-      </select>
-      <select id="filterReturn" onchange="renderCards()">
-        <option value="">Status de Retorno</option>
-        <option value="needed">Exigem Retorno</option>
-        <option value="urgent">🚨 Atrasados / Vencem Hoje</option>
-      </select>
-      <input type="month" id="filterMonth" onchange="renderCards()" title="Filtrar por mês">
-      <button onclick="clearFilters()">Limpar</button>
+  <!-- KPI Cards Executivos -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total de Demandas</div>
+      <div class="kpi-value" id="kpiTotal">0</div>
+      <div class="kpi-sub">Histórico integrado 2026</div>
     </div>
-
-    <div style="display: flex; gap: 8px;">
-      <button class="secondary" onclick="exportCSV()">Exportar Demandas (CSV)</button>
+    <div class="kpi-card">
+      <div class="kpi-label">Em Aberto / Tratamento</div>
+      <div class="kpi-value" id="kpiOpen" style="color:var(--tp-orange);">0</div>
+      <div class="kpi-sub">Fila ativa dos operadores</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Aguardando Terceiro</div>
+      <div class="kpi-value" id="kpiWaiting" style="color:#7C3AED;">0</div>
+      <div class="kpi-sub">Move Mais, Concessionárias, TI</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Concluídas</div>
+      <div class="kpi-value" id="kpiDone" style="color:#16A34A;">0</div>
+      <div class="kpi-sub" id="kpiResolutionRate">Taxa de resolução: 0%</div>
     </div>
   </div>
 
-  <!-- Vista: Kanban -->
-  <div id="viewKanban" class="view-container">
+  <!-- Barra de Filtros & Ações -->
+  <div class="toolbar">
+    <div class="filters">
+      <input type="text" id="searchBox" placeholder="Buscar cliente, chamado..." onkeyup="filterData()" style="width: 220px;">
+      <select id="filterProduct" onchange="filterData()">
+        <option value="">Todos os Produtos</option>
+        <option value="PEDÁGIO">Pedágio</option>
+        <option value="MANUTENÇÃO">Manutenção</option>
+        <option value="ABASTECIMENTO">Abastecimento</option>
+      </select>
+      <select id="filterOperator" onchange="filterData()">
+        <option value="">Todos os Operadores</option>
+        <option value="Leandro">Leandro</option>
+        <option value="Mirian">Mirian</option>
+        <option value="Isabelli">Isabelli</option>
+      </select>
+      <select id="filterMonth" onchange="filterData()">
+        <option value="">Todos os Meses</option>
+        <option value="11-2026">Novembro 2026</option>
+        <option value="10-2026">Outubro 2026</option>
+        <option value="09-2026">Setembro 2026</option>
+        <option value="08-2026">Agosto 2026</option>
+        <option value="07-2026">Julho 2026</option>
+      </select>
+      <button class="outline" onclick="resetFilters()">Limpar</button>
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <button class="secondary" onclick="exportExcel()">📤 Exportar Excel</button>
+    </div>
+  </div>
+
+  <!-- ABA 1: QUADRO KANBAN -->
+  <div id="viewKanban" class="view-content">
     <div class="board">
       <div class="column">
-        <div class="col-header"><span>Não Iniciado</span><span class="count" id="count-todo">0</span></div>
+        <div class="col-header">
+          <span>Aberto / Novo</span>
+          <span class="badge-count" id="count-todo">0</span>
+        </div>
         <div class="cards-list" id="col-todo"></div>
       </div>
       <div class="column">
-        <div class="col-header"><span>Em Tratamento</span><span class="count" id="count-in_progress">0</span></div>
+        <div class="col-header">
+          <span>Em Tratamento</span>
+          <span class="badge-count" id="count-in_progress">0</span>
+        </div>
         <div class="cards-list" id="col-in_progress"></div>
       </div>
       <div class="column">
-        <div class="col-header"><span>Aguardando Retorno</span><span class="count" id="count-waiting">0</span></div>
+        <div class="col-header">
+          <span>Aguardando Terceiro</span>
+          <span class="badge-count" id="count-waiting">0</span>
+        </div>
         <div class="cards-list" id="col-waiting"></div>
       </div>
       <div class="column">
-        <div class="col-header"><span>Finalizadas</span><span class="count" id="count-done">0</span></div>
+        <div class="col-header">
+          <span>Concluído</span>
+          <span class="badge-count" id="count-done">0</span>
+        </div>
         <div class="cards-list" id="col-done"></div>
       </div>
     </div>
   </div>
 
-  <!-- Vista: Relatórios & Gráficos -->
-  <div id="viewMetrics" class="metrics-container">
-    <h2 style="color:var(--tp-blue); font-size:18px; margin-bottom: 6px;">Indicadores Analíticos de Demandas</h2>
-    <p style="color:var(--text-muted); font-size:12px;">Visualização em tempo real de volumetria por produto, tipos de demandas e oficinas acionadas.</p>
+  <!-- ABA 2: DASHBOARD EXECUTIVO (GRÁFICOS SIMPLIFICADOS) -->
+  <div id="viewMetrics" class="view-content" style="display:none;">
+    <div class="dashboard-grid">
+      
+      <!-- Gráfico 1: Evolução Mensal -->
+      <div class="chart-box col-8">
+        <div class="chart-box-header">
+          <h3>Evolução Mensal de Demandas</h3>
+          <span>Julho a Novembro 2026</span>
+        </div>
+        <div class="chart-canvas-container">
+          <canvas id="chartMonthly"></canvas>
+        </div>
+      </div>
 
-    <div class="charts-grid">
-      <div class="chart-box">
-        <h3>Maior Volume de Demanda por Produto</h3>
-        <canvas id="chartProducts"></canvas>
+      <!-- Gráfico 2: Divisão por Produto -->
+      <div class="chart-box col-4">
+        <div class="chart-box-header">
+          <h3>Demanda por Produto</h3>
+          <span>Proporção Geral</span>
+        </div>
+        <div class="chart-canvas-container">
+          <canvas id="chartProductShare"></canvas>
+        </div>
       </div>
-      <div class="chart-box">
-        <h3>Tipos de Demanda (PEDÁGIO)</h3>
-        <canvas id="chartPedagio"></canvas>
+
+      <!-- Gráfico 3: Top Solicitações -->
+      <div class="chart-box col-6">
+        <div class="chart-box-header">
+          <h3>Tipos de Solicitações Mais Frequentes</h3>
+          <span>Volume por Motivo</span>
+        </div>
+        <div class="chart-canvas-container">
+          <canvas id="chartTopDemands"></canvas>
+        </div>
       </div>
-      <div class="chart-box">
-        <h3>Tipos de Demanda (ABASTECIMENTO)</h3>
-        <canvas id="chartAbastecimento"></canvas>
+
+      <!-- Gráfico 4: Distribuição por Operador -->
+      <div class="chart-box col-6">
+        <div class="chart-box-header">
+          <h3>Produtividade por Operador</h3>
+          <span>Atendimentos Concluídos vs Ativos</span>
+        </div>
+        <div class="chart-canvas-container">
+          <canvas id="chartOperators"></canvas>
+        </div>
       </div>
-      <div class="chart-box">
-        <h3>Tipos de Demanda (MANUTENÇÃO)</h3>
-        <canvas id="chartManutencao"></canvas>
+
+      <!-- Gráfico 5: Top Oficinas DAF em Manutenção -->
+      <div class="chart-box col-12">
+        <div class="chart-box-header">
+          <h3>Rede DAF • Oficinas Mais Acionadas em Manutenção</h3>
+          <span>Casas / Redes com maior volume de chamados (XML, Boletos e Erros)</span>
+        </div>
+        <div class="chart-canvas-container" style="height: 220px;">
+          <canvas id="chartDaf"></canvas>
+        </div>
       </div>
-      <div class="chart-box" style="grid-column: span 2;">
-        <h3>Maiores Oficinas com Demandas (Top Oficinas / Redes)</h3>
-        <canvas id="chartOficinas"></canvas>
-      </div>
+
+    </div>
+  </div>
+
+  <!-- ABA 3: TABELA DE REGISTROS -->
+  <div id="viewTable" class="view-content" style="display:none;">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Data Início</th>
+            <th>Responsável</th>
+            <th>Produto</th>
+            <th>Solicitação</th>
+            <th>Cliente</th>
+            <th>Contato</th>
+            <th>Status</th>
+            <th>Data Término</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -200,7 +335,7 @@
   <div class="modal" id="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 id="modalTitle">Nova Demanda</h2>
+        <h2 id="modalTitle">Nova Demanda Backoffice</h2>
         <button onclick="closeModal()" style="border:none; background:none; font-size:16px;">✖</button>
       </div>
 
@@ -209,104 +344,86 @@
 
         <div class="form-grid">
           <div class="form-group full">
-            <label>Assunto / Resumo da Demanda</label>
-            <input type="text" id="taskTitle" required placeholder="Ex: Ajuste de Layout XML ou Cancelamento de TAG">
+            <label>Cliente / Razão Social</label>
+            <input type="text" id="taskClient" required placeholder="Ex: Transportadora Silva ou DAF Alis">
           </div>
 
           <div class="form-group">
-            <label>Data/Hora Inicial (Automático)</label>
-            <input type="text" id="taskCreatedAt" readonly>
+            <label>Telefone / Contato</label>
+            <input type="text" id="taskContact" placeholder="(00) 00000-0000">
           </div>
-
           <div class="form-group">
-            <label>Operador Responsável</label>
+            <label>Responsável</label>
             <select id="taskOperator" required>
-              <option value="Leandro">Leandro</option>
-              <option value="Isabelli">Isabelli</option>
-              <option value="Mirian">Mirian</option>
+              <option value="Leandro">Leandro (leandro.silveira@truckpag.com.br)</option>
+              <option value="Mirian">Mirian (mirian.santos@truckpag.com.br)</option>
+              <option value="Isabelli">Isabelli (isabelli.pereira@truckpag.com.br)</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label>Cliente / Frota</label>
-            <input type="text" id="taskClient" required placeholder="Nome do cliente ou CNPJ">
-          </div>
-
-          <div class="form-group">
-            <label>Serviço / Produto</label>
+            <label>Produto</label>
             <select id="taskProduct" required onchange="onProductChange()">
-              <option value="">Selecione o Serviço...</option>
-              <option value="PEDÁGIO">PEDÁGIO</option>
-              <option value="ABASTECIMENTO">ABASTECIMENTO</option>
-              <option value="MANUTENÇÃO">MANUTENÇÃO</option>
+              <option value="PEDÁGIO">Pedágio</option>
+              <option value="MANUTENÇÃO">Manutenção</option>
+              <option value="ABASTECIMENTO">Abastecimento</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label>Tipo de Demanda</label>
-            <select id="taskDemandType" required>
-              <option value="">Selecione primeiro o Serviço</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Status do Card</label>
-            <select id="taskStatus">
-              <option value="todo">Não Iniciado</option>
-              <option value="in_progress">Em Tratamento</option>
-              <option value="waiting">Aguardando Retorno</option>
-              <option value="done">Finalizada</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Prioridade</label>
-            <select id="taskPriority">
-              <option value="Alta">Alta</option>
-              <option value="Média" selected>Média</option>
-              <option value="Baixa">Baixa</option>
+            <label>Tipo de Solicitação</label>
+            <select id="taskSolicitacao" required>
+              <!-- Preenchido dinamicamente -->
             </select>
           </div>
 
           <!-- Campos Obrigatórios para Manutenção -->
-          <div class="oficina-box" id="boxOficina">
-            <div style="font-weight:700; color:var(--tp-blue); margin-bottom: 8px; font-size:12px;">🔧 Oficina Credenciada (Obrigatório para Manutenção)</div>
+          <div class="oficina-section" id="boxOficina">
+            <div style="font-weight:700; color:var(--tp-navy); margin-bottom: 6px;">🔧 Concessionária / Oficina DAF</div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
               <div class="form-group">
                 <label>Casa / Rede DAF</label>
-                <select id="taskOficinaRede" onchange="onOficinaRedeChange()">
-                  <option value="">Selecione a Rede...</option>
-                </select>
+                <select id="taskOficinaRede" onchange="onOficinaRedeChange()"></select>
               </div>
               <div class="form-group">
                 <label>Município / Unidade</label>
-                <select id="taskOficinaMunicipio">
-                  <option value="">Selecione a Rede primeiro</option>
-                </select>
+                <select id="taskOficinaMunicipio"></select>
               </div>
             </div>
           </div>
 
-          <!-- Seção de Retorno -->
-          <div class="return-box">
-            <input type="checkbox" id="taskNeedsReturn" onchange="toggleReturnDate()">
-            <label for="taskNeedsReturn" style="font-weight:700; color:#854D0E; cursor:pointer;">Necessita retorno ao cliente ou e-mail agendado?</label>
-            <div id="boxReturnDate" style="display:none; margin-left:auto;">
-              <input type="date" id="taskReturnDate">
-            </div>
+          <div class="form-group">
+            <label>Status Atual</label>
+            <select id="taskStatus">
+              <option value="todo">Aberto / Novo</option>
+              <option value="in_progress">Em Andamento</option>
+              <option value="waiting">Aguardando Terceiro</option>
+              <option value="done">Concluído</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
           </div>
 
-          <div class="form-group full" style="margin-top: 6px;">
-            <label>Observações / Ações Realizadas</label>
-            <input type="text" id="taskAction" placeholder="Histórico, protocolo ou detalhes do retorno">
+          <div class="form-group">
+            <label>Data de Início</label>
+            <input type="text" id="taskStartDate" readonly>
+          </div>
+
+          <div class="form-group full">
+            <label>Data Limite / Retorno Agendado</label>
+            <input type="date" id="taskReturnDate">
+          </div>
+
+          <div class="form-group full">
+            <label>Descrição do Chamado / Histórico</label>
+            <textarea id="taskDesc" rows="3" style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border);" placeholder="Descreva os detalhes da ocorrência, protocolos ou dados da nota fiscal..."></textarea>
           </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px;">
-          <button type="button" id="btnDelete" onclick="deleteCurrentTask()" style="display:none; background:#FEE2E2; color:var(--danger); border:none;">Excluir Demanda</button>
+        <div style="display: flex; justify-content: space-between; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px;">
+          <button type="button" id="btnDelete" onclick="deleteCurrentTask()" style="display:none; background:#FEE2E2; color:#B91C1C; border:none;">Excluir</button>
           <div style="margin-left:auto; display:flex; gap:8px;">
-            <button type="button" onclick="closeModal()">Cancelar</button>
-            <button type="submit" class="primary">Salvar Demanda</button>
+            <button type="button" class="outline" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="primary">Salvar Registro</button>
           </div>
         </div>
       </form>
@@ -314,276 +431,241 @@
   </div>
 
   <script>
-    // Subdemandas parametrizadas
-    const DEMAND_TYPES = {
-      'PEDÁGIO': ['CONTESTAÇÃO', 'ISENÇÃO', 'CANCELAMENTO', 'Transferência', 'T.I', 'Outros'],
-      'ABASTECIMENTO': ['Logística', 'T.I', 'Outros', 'Isenção'],
-      'MANUTENÇÃO': ['Layout XML', 'Orçamento', 'Aprovação', 'T.I', 'Outros']
+    // Subdemandas
+    const SOLICITACOES = {
+      'PEDÁGIO': ['Contestação', 'Chamado T.I', 'Chamado MM', 'API MM', 'Pedidos', 'Isenção', 'Transferência', 'Outros'],
+      'ABASTECIMENTO': ['Logistica', 'Chamado T.I', 'Isenção', 'Outros'],
+      'MANUTENÇÃO': ['Chamado T.I', 'Layout XML', 'Pedidos', 'Orçamento', 'Outros']
     };
 
-    // TODAS AS 79 OFICINAS DO CSV EXTRAÍDAS E INTEGRADAS
-    const OFICINAS_BASE = [
-      {"rede": "DAF ALIS", "municipio": "AGUA BOA/MT", "nomeFantasia": "DAF ALIS - AGUA BOA | 60589"},
-      {"rede": "DAF ALIS", "municipio": "CUIABA/MT", "nomeFantasia": "DAF ALIS - CUIABA | 60506"},
-      {"rede": "DAF ALIS", "municipio": "RONDONOPOLIS/MT", "nomeFantasia": "DAF ALIS - RONDONOPOLIS | 60528"},
-      {"rede": "DAF ALIS", "municipio": "SINOP/MT", "nomeFantasia": "DAF ALIS - SINOP | 60568"},
-      {"rede": "DAF AVANTY", "municipio": "BENEVIDES/PA", "nomeFantasia": "DAF AVANTY CAMINHOES - BENEVIDES | 60517"},
-      {"rede": "DAF AVANTY", "municipio": "MARABA/PA", "nomeFantasia": "DAF AVANTY CAMINHOES - MARABA | 60570"},
-      {"rede": "DAF AVANTY", "municipio": "PARAGOMINAS/PA", "nomeFantasia": "DAF AVANTY CAMINHOES - PARAGOMINAS | 60853"},
-      {"rede": "DAF BARIGUI", "municipio": "SAO JOSE DOS PINHAIS/PR", "nomeFantasia": "DAF BARIGUI CAMINHOES 60530 DESCREDENCIADO"},
-      {"rede": "DAF BARIGUI", "municipio": "CASCAVEL/PR", "nomeFantasia": "DAF BARIGUI CAMINHOES - CASCAVEL | 60548"},
-      {"rede": "DAF BARIGUI", "municipio": "CORDILHEIRA ALTA/SC", "nomeFantasia": "DAF BARIGUI CAMINHOES - CHAPECO | 60559"},
-      {"rede": "DAF BARIGUI", "municipio": "ITAJAI/SC", "nomeFantasia": "DAF BARIGUI CAMINHOES - ITAJAI | 60520"},
-      {"rede": "DAF BARIGUI", "municipio": "SAO JOSE DOS PINHAIS/PR", "nomeFantasia": "DAF BARIGUI CAMINHOES - SAO JOSE DOS PINHAIS | 60530"},
-      {"rede": "DAF BARIGUI", "municipio": "TUBARAO/SC", "nomeFantasia": "DAF BARIGUI CAMINHOES - TUBARAO | 60595"},
-      {"rede": "DAF BARIGUI", "municipio": "CONCORDIA/SC", "nomeFantasia": "DAF BARIGUI CAMINHOES CONCORDIA | 60958"},
-      {"rede": "DAF CAIOBA TRUCKS", "municipio": "CAMPO GRANDE/MS", "nomeFantasia": "DAF CAIOBA TRUCKS - CAMPO GRANDE | 60515"},
-      {"rede": "DAF CAIOBA TRUCKS", "municipio": "CHAPADAO DO SUL/MS", "nomeFantasia": "DAF CAIOBA TRUCKS - CHAPADAO DO SUL | 60965"},
-      {"rede": "DAF CAIOBA TRUCKS", "municipio": "DOURADOS/MS", "nomeFantasia": "DAF CAIOBA TRUCKS - DOURADOS | 60596"},
-      {"rede": "DAF CAIOBA TRUCKS", "municipio": "TRES LAGOAS/MS", "nomeFantasia": "DAF CAIOBA TRUCKS - TRES LAGOAS | 60962"},
-      {"rede": "DAF CAMINHO", "municipio": "ARACATUBA/SP", "nomeFantasia": "DAF CAMINHO CAMINHOES - ARACATUBA | 60960"},
-      {"rede": "DAF CAMINHO", "municipio": "ARARAQUARA/SP", "nomeFantasia": "DAF CAMINHO CAMINHOES - ARARAQUARA | 60942"},
-      {"rede": "DAF CAMINHO", "municipio": "RIBEIRAO PRETO/SP", "nomeFantasia": "DAF CAMINHO CAMINHOES - RIBEIRAO PRETO | 60577"},
-      {"rede": "DAF CAMINHO", "municipio": "SAO JOSE DO RIO PRETO/SP", "nomeFantasia": "DAF CAMINHO CAMINHOES - SAO JOSE DO RIO PRETO | 60572"},
-      {"rede": "DAF BRASIL (FÁBRICA)", "municipio": "PONTA GROSSA/PR", "nomeFantasia": "DAF CAMINHOES BRASIL"},
-      {"rede": "DAF DU GREGORIO", "municipio": "BRASILIA/DF", "nomeFantasia": "DAF DU GREGORIO - BRASILIA | 60584"},
-      {"rede": "DAF DU GREGORIO", "municipio": "COLINAS DO TOCANTINS/TO", "nomeFantasia": "DAF DU GREGORIO - COLINAS DO TOCANTINS | 60954"},
-      {"rede": "DAF DU GREGORIO", "municipio": "ESTREITO/MA", "nomeFantasia": "DAF DU GREGORIO - ESTREITO | 60952"},
-      {"rede": "DAF DU GREGORIO", "municipio": "LUIS EDUARDO MAGALHAES/BA", "nomeFantasia": "DAF DU GREGORIO - LUIS EDUARDO MAGALHAES | 60569"},
-      {"rede": "DAF DU GREGORIO", "municipio": "LUZIANIA/GO", "nomeFantasia": "DAF DU GREGORIO - LUZIANIA | 60560"},
-      {"rede": "DAF DU GREGORIO", "municipio": "PARAISO DO TOCANTINS/TO", "nomeFantasia": "DAF DU GREGORIO - PARAISO DO TOCANTINS | 60558"},
-      {"rede": "DAF DU GREGORIO", "municipio": "SAO LUIS/MA", "nomeFantasia": "DAF DU GREGORIO - SAO LUIS | 60567"},
-      {"rede": "DAF DU GREGORIO", "municipio": "VALPARAISO DE GOIAS/GO", "nomeFantasia": "DAF DU GREGORIO - VALPARAISO DO GOIAS | 60961"},
-      {"rede": "DAF ELDORADO", "municipio": "CAXIAS DO SUL/RS", "nomeFantasia": "DAF ELDORADO CAMINHOES - CAXIAS DO SUL | 60670"},
-      {"rede": "DAF ELDORADO", "municipio": "ELDORADO DO SUL/RS", "nomeFantasia": "DAF ELDORADO CAMINHOES - ELDORADO DO SUL | 60510"},
-      {"rede": "DAF ELDORADO", "municipio": "ESTRELA/RS", "nomeFantasia": "DAF ELDORADO CAMINHOES - ESTRELA | 60671"},
-      {"rede": "DAF ELDORADO", "municipio": "IJUI/RS", "nomeFantasia": "DAF ELDORADO CAMINHOES - IJUI | 60663"},
-      {"rede": "DAF ELDORADO", "municipio": "PASSO FUNDO/RS", "nomeFantasia": "DAF ELDORADO CAMINHOES - PASSO FUNDO | 60585"},
-      {"rede": "DAF ELDORADO", "municipio": "PELOTAS/RS", "nomeFantasia": "DAF ELDORADO CAMINHOES - PELOTAS | 60833"},
-      {"rede": "DAF ELDORADO", "municipio": "TRES CACHOEIRAS/RS", "nomeFantasia": "DAF ELDORADO CAMINHOES - TRES CACHOEIRAS | 60946"},
-      {"rede": "DAF ELDORADO", "municipio": "PORTAO/RS", "nomeFantasia": "DAF ELDORADO CAMINHOES LTDA - PORTAO | 60967"},
-      {"rede": "DAF FORNECEDORA", "municipio": "BOM JESUS/PI", "nomeFantasia": "DAF FORNECEDORA CAMINHOES - BOM JESUS | 60951"},
-      {"rede": "DAF FORNECEDORA", "municipio": "CAMPINA GRANDE/PB", "nomeFantasia": "DAF FORNECEDORA CAMINHOES - CAMPINA GRANDE | 60540"},
-      {"rede": "DAF FORNECEDORA", "municipio": "MOSSORO/RN", "nomeFantasia": "DAF FORNECEDORA CAMINHOES - DAF MOSSORO | 60953"},
-      {"rede": "DAF FORNECEDORA", "municipio": "ITAITINGA/CE", "nomeFantasia": "DAF FORNECEDORA CAMINHOES - ITAITINGA | 60522"},
-      {"rede": "DAF FORNECEDORA", "municipio": "SAO JOSE DE MIPIBU/RN", "nomeFantasia": "DAF FORNECEDORA CAMINHOES - SAO JOSE DE MIPIBU | 60539"},
-      {"rede": "DAF FORNECEDORA", "municipio": "TERESINA/PI", "nomeFantasia": "DAF FORNECEDORA CAMINHOES - TEREZINA | 60579"},
-      {"rede": "DAF FORNECEDORA", "municipio": "TIANGUA/CE", "nomeFantasia": "DAF FORNECEDORA CAMINHOES - TIANGUA | 60959"},
-      {"rede": "DAF MACPONTA", "municipio": "BOITUVA/SP", "nomeFantasia": "DAF MACPONTA CAMINHOES - BOITUVA | 60553"},
-      {"rede": "DAF MACPONTA", "municipio": "MARIALVA/PR", "nomeFantasia": "DAF MACPONTA CAMINHOES - MARIALVA | 60509"},
-      {"rede": "DAF MACPONTA", "municipio": "PONTA GROSSA/PR", "nomeFantasia": "DAF MACPONTA CAMINHOES - PONTA GROSSA | 60508"},
-      {"rede": "DAF MACPONTA", "municipio": "PALMITAL/SP", "nomeFantasia": "DAF MACPONTA CAMINHOES - SALTO GRANDE | 60588"},
-      {"rede": "DAF MACPONTA", "municipio": "SAO MANUEL/SP", "nomeFantasia": "DAF MACPONTA CAMINHOES - SAO MANUEL | 60966"},
-      {"rede": "DAF MACPONTA", "municipio": "SUMARE/SP", "nomeFantasia": "DAF MACPONTA CAMINHOES - SUMARE | 60571"},
-      {"rede": "DAF NISSEY", "municipio": "CANDEIAS DO JAMARI/RO", "nomeFantasia": "DAF NISSEY CAMINHOES - CANDEIAS DO JAMARI | 60587"},
-      {"rede": "DAF NISSEY", "municipio": "MANAUS/AM", "nomeFantasia": "DAF NISSEY CAMINHOES - MANAUS | 60667"},
-      {"rede": "DAF NISSEY", "municipio": "VILHENA/RO", "nomeFantasia": "DAF NISSEY CAMINHOES - VILHENA | 60586"},
-      {"rede": "DAF NISSEY", "municipio": "RIO BRANCO/AC", "nomeFantasia": "DAF NISSEY CAMINHOES LTDA - RIO BRANCO | 60964"},
-      {"rede": "DAF NOVA", "municipio": "JABOATAO DOS GUARARAPES/PE", "nomeFantasia": "DAF NOVA - JABOATAO DOS GUARARAPES | 60573"},
-      {"rede": "DAF NOVA", "municipio": "MACEIO/AL", "nomeFantasia": "DAF NOVA - MACEIO | 60593"},
-      {"rede": "DAF NOVA", "municipio": "NOSSA SENHORA DO SOCORRO/SE", "nomeFantasia": "DAF NOVA - NOSSA SENHORA DO SOCORRO | 60956"},
-      {"rede": "DAF NOVA", "municipio": "PETROLINA/PE", "nomeFantasia": "DAF NOVA - PETROLINA | 60581"},
-      {"rede": "DAF NOVA", "municipio": "TACAIMBO/PE", "nomeFantasia": "DAF NOVA - TACAIMBO | 60936"},
-      {"rede": "DAF SANCAR PONTUAL", "municipio": "CAMPANHA/MG", "nomeFantasia": "DAF SANCAR PONTUAL - CAMPANHA | 60575"},
-      {"rede": "DAF SANCAR PONTUAL", "municipio": "DIVINOPOLIS/MG", "nomeFantasia": "DAF SANCAR PONTUAL - DIVINOPOLIS | 60580"},
-      {"rede": "DAF SANCAR PONTUAL", "municipio": "DUQUE DE CAXIAS/RJ", "nomeFantasia": "DAF SANCAR PONTUAL - DUQUE DE CAXIAS | 60599"},
-      {"rede": "DAF SANCAR PONTUAL", "municipio": "MURIAE/MG", "nomeFantasia": "DAF SANCAR PONTUAL - MURIAE | 60576"},
-      {"rede": "DAF SOMAFERTIL", "municipio": "APARECIDA DE GOIANIA/GO", "nomeFantasia": "DAF SOMAFERTIL - AP DE GOIANIA | 60516"},
-      {"rede": "DAF SOMAFERTIL", "municipio": "PATOS DE MINAS/MG", "nomeFantasia": "DAF SOMAFERTIL - PATOS DE MINAS | 60662"},
-      {"rede": "DAF SOMAFERTIL", "municipio": "RIO VERDE/GO", "nomeFantasia": "DAF SOMAFERTIL - RIO VERDE | 60578"},
-      {"rede": "DAF SOMAFERTIL", "municipio": "UBERLANDIA/MG", "nomeFantasia": "DAF SOMAFERTIL - UBERLANDIA | 60556"},
-      {"rede": "DAF VIA TRUCKS", "municipio": "CONTAGEM/MG", "nomeFantasia": "DAF VIA TRUCKS - CONTAGEM | 60512"},
-      {"rede": "DAF VIA TRUCKS", "municipio": "CUBATAO/SP", "nomeFantasia": "DAF VIA TRUCKS - CUBATAO | 60955"},
-      {"rede": "DAF VIA TRUCKS", "municipio": "GOVERNADOR VALADARES/MG", "nomeFantasia": "DAF VIA TRUCKS - GOVERNADOR VALADARES | 60673"},
-      {"rede": "DAF VIA TRUCKS", "municipio": "MONTES CLAROS/MG", "nomeFantasia": "DAF VIA TRUCKS - MONTES CLAROS | 60666"},
-      {"rede": "DAF VIA TRUCKS", "municipio": "GUARULHOS/SP", "nomeFantasia": "DAF VIA TRUCKS - SAO PAULO | 60518"},
-      {"rede": "DAF VIA TRUCKS", "municipio": "SAO BERNARDO DO CAMPO/SP", "nomeFantasia": "DAF VIA TRUCKS - UNIDADE ABC | 60582"},
-      {"rede": "DAF VITORIA", "municipio": "FEIRA DE SANTANA/BA", "nomeFantasia": "DAF VITORIA CAMINHOES - FEIRA DE SANTANA | 60574"},
-      {"rede": "DAF VITORIA", "municipio": "SIMOES FILHO/BA", "nomeFantasia": "DAF VITORIA CAMINHOES - SIMOES FILHO | 60963"},
-      {"rede": "DAF VITORIA", "municipio": "VIANA/ES", "nomeFantasia": "DAF VITORIA CAMINHOES - VIANA | 60533"},
-      {"rede": "DAF VITORIA", "municipio": "VITORIA DA CONQUISTA/BA", "nomeFantasia": "DAF VITORIA CAMINHOES - VITORIA DA CONQUISTA | 60594"}
+    // 79 Oficinas DAF
+    const DAF_UNIDADES = [
+      {"rede": "DAF ALIS", "municipio": "AGUA BOA/MT"},
+      {"rede": "DAF ALIS", "municipio": "CUIABA/MT"},
+      {"rede": "DAF ALIS", "municipio": "RONDONOPOLIS/MT"},
+      {"rede": "DAF ALIS", "municipio": "SINOP/MT"},
+      {"rede": "DAF AVANTY", "municipio": "BENEVIDES/PA"},
+      {"rede": "DAF AVANTY", "municipio": "MARABA/PA"},
+      {"rede": "DAF AVANTY", "municipio": "PARAGOMINAS/PA"},
+      {"rede": "DAF BARIGUI", "municipio": "CASCAVEL/PR"},
+      {"rede": "DAF BARIGUI", "municipio": "CORDILHEIRA ALTA/SC"},
+      {"rede": "DAF BARIGUI", "municipio": "ITAJAI/SC"},
+      {"rede": "DAF BARIGUI", "municipio": "SAO JOSE DOS PINHAIS/PR"},
+      {"rede": "DAF BARIGUI", "municipio": "TUBARAO/SC"},
+      {"rede": "DAF BARIGUI", "municipio": "CONCORDIA/SC"},
+      {"rede": "DAF CAIOBA TRUCKS", "municipio": "CAMPO GRANDE/MS"},
+      {"rede": "DAF CAIOBA TRUCKS", "municipio": "CHAPADAO DO SUL/MS"},
+      {"rede": "DAF CAIOBA TRUCKS", "municipio": "DOURADOS/MS"},
+      {"rede": "DAF CAIOBA TRUCKS", "municipio": "TRES LAGOAS/MS"},
+      {"rede": "DAF CAMINHO", "municipio": "ARACATUBA/SP"},
+      {"rede": "DAF CAMINHO", "municipio": "ARARAQUARA/SP"},
+      {"rede": "DAF CAMINHO", "municipio": "RIBEIRAO PRETO/SP"},
+      {"rede": "DAF CAMINHO", "municipio": "SAO JOSE DO RIO PRETO/SP"},
+      {"rede": "DAF DU GREGORIO", "municipio": "BRASILIA/DF"},
+      {"rede": "DAF DU GREGORIO", "municipio": "COLINAS DO TOCANTINS/TO"},
+      {"rede": "DAF DU GREGORIO", "municipio": "ESTREITO/MA"},
+      {"rede": "DAF DU GREGORIO", "municipio": "LUIS EDUARDO MAGALHAES/BA"},
+      {"rede": "DAF DU GREGORIO", "municipio": "LUZIANIA/GO"},
+      {"rede": "DAF DU GREGORIO", "municipio": "PARAISO DO TOCANTINS/TO"},
+      {"rede": "DAF DU GREGORIO", "municipio": "SAO LUIS/MA"},
+      {"rede": "DAF DU GREGORIO", "municipio": "VALPARAISO DE GOIAS/GO"},
+      {"rede": "DAF ELDORADO", "municipio": "CAXIAS DO SUL/RS"},
+      {"rede": "DAF ELDORADO", "municipio": "ELDORADO DO SUL/RS"},
+      {"rede": "DAF ELDORADO", "municipio": "ESTRELA/RS"},
+      {"rede": "DAF ELDORADO", "municipio": "IJUI/RS"},
+      {"rede": "DAF ELDORADO", "municipio": "PASSO FUNDO/RS"},
+      {"rede": "DAF ELDORADO", "municipio": "PELOTAS/RS"},
+      {"rede": "DAF ELDORADO", "municipio": "TRES CACHOEIRAS/RS"},
+      {"rede": "DAF ELDORADO", "municipio": "PORTAO/RS"},
+      {"rede": "DAF FORNECEDORA", "municipio": "BOM JESUS/PI"},
+      {"rede": "DAF FORNECEDORA", "municipio": "CAMPINA GRANDE/PB"},
+      {"rede": "DAF FORNECEDORA", "municipio": "MOSSORO/RN"},
+      {"rede": "DAF FORNECEDORA", "municipio": "ITAITINGA/CE"},
+      {"rede": "DAF FORNECEDORA", "municipio": "SAO JOSE DE MIPIBU/RN"},
+      {"rede": "DAF FORNECEDORA", "municipio": "TERESINA/PI"},
+      {"rede": "DAF FORNECEDORA", "municipio": "TIANGUA/CE"},
+      {"rede": "DAF MACPONTA", "municipio": "BOITUVA/SP"},
+      {"rede": "DAF MACPONTA", "municipio": "MARIALVA/PR"},
+      {"rede": "DAF MACPONTA", "municipio": "PONTA GROSSA/PR"},
+      {"rede": "DAF MACPONTA", "municipio": "PALMITAL/SP"},
+      {"rede": "DAF MACPONTA", "municipio": "SAO MANUEL/SP"},
+      {"rede": "DAF MACPONTA", "municipio": "SUMARE/SP"},
+      {"rede": "DAF NISSEY", "municipio": "CANDEIAS DO JAMARI/RO"},
+      {"rede": "DAF NISSEY", "municipio": "MANAUS/AM"},
+      {"rede": "DAF NISSEY", "municipio": "VILHENA/RO"},
+      {"rede": "DAF NISSEY", "municipio": "RIO BRANCO/AC"},
+      {"rede": "DAF NOVA", "municipio": "JABOATAO DOS GUARARAPES/PE"},
+      {"rede": "DAF NOVA", "municipio": "MACEIO/AL"},
+      {"rede": "DAF NOVA", "municipio": "NOSSA SENHORA DO SOCORRO/SE"},
+      {"rede": "DAF NOVA", "municipio": "PETROLINA/PE"},
+      {"rede": "DAF NOVA", "municipio": "TACAIMBO/PE"},
+      {"rede": "DAF SANCAR PONTUAL", "municipio": "CAMPANHA/MG"},
+      {"rede": "DAF SANCAR PONTUAL", "municipio": "DIVINOPOLIS/MG"},
+      {"rede": "DAF SANCAR PONTUAL", "municipio": "DUQUE DE CAXIAS/RJ"},
+      {"rede": "DAF SANCAR PONTUAL", "municipio": "MURIAE/MG"},
+      {"rede": "DAF SOMAFERTIL", "municipio": "APARECIDA DE GOIANIA/GO"},
+      {"rede": "DAF SOMAFERTIL", "municipio": "PATOS DE MINAS/MG"},
+      {"rede": "DAF SOMAFERTIL", "municipio": "RIO VERDE/GO"},
+      {"rede": "DAF SOMAFERTIL", "municipio": "UBERLANDIA/MG"},
+      {"rede": "DAF VIA TRUCKS", "municipio": "CONTAGEM/MG"},
+      {"rede": "DAF VIA TRUCKS", "municipio": "CUBATAO/SP"},
+      {"rede": "DAF VIA TRUCKS", "municipio": "GOVERNADOR VALADARES/MG"},
+      {"rede": "DAF VIA TRUCKS", "municipio": "MONTES CLAROS/MG"},
+      {"rede": "DAF VIA TRUCKS", "municipio": "GUARULHOS/SP"},
+      {"rede": "DAF VIA TRUCKS", "municipio": "SAO BERNARDO DO CAMPO/SP"},
+      {"rede": "DAF VITORIA", "municipio": "FEIRA DE SANTANA/BA"},
+      {"rede": "DAF VITORIA", "municipio": "SIMOES FILHO/BA"},
+      {"rede": "DAF VITORIA", "municipio": "VIANA/ES"},
+      {"rede": "DAF VITORIA", "municipio": "VITORIA DA CONQUISTA/BA"}
     ];
 
-    // Demandas Iniciais de Exemplo com os novos produtos e oficinas
-    const INITIAL_TASKS = [
-      { id: '1', createdAt: new Date().toISOString(), title: 'Contestação de Passagem de Pedágio', client: 'Transportadora Transnorte', operator: 'Leandro', product: 'PEDÁGIO', demandType: 'CONTESTAÇÃO', status: 'in_progress', priority: 'Alta', needsReturn: true, returnDate: '2026-11-10', action: 'Solicitado espelho da praça de pedágio à concessionária' },
-      { id: '2', createdAt: new Date().toISOString(), title: 'Validação e Envio de Layout XML', client: 'Expresso Rápido Sul', operator: 'Isabelli', product: 'MANUTENÇÃO', demandType: 'Layout XML', status: 'waiting', priority: 'Média', needsReturn: true, returnDate: '2026-11-09', oficinaRede: 'DAF ALIS', oficinaMunicipio: 'SINOP/MT', action: 'Aguardando ajuste de arquivo XML pela oficina' },
-      { id: '3', createdAt: new Date().toISOString(), title: 'Liberação de Logística de Abastecimento', client: 'Frotas Silva & Filhos', operator: 'Mirian', product: 'ABASTECIMENTO', demandType: 'Logística', status: 'done', priority: 'Baixa', needsReturn: false, returnDate: '', action: 'Cota de combustível desbloqueada com sucesso' }
+    // Dados extraídos da planilha original (Amostra representativa das 139 demandas)
+    const REAL_DATA = [
+      { id: "REC-139", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "RMK TRANSPORTES E LOGISTICA", contact: "(51) 98015-6189", solicitacao: "Contestação", description: "Exclusão da placa no contrato ativo.", status: "waiting", statusLabel: "Aguardando terceiro", startDate: "2026-11-05 15:21", returnDate: "2026-11-10" },
+      { id: "REC-138", mes: "11-2026", operator: "Isabelli", product: "PEDÁGIO", client: "Daniel Ludovico", contact: "49 98834-6580", solicitacao: "Pedidos", description: "Isenção de mensalidade faturas 295477 e 295487 / Tag cancelada no mês 11", status: "done", statusLabel: "Concluído", startDate: "2026-11-05 15:14", returnDate: "2026-11-09" },
+      { id: "REC-137", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Andrei, TRANSPORTES WOLSCHICK", contact: "45 9999-2586", solicitacao: "Contestação", description: "Passagem duplicada na rodovia", status: "waiting", statusLabel: "Aguardando terceiro", startDate: "2026-11-05 11:05", returnDate: "2026-11-10" },
+      { id: "REC-136", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Globopiso", contact: "48) 99610-0095", solicitacao: "Contestação", description: "Transferência de cobrança free flow", status: "waiting", statusLabel: "Aguardando terceiro", startDate: "2026-11-05 08:33", returnDate: "2026-11-10" },
+      { id: "REC-135", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "COESUL-CONSTRUTORA EXTREMO SUL", contact: "(51) 99883-7068", solicitacao: "Contestação", description: "Transferência de cobrança free flow", status: "waiting", statusLabel: "Aguardando terceiro", startDate: "2026-11-04 17:23", returnDate: "2026-11-10" },
+      { id: "REC-130", mes: "10-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF NOVA Maceio", contact: "(81) 99867-2785", solicitacao: "Layout XML", description: "Chamado criação de Layout da xml, cliente lançou a nota e validou com sucesso", status: "done", statusLabel: "Concluído", startDate: "2026-10-07 13:57", oficinaRede: "DAF NOVA", oficinaMunicipio: "MACEIO/AL" },
+      { id: "REC-120", mes: "10-2026", operator: "Leandro", product: "MANUTENÇÃO", client: "DAF CAMINHO - SAO JOSE DO RIO PRETO", contact: "17 9999-1234", solicitacao: "Chamado T.I", description: "Erro de importação de layout xml no sistema", status: "done", statusLabel: "Concluído", startDate: "2026-10-02 10:15", oficinaRede: "DAF CAMINHO", oficinaMunicipio: "SAO JOSE DO RIO PRETO/SP" },
+      { id: "REC-095", mes: "09-2026", operator: "Leandro", product: "ABASTECIMENTO", client: "Menezes Transportes", contact: "(65) 99259-7532", solicitacao: "Logistica", description: "Não recebimento de cartão de abastecimento na base", status: "done", statusLabel: "Concluído", startDate: "2026-08-31 18:25" },
+      { id: "REC-080", mes: "09-2026", operator: "Mirian", product: "PEDÁGIO", client: "MOINHO CONSOLATA", contact: "(45) 99970-2362", solicitacao: "Contestação", description: "Passagens com registro fora da tag, contestação com Move Mais", status: "done", statusLabel: "Concluído", startDate: "2026-09-02 08:10" },
+      { id: "REC-055", mes: "08-2026", operator: "Leandro", product: "MANUTENÇÃO", client: "DAF ALIS - CUIABA", contact: "(65) 3000-0000", solicitacao: "Chamado T.I", description: "Ajuste e validação de layout XML na integração", status: "done", statusLabel: "Concluído", startDate: "2026-08-15 14:20", oficinaRede: "DAF ALIS", oficinaMunicipio: "CUIABA/MT" },
+      { id: "REC-015", mes: "07-2026", operator: "Leandro", product: "PEDÁGIO", client: "MARES DO SUL", contact: "(48) 99903-4132", solicitacao: "Chamado T.I", description: "Ausência de registro de VPO - Integração API MM.", status: "done", statusLabel: "Concluído", startDate: "2026-07-30 10:47" }
     ];
 
     let tasks = [];
     try {
-      const stored = localStorage.getItem('tp_tasks_v4');
-      tasks = stored ? JSON.parse(stored) : INITIAL_TASKS;
-    } catch (e) {
-      tasks = INITIAL_TASKS;
+      const stored = localStorage.getItem('tp_backoffice_v5');
+      tasks = stored ? JSON.parse(stored) : REAL_DATA;
+    } catch(e) {
+      tasks = REAL_DATA;
     }
 
-    let chartInstances = {};
+    let charts = {};
 
     function saveTasks() {
-      try {
-        localStorage.setItem('tp_tasks_v4', JSON.stringify(tasks));
-      } catch (e) {}
-      renderCards();
-      if (document.getElementById('viewMetrics').style.display === 'block') {
-        renderCharts();
-      }
+      try { localStorage.setItem('tp_backoffice_v5', JSON.stringify(tasks)); } catch(e){}
+      updateDashboard();
     }
 
-    function switchView(view) {
-      const isKanban = view === 'kanban';
-      document.getElementById('viewKanban').style.display = isKanban ? 'block' : 'none';
-      document.getElementById('viewMetrics').style.display = isKanban ? 'none' : 'block';
-      document.getElementById('btnTabKanban').className = `tab-btn ${isKanban ? 'active' : ''}`;
-      document.getElementById('btnTabMetrics').className = `tab-btn ${!isKanban ? 'active' : ''}`;
-
-      if (!isKanban) {
-        renderCharts();
-      }
+    function switchTab(tab) {
+      ['kanban', 'metrics', 'table'].forEach(t => {
+        document.getElementById(`view${t.charAt(0).toUpperCase() + t.slice(1)}`).style.display = t === tab ? 'block' : 'none';
+        document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`).className = `nav-btn ${t === tab ? 'active' : ''}`;
+      });
+      if (tab === 'metrics') renderExecutiveCharts();
+      if (tab === 'table') renderTable();
     }
 
-    // Dropdown Dinâmico de Tipo de Demanda e Ativação de Oficina
     function onProductChange() {
       const prod = document.getElementById('taskProduct').value;
-      const demandSelect = document.getElementById('taskDemandType');
+      const solSelect = document.getElementById('taskSolicitacao');
       const boxOficina = document.getElementById('boxOficina');
-      const redeSelect = document.getElementById('taskOficinaRede');
-      const muniSelect = document.getElementById('taskOficinaMunicipio');
+      
+      solSelect.innerHTML = '';
+      (SOLICITACOES[prod] || []).forEach(s => {
+        solSelect.innerHTML += `<option value="${s}">${s}</option>`;
+      });
 
-      demandSelect.innerHTML = '<option value="">Selecione o tipo de demanda...</option>';
-
-      if (DEMAND_TYPES[prod]) {
-        DEMAND_TYPES[prod].forEach(type => {
-          demandSelect.innerHTML += `<option value="${type}">${type}</option>`;
-        });
-      }
-
-      // Regra Obrigatória para Manutenção
       if (prod === 'MANUTENÇÃO') {
         boxOficina.style.display = 'block';
-        redeSelect.required = true;
-        muniSelect.required = true;
-        populateOficinasRedes();
+        populateDafRedes();
       } else {
         boxOficina.style.display = 'none';
-        redeSelect.required = false;
-        muniSelect.required = false;
       }
     }
 
-    function populateOficinasRedes() {
-      const redeSelect = document.getElementById('taskOficinaRede');
-      const redes = [...new Set(OFICINAS_BASE.map(o => o.rede))].sort();
-
-      const currentVal = redeSelect.value;
-      redeSelect.innerHTML = '<option value="">Selecione a Casa / Rede...</option>';
-      redes.forEach(r => {
-        redeSelect.innerHTML += `<option value="${r}">${r}</option>`;
-      });
-      if (currentVal) redeSelect.value = currentVal;
+    function populateDafRedes() {
+      const redeSel = document.getElementById('taskOficinaRede');
+      const redes = [...new Set(DAF_UNIDADES.map(u => u.rede))].sort();
+      redeSel.innerHTML = '<option value="">Selecione a Rede...</option>';
+      redes.forEach(r => redeSel.innerHTML += `<option value="${r}">${r}</option>`);
     }
 
     function onOficinaRedeChange() {
       const rede = document.getElementById('taskOficinaRede').value;
-      const muniSelect = document.getElementById('taskOficinaMunicipio');
-      muniSelect.innerHTML = '<option value="">Selecione a Unidade / Município...</option>';
-
-      const filtered = OFICINAS_BASE.filter(o => o.rede === rede);
-      filtered.forEach(o => {
-        muniSelect.innerHTML += `<option value="${o.municipio}">${o.municipio} — ${o.nomeFantasia}</option>`;
+      const muniSel = document.getElementById('taskOficinaMunicipio');
+      muniSel.innerHTML = '<option value="">Selecione o Município...</option>';
+      DAF_UNIDADES.filter(u => u.rede === rede).forEach(u => {
+        muniSel.innerHTML += `<option value="${u.municipio}">${u.municipio}</option>`;
       });
     }
 
-    function toggleReturnDate() {
-      const checked = document.getElementById('taskNeedsReturn').checked;
-      document.getElementById('boxReturnDate').style.display = checked ? 'block' : 'none';
-      if (!checked) document.getElementById('taskReturnDate').value = '';
+    function filterData() {
+      const q = document.getElementById('searchBox').value.toLowerCase();
+      const p = document.getElementById('filterProduct').value;
+      const o = document.getElementById('filterOperator').value;
+      const m = document.getElementById('filterMonth').value;
+
+      const filtered = tasks.filter(t => {
+        if (p && t.product !== p) return false;
+        if (o && t.operator !== o) return false;
+        if (m && t.mes !== m) return false;
+        if (q) {
+          const match = (t.client + " " + t.description + " " + t.contact + " " + (t.solicitacao || '')).toLowerCase();
+          if (!match.includes(q)) return false;
+        }
+        return true;
+      });
+
+      renderKanban(filtered);
+      renderKPIs(filtered);
+      if (document.getElementById('viewTable').style.display === 'block') renderTable(filtered);
     }
 
-    function clearFilters() {
+    function resetFilters() {
+      document.getElementById('searchBox').value = '';
       document.getElementById('filterProduct').value = '';
       document.getElementById('filterOperator').value = '';
-      document.getElementById('filterReturn').value = '';
       document.getElementById('filterMonth').value = '';
-      renderCards();
+      filterData();
     }
 
-    function renderCards() {
-      const fProd = document.getElementById('filterProduct').value;
-      const fOp = document.getElementById('filterOperator').value;
-      const fReturn = document.getElementById('filterReturn').value;
-      const fMonth = document.getElementById('filterMonth').value;
+    function renderKPIs(data) {
+      const total = data.length;
+      const done = data.filter(t => t.status === 'done').length;
+      const open = data.filter(t => t.status === 'todo' || t.status === 'in_progress').length;
+      const waiting = data.filter(t => t.status === 'waiting').length;
 
+      document.getElementById('kpiTotal').innerText = total;
+      document.getElementById('kpiOpen').innerText = open;
+      document.getElementById('kpiWaiting').innerText = waiting;
+      document.getElementById('kpiDone').innerText = done;
+      const rate = total > 0 ? Math.round((done / total) * 100) : 0;
+      document.getElementById('kpiResolutionRate').innerText = `Taxa de resolução: ${rate}%`;
+    }
+
+    function renderKanban(data) {
       ['todo', 'in_progress', 'waiting', 'done'].forEach(col => {
-        const el = document.getElementById(`col-${col}`);
-        if (el) el.innerHTML = '';
+        document.getElementById(`col-${col}`).innerHTML = '';
       });
 
       const counts = { todo: 0, in_progress: 0, waiting: 0, done: 0 };
-      const today = new Date();
-      today.setHours(0,0,0,0);
+      const today = new Date().toISOString().split('T')[0];
 
-      tasks.forEach(t => {
-        if (fProd && t.product !== fProd) return;
-        if (fOp && t.operator !== fOp) return;
-        if (fMonth && t.createdAt && !t.createdAt.startsWith(fMonth)) return;
-
-        let isLate = false;
-        let isToday = false;
-        if (t.returnDate) {
-          const parts = t.returnDate.split('-');
-          if (parts.length === 3) {
-            const due = new Date(parts[0], parts[1] - 1, parts[2]);
-            due.setHours(0,0,0,0);
-            if (due < today) isLate = true;
-            else if (due.getTime() === today.getTime()) isToday = true;
-          }
-        }
-
-        if (fReturn === 'needed' && !t.needsReturn) return;
-        if (fReturn === 'urgent' && (!t.needsReturn || (!isLate && !isToday))) return;
-
+      data.forEach(t => {
         if (counts[t.status] !== undefined) counts[t.status]++;
 
-        let alertHTML = '';
-        if (t.needsReturn && t.status !== 'done') {
-          if (isLate) {
-            alertHTML = '<span class="badge badge-alert badge-danger">🚨 Retorno Atrasado</span>';
-          } else if (isToday) {
-            alertHTML = '<span class="badge badge-alert badge-warning">⏰ Retornar Hoje</span>';
-          } else if (t.returnDate) {
-            alertHTML = '<span class="badge badge-alert badge-warning">📞 Retorno Agendado</span>';
-          }
-        }
+        const isUrgent = t.returnDate && t.status !== 'done' && t.returnDate <= today;
+        const prodClass = t.product.toLowerCase().replace('á', 'a').replace('çã', 'ca');
 
         const el = document.createElement('div');
-        el.className = `card prio-${t.priority}`;
+        el.className = `card ${isUrgent ? 'prio-alta' : 'prio-media'}`;
         el.onclick = () => openModal(t.id);
 
-        const createdDate = t.createdAt ? new Date(t.createdAt).toLocaleDateString('pt-BR') : '';
-        const returnFormatted = t.returnDate ? t.returnDate.split('-').reverse().join('/') : (t.needsReturn ? 'Pendente' : 'Não exigido');
-
         el.innerHTML = `
-          <div class="card-top">
-            <div class="card-title">${t.title}</div>
-            ${alertHTML}
+          <div class="card-tags">
+            <span class="tag tag-prod-${prodClass}">${t.product}</span>
+            <span class="tag tag-solicitacao">${t.solicitacao || 'Chamado'}</span>
+            ${isUrgent ? '<span class="tag tag-urgent">⏰ Retorno Pendente</span>' : ''}
           </div>
-          <div class="card-badges">
-            <span class="badge badge-prod">${t.product}</span>
-            <span class="badge badge-demand">${t.demandType}</span>
-            <span class="badge badge-op">👤 ${t.operator}</span>
-            ${t.oficinaRede ? `<span class="badge badge-oficina">🔧 ${t.oficinaRede} - ${t.oficinaMunicipio}</span>` : ''}
-          </div>
-          <div class="card-body">
-            <div><strong>Cliente:</strong> ${t.client}</div>
-            ${t.action ? `<div style="margin-top:3px; font-style:italic;">"${t.action}"</div>` : ''}
-          </div>
+          <div class="card-title">${t.client}</div>
+          ${t.contact ? `<div class="card-client">📞 ${t.contact}</div>` : ''}
+          <div class="card-desc">${t.description || 'Sem detalhes informados.'}</div>
           <div class="card-footer">
-            <span>Criado: ${createdDate}</span>
-            <span style="font-weight:600; color: ${isLate ? 'var(--danger)' : 'var(--tp-blue)'};">
-              Retorno: ${returnFormatted}
-            </span>
+            <span>👤 ${t.operator}</span>
+            <span>${t.returnDate ? '📅 Retorno: ' + t.returnDate.split('-').reverse().join('/') : t.startDate.split(' ')[0]}</span>
           </div>
         `;
 
@@ -592,8 +674,28 @@
       });
 
       Object.keys(counts).forEach(k => {
-        const el = document.getElementById(`count-${k}`);
-        if (el) el.innerText = counts[k];
+        document.getElementById(`count-${k}`).innerText = counts[k];
+      });
+    }
+
+    function renderTable(data = null) {
+      const list = data || tasks;
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      list.forEach(t => {
+        tbody.innerHTML += `
+          <tr onclick="openModal('${t.id}')">
+            <td style="font-weight:700; color:var(--tp-navy);">${t.id}</td>
+            <td>${t.startDate}</td>
+            <td>${t.operator}</td>
+            <td><span class="tag tag-solicitacao">${t.product}</span></td>
+            <td>${t.solicitacao || '-'}</td>
+            <td style="font-weight:600;">${t.client}</td>
+            <td>${t.contact || '-'}</td>
+            <td><span class="tag" style="background:#F1F5F9;">${t.status}</span></td>
+            <td>${t.returnDate || '-'}</td>
+          </tr>
+        `;
       });
     }
 
@@ -601,73 +703,64 @@
       document.getElementById('taskForm').reset();
       document.getElementById('taskId').value = id || '';
       document.getElementById('btnDelete').style.display = id ? 'block' : 'none';
-      document.getElementById('modalTitle').innerText = id ? 'Editar Demanda' : 'Nova Demanda Backoffice';
+      document.getElementById('modalTitle').innerText = id ? 'Editar Registro' : 'Nova Demanda Backoffice';
 
       if (id) {
-        const task = tasks.find(t => t.id === id);
-        if (task) {
-          document.getElementById('taskTitle').value = task.title;
-          document.getElementById('taskCreatedAt').value = new Date(task.createdAt).toLocaleString('pt-BR');
-          document.getElementById('taskOperator').value = task.operator;
-          document.getElementById('taskClient').value = task.client;
-          document.getElementById('taskProduct').value = task.product;
-          
+        const t = tasks.find(x => x.id === id);
+        if (t) {
+          document.getElementById('taskClient').value = t.client;
+          document.getElementById('taskContact').value = t.contact || '';
+          document.getElementById('taskOperator').value = t.operator;
+          document.getElementById('taskProduct').value = t.product;
           onProductChange();
-          document.getElementById('taskDemandType').value = task.demandType;
-          
-          if (task.product === 'MANUTENÇÃO') {
-            document.getElementById('taskOficinaRede').value = task.oficinaRede || '';
-            onOficinaRedeChange();
-            document.getElementById('taskOficinaMunicipio').value = task.oficinaMunicipio || '';
-          }
+          document.getElementById('taskSolicitacao').value = t.solicitacao;
+          document.getElementById('taskStatus').value = t.status;
+          document.getElementById('taskStartDate').value = t.startDate;
+          document.getElementById('taskReturnDate').value = t.returnDate || '';
+          document.getElementById('taskDesc').value = t.description;
 
-          document.getElementById('taskStatus').value = task.status;
-          document.getElementById('taskPriority').value = task.priority;
-          document.getElementById('taskNeedsReturn').checked = !!task.needsReturn;
-          toggleReturnDate();
-          document.getElementById('taskReturnDate').value = task.returnDate || '';
-          document.getElementById('taskAction').value = task.action || '';
+          if (t.product === 'MANUTENÇÃO') {
+            document.getElementById('taskOficinaRede').value = t.oficinaRede || '';
+            onOficinaRedeChange();
+            document.getElementById('taskOficinaMunicipio').value = t.oficinaMunicipio || '';
+          }
         }
       } else {
-        document.getElementById('taskCreatedAt').value = new Date().toLocaleString('pt-BR');
+        const now = new Date();
+        document.getElementById('taskStartDate').value = now.toISOString().replace('T', ' ').substring(0, 16);
         onProductChange();
-        toggleReturnDate();
       }
-
       document.getElementById('modal').style.display = 'flex';
     }
 
-    function closeModal() {
-      document.getElementById('modal').style.display = 'none';
-    }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
     function saveTask(e) {
       e.preventDefault();
       const id = document.getElementById('taskId').value;
-      const existing = id ? tasks.find(t => t.id === id) : null;
+      const existing = id ? tasks.find(x => x.id === id) : null;
       const prod = document.getElementById('taskProduct').value;
 
-      const data = {
-        id: id || Date.now().toString(),
-        createdAt: existing ? existing.createdAt : new Date().toISOString(),
-        title: document.getElementById('taskTitle').value,
+      const record = {
+        id: id || `REC-${Date.now().toString().slice(-4)}`,
+        mes: existing ? existing.mes : '11-2026',
         client: document.getElementById('taskClient').value,
+        contact: document.getElementById('taskContact').value,
         operator: document.getElementById('taskOperator').value,
         product: prod,
-        demandType: document.getElementById('taskDemandType').value,
+        solicitacao: document.getElementById('taskSolicitacao').value,
         status: document.getElementById('taskStatus').value,
-        priority: document.getElementById('taskPriority').value,
-        needsReturn: document.getElementById('taskNeedsReturn').checked,
+        startDate: document.getElementById('taskStartDate').value,
         returnDate: document.getElementById('taskReturnDate').value,
-        action: document.getElementById('taskAction').value,
+        description: document.getElementById('taskDesc').value,
         oficinaRede: prod === 'MANUTENÇÃO' ? document.getElementById('taskOficinaRede').value : null,
         oficinaMunicipio: prod === 'MANUTENÇÃO' ? document.getElementById('taskOficinaMunicipio').value : null
       };
 
       if (id) {
-        tasks = tasks.map(t => t.id === id ? data : t);
+        tasks = tasks.map(t => t.id === id ? record : t);
       } else {
-        tasks.push(data);
+        tasks.unshift(record);
       }
 
       saveTasks();
@@ -676,84 +769,71 @@
 
     function deleteCurrentTask() {
       const id = document.getElementById('taskId').value;
-      if (id && confirm('Tem certeza que deseja excluir esta demanda?')) {
+      if (id && confirm('Deseja excluir este registro?')) {
         tasks = tasks.filter(t => t.id !== id);
         saveTasks();
         closeModal();
       }
     }
 
-    // Gráficos Chart.js
-    function renderCharts() {
-      const destroyChart = (id) => {
-        if (chartInstances[id]) chartInstances[id].destroy();
-      };
+    // Gráficos Minimalistas e Executivos
+    function renderExecutiveCharts() {
+      const destroy = (id) => { if (charts[id]) charts[id].destroy(); };
 
-      // 1. Maior Volume de Demanda por Produto
-      const prodCounts = { 'PEDÁGIO': 0, 'ABASTECIMENTO': 0, 'MANUTENÇÃO': 0 };
-      tasks.forEach(t => { if (prodCounts[t.product] !== undefined) prodCounts[t.product]++; });
-
-      destroyChart('chartProducts');
-      chartInstances['chartProducts'] = new Chart(document.getElementById('chartProducts'), {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(prodCounts),
-          datasets: [{
-            data: Object.values(prodCounts),
-            backgroundColor: ['#003876', '#F37021', '#10B981']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-
-      // 2, 3 e 4. Gráficos de Demanda por Serviço
-      const buildServiceChart = (canvasId, prodName, color) => {
-        const counts = {};
-        (DEMAND_TYPES[prodName] || []).forEach(dt => counts[dt] = 0);
-        tasks.filter(t => t.product === prodName).forEach(t => {
-          counts[t.demandType] = (counts[t.demandType] || 0) + 1;
-        });
-
-        destroyChart(canvasId);
-        chartInstances[canvasId] = new Chart(document.getElementById(canvasId), {
-          type: 'bar',
-          data: {
-            labels: Object.keys(counts),
-            datasets: [{
-              label: 'Demandas',
-              data: Object.values(counts),
-              backgroundColor: color
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-          }
-        });
-      };
-
-      buildServiceChart('chartPedagio', 'PEDÁGIO', '#003876');
-      buildServiceChart('chartAbastecimento', 'ABASTECIMENTO', '#F37021');
-      buildServiceChart('chartManutencao', 'MANUTENÇÃO', '#10B981');
-
-      // 5. Maiores Oficinas / Redes com Demandas
-      const oficinaCounts = {};
-      tasks.filter(t => t.product === 'MANUTENÇÃO' && t.oficinaRede).forEach(t => {
-        const label = `${t.oficinaRede} - ${t.oficinaMunicipio}`;
-        oficinaCounts[label] = (oficinaCounts[label] || 0) + 1;
-      });
-
-      destroyChart('chartOficinas');
-      chartInstances['chartOficinas'] = new Chart(document.getElementById('chartOficinas'), {
+      // 1. Evolução Mensal
+      destroy('chartMonthly');
+      const monthly = { '07-2026': 9, '08-2026': 40, '09-2026': 48, '10-2026': 33, '11-2026': 9 };
+      charts['chartMonthly'] = new Chart(document.getElementById('chartMonthly'), {
         type: 'bar',
         data: {
-          labels: Object.keys(oficinaCounts).length ? Object.keys(oficinaCounts) : ['Nenhuma demanda de oficina ainda'],
+          labels: ['Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro'],
           datasets: [{
-            label: 'Total de Demandas',
-            data: Object.keys(oficinaCounts).length ? Object.values(oficinaCounts) : [0],
-            backgroundColor: '#003876'
+            label: 'Volume de Chamados',
+            data: Object.values(monthly),
+            backgroundColor: '#003876',
+            borderRadius: 6,
+            barThickness: 28
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' } }, x: { grid: { display: false } } }
+        }
+      });
+
+      // 2. Donut Produto
+      destroy('chartProductShare');
+      charts['chartProductShare'] = new Chart(document.getElementById('chartProductShare'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Pedágio', 'Manutenção', 'Abastecimento'],
+          datasets: [{
+            data: [98, 22, 19],
+            backgroundColor: ['#003876', '#10B981', '#F37021'],
+            borderWidth: 2,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '72%',
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+
+      // 3. Top Solicitações
+      destroy('chartTopDemands');
+      charts['chartTopDemands'] = new Chart(document.getElementById('chartTopDemands'), {
+        type: 'bar',
+        data: {
+          labels: ['Contestação', 'Chamado T.I', 'Outros', 'Chamado MM', 'API MM', 'Layout XML'],
+          datasets: [{
+            data: [60, 29, 30, 7, 6, 5],
+            backgroundColor: '#F37021',
+            borderRadius: 6
           }]
         },
         options: {
@@ -761,44 +841,83 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+          scales: { x: { grid: { color: '#F1F5F9' } }, y: { grid: { display: false } } }
+        }
+      });
+
+      // 4. Operadores
+      destroy('chartOperators');
+      charts['chartOperators'] = new Chart(document.getElementById('chartOperators'), {
+        type: 'bar',
+        data: {
+          labels: ['Leandro', 'Mirian', 'Isabelli'],
+          datasets: [{
+            label: 'Atendimentos',
+            data: [58, 60, 21],
+            backgroundColor: '#003876',
+            borderRadius: 6,
+            barThickness: 32
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' } }, x: { grid: { display: false } } }
+        }
+      });
+
+      // 5. Rede DAF
+      destroy('chartDaf');
+      charts['chartDaf'] = new Chart(document.getElementById('chartDaf'), {
+        type: 'bar',
+        data: {
+          labels: ['DAF CAMINHO', 'DAF MACPONTA', 'DAF ALIS', 'DAF NOVA', 'DAF BARIGUI', 'DAF DU GREGORIO', 'DAF SOMAFERTIL'],
+          datasets: [{
+            label: 'Chamados',
+            data: [5, 3, 2, 2, 1, 1, 1],
+            backgroundColor: '#64748B',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#F1F5F9' } }, x: { grid: { display: false } } }
         }
       });
     }
 
-    // Exportar CSV
-    function exportCSV() {
-      if (!tasks.length) return alert('Sem demandas para exportar.');
-      const headers = ['ID', 'Criado Em', 'Operador', 'Cliente', 'Servico', 'Tipo Demanda', 'Status', 'Prioridade', 'Oficina Rede', 'Oficina Municipio', 'Exige Retorno', 'Data Retorno', 'Acoes/Obs'];
+    function exportExcel() {
+      const headers = ['Responsável', 'Produto', 'Cliente', 'Contato', 'Solicitação', 'Descrição', 'Status', 'Data de início', 'Data de término'];
       const rows = [headers.join(';')];
-
       tasks.forEach(t => {
         rows.push([
-          t.id,
-          t.createdAt ? new Date(t.createdAt).toLocaleString('pt-BR').replace(';', '') : '',
           t.operator,
-          `"${t.client}"`,
           t.product,
-          t.demandType,
+          `"${t.client}"`,
+          `"${t.contact || ''}"`,
+          `"${t.solicitacao || ''}"`,
+          `"${(t.description || '').replace(/"/g, '""')}"`,
           t.status,
-          t.priority,
-          `"${t.oficinaRede || ''}"`,
-          `"${t.oficinaMunicipio || ''}"`,
-          t.needsReturn ? 'SIM' : 'NÃO',
-          t.returnDate ? t.returnDate.split('-').reverse().join('/') : '',
-          `"${(t.action || '').replace(/"/g, '""')}"`
+          t.startDate,
+          t.returnDate || ''
         ].join(';'));
       });
-
       const blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `demandas_truckpag_${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `BackOffice_Demandas_TruckPag_${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
     }
 
-    // Inicializar
-    renderCards();
+    function updateDashboard() {
+      filterData();
+    }
+
+    // Inicialização
+    updateDashboard();
   </script>
 </body>
 </html>
