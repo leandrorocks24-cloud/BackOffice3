@@ -3,25 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TruckPag Backoffice • Gestão de Demandas & Manual</title>
-  <!-- Chart.js para Visualização de Dados -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>TruckPag Backoffice • Operations Console</title>
+  <!-- React 18 e Babel Standalone via CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     /* ==========================================================================
-       DESIGN SYSTEM • PALETA CORPORATIVA TRUCKPAG
+       DESIGN SYSTEM • VARIÁVEIS (SAAS LIGHT & NOC DARK MODE)
        ========================================================================== */
     :root {
-      --tp-green-primary: #008744;
+      --tp-green: #008744;
       --tp-green-accent: #00A859;
-      --tp-green-hover: #006E37;
       --tp-green-light: #ECFDF5;
       --tp-green-border: #A7F3D0;
       
-      --bg: #F8FAFC;
-      --surface: #FFFFFF;
-      --surface-subtle: #F1F5F9;
+      --bg-app: #F8FAFC;
+      --bg-sidebar: #FFFFFF;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F1F5F9;
       --border: #E2E8F0;
       --border-focus: #10B981;
+      
       --text-main: #0F172A;
       --text-muted: #64748B;
       --text-subtle: #94A3B8;
@@ -35,23 +38,27 @@
       --badge-danger-bg: #FEE2E2;
       --badge-danger-text: #991B1B;
 
-      --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-      --card-hover-shadow: 0 6px 14px rgba(0, 135, 68, 0.08);
-      --chart-grid: #F1F5F9;
+      --note-bg: #FFFBEB;
+      --note-border: #FDE68A;
+      --note-text: #92400E;
+
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      --card-hover: 0 4px 12px rgba(0, 135, 68, 0.08);
     }
 
     body.dark-theme {
-      --tp-green-primary: #00A859;
+      --tp-green: #00A859;
       --tp-green-accent: #34D399;
-      --tp-green-hover: #059669;
       --tp-green-light: #064E3B;
       --tp-green-border: #047857;
 
-      --bg: #0B111A;
-      --surface: #141E2E;
-      --surface-subtle: #1B273A;
+      --bg-app: #0B111A;
+      --bg-sidebar: #0F172A;
+      --bg-surface: #141E2E;
+      --bg-subtle: #1B273A;
       --border: #243447;
       --border-focus: #34D399;
+
       --text-main: #F1F5F9;
       --text-muted: #94A3B8;
       --text-subtle: #64748B;
@@ -65,1425 +72,740 @@
       --badge-danger-bg: #7F1D1D;
       --badge-danger-text: #FECACA;
 
-      --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      --card-hover-shadow: 0 6px 16px rgba(0, 168, 89, 0.15);
-      --chart-grid: #243447;
+      --note-bg: #271A0C;
+      --note-border: #78350F;
+      --note-text: #FDE68A;
+
+      --card-shadow: 0 2px 4px rgba(0,0,0,0.25);
+      --card-hover: 0 4px 16px rgba(0, 168, 89, 0.15);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; transition: background-color 0.15s, border-color 0.15s, color 0.15s; }
-    body { background-color: var(--bg); color: var(--text-main); font-size: 13px; line-height: 1.45; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg-app); color: var(--text-main); font-size: 13px; line-height: 1.45; overflow: hidden; height: 100vh; }
 
-    /* Layout com Sidebar */
-    .app-layout { display: flex; min-height: 100vh; }
-    
-    .sidebar { width: 230px; background: var(--surface); border-right: 1px solid var(--border); padding: 18px 14px; display: flex; flex-direction: column; justify-content: space-between; position: sticky; top: 0; height: 100vh; flex-shrink: 0; z-index: 10; }
-    .sidebar-top { display: flex; flex-direction: column; gap: 16px; }
-    
-    .brand { display: flex; align-items: center; gap: 10px; padding: 0 4px; }
-    .brand-logo { width: 34px; height: 34px; background: linear-gradient(135deg, var(--tp-green-primary), var(--tp-green-accent)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 15px; }
-    .brand-text h1 { font-size: 15px; color: var(--tp-green-primary); font-weight: 700; line-height: 1.2; }
-    .brand-text p { color: var(--text-muted); font-size: 11px; }
-
-    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; }
-    .nav-item:hover { background: var(--surface-subtle); color: var(--text-main); }
-    .nav-item.active { background: var(--tp-green-light); color: var(--tp-green-primary); font-weight: 700; }
-
-    .btn-create { width: 100%; padding: 9px 12px; background: var(--tp-green-primary); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 1px 3px rgba(0, 135, 68, 0.2); }
-    .btn-create:hover { background: var(--tp-green-hover); }
-
-    .sidebar-footer { border-top: 1px solid var(--border); padding-top: 12px; display: flex; justify-content: space-between; align-items: center; }
-    .theme-icon-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-subtle); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; color: var(--text-main); }
-    .theme-icon-btn:hover { border-color: var(--tp-green-accent); }
-
-    /* Área Principal */
-    .main-area { flex: 1; padding: 22px 28px; overflow-y: auto; }
-
-    /* KPIs Executivos */
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 18px; }
-    .kpi-card { background: var(--surface); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); box-shadow: var(--card-shadow); }
-    .kpi-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
-    .kpi-num { font-size: 20px; font-weight: 800; color: var(--tp-green-primary); margin-top: 2px; }
-
-    /* Barra de Filtros com Dropdown Cascata */
-    .filters-bar { background: var(--surface); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
-    .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-    .input-icon-wrap { position: relative; display: flex; align-items: center; }
-    .input-icon-wrap select, .input-icon-wrap input { padding: 6px 10px 6px 26px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); outline: none; }
-    .input-icon-wrap select:disabled { opacity: 0.5; cursor: not-allowed; }
-    .input-icon-wrap .icon { position: absolute; left: 8px; font-size: 11px; color: var(--text-muted); pointer-events: none; }
-
-    button.btn-sec { padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); cursor: pointer; }
-    button.btn-sec:hover { border-color: var(--tp-green-accent); }
-
-    /* Quadro Kanban */
-    .view-pane { display: block; }
-    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
-    @media (max-width: 1000px) { .board { grid-template-columns: 1fr; } }
-
-    .column { background: var(--surface-subtle); border-radius: 10px; padding: 12px; min-height: 580px; border: 1px solid var(--border); }
-    .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; font-weight: 700; color: var(--tp-green-primary); text-transform: uppercase; }
-    .col-count { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); padding: 2px 7px; border-radius: 10px; font-size: 11px; font-weight: 700; }
-    .cards-list { display: flex; flex-direction: column; gap: 8px; }
-
-    /* Card Kanban */
-    .card { background: var(--surface); border-radius: 8px; padding: 11px 13px; box-shadow: var(--card-shadow); border: 1px solid var(--border); cursor: pointer; display: flex; flex-direction: column; gap: 6px; border-left: 3px solid var(--tp-green-primary); }
-    .card:hover { transform: translateY(-1px); box-shadow: var(--card-hover-shadow); border-color: var(--border-focus); }
-    
-    .card.status-todo { border-left-color: #F59E0B; }
-    .card.status-process { border-left-color: #0284C7; }
-    .card.status-done { border-left-color: var(--tp-green-primary); }
-
-    .card-top-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-    .card-tags-group { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
-    
-    .tag-clean { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: var(--surface-subtle); color: var(--text-muted); border: 1px solid var(--border); }
-    .tag-solic { background: var(--tp-green-light); color: var(--tp-green-primary); border: 1px solid var(--tp-green-border); }
-    .tag-bitrix { background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; font-weight: 700; }
-    .tag-bitrix:hover { background: #E0E7FF; }
-    
-    .card-timer { font-size: 10px; font-weight: 600; color: var(--text-subtle); display: inline-flex; align-items: center; gap: 3px; background: var(--surface-subtle); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); white-space: nowrap; }
-
-    .card-middle-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-    .card-client-name { font-weight: 700; font-size: 13px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-daf-tag { font-size: 10px; font-weight: 700; color: #0284C7; background: #E0F2FE; border: 1px solid #BAE6FD; padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
-
-    .card-bottom-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 5px; margin-top: 2px; }
-
-    /* Dashboard BI & Relatórios */
-    .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
-    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; }
-    .chart-card.col-6 { grid-column: span 6; }
-    .chart-card.col-12 { grid-column: span 12; }
-    @media (max-width: 900px) { .chart-card.col-6 { grid-column: span 12; } }
-
-    .chart-headline { font-size: 13px; font-weight: 700; color: var(--tp-green-primary); margin-bottom: 2px; line-height: 1.3; }
-    .chart-subheadline { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
-    .chart-container { position: relative; height: 250px; width: 100%; flex: 1; }
-
-    /* Tabela SLA */
-    .sla-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
-    .sla-table th { background: var(--surface-subtle); padding: 8px 12px; font-weight: 700; color: var(--tp-green-primary); border-bottom: 1px solid var(--border); text-align: left; }
-    .sla-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
-    .sla-pill { padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 11px; }
-    .sla-good { background: var(--badge-done-bg); color: var(--badge-done-text); }
-    .sla-mid { background: var(--badge-todo-bg); color: var(--badge-todo-text); }
-    .sla-high { background: var(--badge-danger-bg); color: var(--badge-danger-text); }
-
-    /* Tabela de Registros */
-    .table-container { background: var(--surface); border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; box-shadow: var(--card-shadow); }
-    table.data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
-    table.data-table thead tr { background: var(--surface-subtle); border-bottom: 1px solid var(--border); }
-    table.data-table th { padding: 9px 12px; font-weight: 700; color: var(--tp-green-primary); }
-    table.data-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    table.data-table tbody tr:hover { background: var(--surface-subtle); cursor: pointer; }
+    /* Layout Geral de 3 Colunas */
+    .app-container { display: flex; height: 100vh; width: 100vw; }
 
     /* ==========================================================================
-       ABA BASE DE CONHECIMENTO (NOTION MANUAL INTEGRADO)
+       COLUNA 1: SIDEBAR / FILAS & VISÕES (~230px)
        ========================================================================== */
-    .kb-header { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); padding: 18px 20px; margin-bottom: 18px; box-shadow: var(--card-shadow); }
-    .kb-header h2 { font-size: 17px; color: var(--tp-green-primary); font-weight: 800; display: flex; align-items: center; gap: 8px; }
-    .kb-header p { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .col-sidebar { width: 230px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; padding: 14px 10px; flex-shrink: 0; }
     
-    .kb-search-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-    .kb-search-input { flex: 1; min-width: 260px; padding: 9px 14px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-subtle); color: var(--text-main); outline: none; }
-    .kb-search-input:focus { border-color: var(--tp-green-accent); background: var(--surface); }
+    .brand-box { display: flex; align-items: center; gap: 8px; padding: 0 6px 12px 6px; border-bottom: 1px solid var(--border); }
+    .brand-logo { width: 30px; height: 30px; background: linear-gradient(135deg, var(--tp-green), var(--tp-green-accent)); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px; }
+    .brand-info h1 { font-size: 13px; font-weight: 700; color: var(--tp-green); line-height: 1.1; }
+    .brand-info p { font-size: 10px; color: var(--text-muted); }
 
-    .kb-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
-    .kb-chip { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; background: var(--surface-subtle); border: 1px solid var(--border); color: var(--text-muted); }
-    .kb-chip.active { background: var(--tp-green-primary); color: #fff; border-color: var(--tp-green-primary); }
-
-    .kb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; margin-top: 16px; }
-    .kb-card { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); padding: 18px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; justify-content: space-between; }
-    .kb-card-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; width: fit-content; margin-bottom: 8px; }
-    .badge-abast { background: #FEF3C7; color: #92400E; }
-    .badge-ped { background: #E0F2FE; color: #0369A1; }
-    .badge-daf { background: #DCFCE7; color: #166534; }
-    .badge-contato { background: #F3E8FF; color: #6B21A8; }
-    .badge-template { background: #F1F5F9; color: #334155; }
-
-    .kb-card h3 { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
-    .kb-card p { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px; }
-    .kb-card-box { background: var(--surface-subtle); border-radius: 6px; padding: 10px 12px; font-size: 11.5px; border-left: 3px solid var(--tp-green-primary); margin-bottom: 10px; }
+    .nav-section-title { font-size: 10px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 8px 4px 8px; }
+    .nav-list { display: flex; flex-direction: column; gap: 2px; }
     
-    .template-code { background: #1E293B; color: #F8FAFC; padding: 10px 12px; border-radius: 6px; font-family: monospace; font-size: 11px; white-space: pre-wrap; margin-bottom: 10px; }
-    .btn-copy-template { align-self: flex-start; padding: 5px 10px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
-    .btn-copy-template:hover { border-color: var(--tp-green-accent); color: var(--tp-green-primary); }
+    .nav-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 7px 10px; font-size: 12px; font-weight: 600; color: var(--text-muted); background: transparent; border: none; border-radius: 6px; cursor: pointer; text-align: left; transition: all 0.15s; }
+    .nav-btn:hover { background: var(--bg-subtle); color: var(--text-main); }
+    .nav-btn.active { background: var(--tp-green-light); color: var(--tp-green); font-weight: 700; }
+    .nav-badge { font-size: 10px; padding: 1px 6px; border-radius: 10px; background: var(--bg-subtle); color: var(--text-muted); }
+    .nav-btn.active .nav-badge { background: var(--tp-green); color: #fff; }
 
-    /* Modal */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
-    .modal-content { background: var(--surface); width: 95%; max-width: 580px; padding: 22px; border-radius: 10px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); border: 1px solid var(--border); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-    .modal-header h2 { font-size: 15px; color: var(--tp-green-primary); font-weight: 700; }
+    .sidebar-footer { border-top: 1px solid var(--border); padding-top: 10px; display: flex; align-items: center; justify-content: space-between; }
+    .operator-profile { display: flex; align-items: center; gap: 8px; }
+    .operator-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--tp-green); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; }
+    .operator-name { font-size: 11px; font-weight: 600; }
+    .theme-toggle-btn { background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-main); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
+    /* ==========================================================================
+       COLUNA 2: LISTA DE TICKETS (~370px)
+       ========================================================================== */
+    .col-tickets { width: 370px; background: var(--bg-app); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
     
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
-    .form-group.full { grid-column: span 2; }
-    .form-group label { font-size: 11px; font-weight: 700; color: var(--tp-green-primary); }
-    .form-group input, .form-group select, .form-group textarea { font-size: 12px; padding: 7px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); outline: none; }
-    .form-group input[readonly] { background: var(--surface-subtle); cursor: not-allowed; }
+    .tickets-header { padding: 12px 14px; background: var(--bg-sidebar); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+    .tickets-search-wrap { position: relative; width: 100%; }
+    .tickets-search-wrap .search-icon { position: absolute; left: 8px; top: 7px; color: var(--text-subtle); font-size: 12px; }
+    .tickets-search-input { width: 100%; padding: 6px 10px 6px 26px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-main); outline: none; }
+    .tickets-search-input:focus { border-color: var(--border-focus); background: var(--bg-surface); }
+    
+    .tickets-meta-bar { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); font-weight: 600; }
 
-    .sla-hint-row { grid-column: span 2; background: var(--tp-green-light); border: 1px solid var(--tp-green-border); padding: 8px 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--tp-green-primary); margin-bottom: 6px; }
-    .oficina-row { grid-column: span 2; background: var(--surface-subtle); border: 1px solid var(--tp-green-border); padding: 10px; border-radius: 6px; display: none; margin-bottom: 6px; }
-    .bitrix-row { grid-column: span 2; background: #EEF2FF; border: 1px solid #C7D2FE; padding: 10px; border-radius: 6px; display: none; margin-bottom: 6px; }
+    .tickets-scroll-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+
+    .ticket-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent; }
+    .ticket-card:hover { transform: translateY(-1px); box-shadow: var(--card-hover); border-color: var(--border-focus); }
+    .ticket-card.selected { border-left-color: var(--tp-green); background: var(--bg-subtle); box-shadow: var(--card-shadow); }
+
+    .ticket-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .ticket-id { font-size: 11px; font-weight: 700; color: var(--tp-green); font-family: monospace; }
+    .ticket-sla { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
+    .sla-urgent { background: var(--badge-danger-bg); color: var(--badge-danger-text); }
+    .sla-normal { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+    .sla-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
+
+    .ticket-title { font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ticket-client { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+
+    .ticket-tags { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+    .tag-pill { font-size: 9.5px; font-weight: 600; padding: 2px 5px; border-radius: 4px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+    .tag-daf { color: #0284C7; background: #E0F2FE; border-color: #BAE6FD; font-weight: 700; }
+    .tag-bitrix { color: #4F46E5; background: #EEF2FF; border-color: #C7D2FE; font-weight: 700; }
+
+    /* ==========================================================================
+       COLUNA 3: DETALHES & LINHA DO TEMPO / CHAT (FLEX 1)
+       ========================================================================== */
+    .col-detail { flex: 1; background: var(--bg-surface); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    .detail-topbar { padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-sidebar); }
+    .detail-title-group h2 { font-size: 15px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    .detail-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .detail-actions { display: flex; align-items: center; gap: 8px; }
+    .status-select, .op-select { font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); cursor: pointer; outline: none; }
+
+    /* Barra de Metadados Horizontal */
+    .metadata-strip { display: flex; flex-wrap: wrap; gap: 16px; padding: 10px 18px; background: var(--bg-subtle); border-bottom: 1px solid var(--border); font-size: 11.5px; }
+    .meta-item { display: flex; align-items: center; gap: 4px; color: var(--text-muted); }
+    .meta-item strong { color: var(--text-main); font-weight: 600; }
+
+    /* Linha do Tempo / Mensagens */
+    .timeline-container { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+
+    .message-row { display: flex; gap: 10px; max-width: 85%; }
+    .message-row.client { align-self: flex-start; }
+    .message-row.public { align-self: flex-end; flex-direction: row-reverse; }
+    .message-row.internal { align-self: stretch; max-width: 100%; }
+
+    .message-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .avatar-client { background: #E2E8F0; color: #475569; }
+    .avatar-public { background: var(--tp-green); color: #fff; }
+    .avatar-internal { background: #F59E0B; color: #fff; }
+
+    .message-bubble { border-radius: 8px; padding: 10px 14px; font-size: 12px; line-height: 1.5; box-shadow: var(--card-shadow); border: 1px solid var(--border); }
+    
+    .message-row.client .message-bubble { background: var(--bg-subtle); border-color: var(--border); }
+    .message-row.public .message-bubble { background: var(--tp-green-light); border-color: var(--tp-green-border); color: var(--text-main); }
+    
+    /* Nota Interna Destacada */
+    .message-row.internal .message-bubble { background: var(--note-bg); border-color: var(--note-border); color: var(--note-text); width: 100%; border-left: 4px solid #F59E0B; }
+
+    .message-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 11px; gap: 10px; }
+    .message-sender { font-weight: 700; }
+    .message-time { color: var(--text-subtle); font-size: 10px; }
+
+    /* Compositor de Mensagens / Notas */
+    .composer-area { padding: 12px 18px; border-top: 1px solid var(--border); background: var(--bg-sidebar); display: flex; flex-direction: column; gap: 8px; }
+    
+    .composer-tabs { display: flex; justify-content: space-between; align-items: center; }
+    .tab-toggles { display: flex; gap: 4px; background: var(--bg-subtle); padding: 3px; border-radius: 6px; }
+    .toggle-btn { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 4px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; }
+    .toggle-btn.active.public { background: var(--bg-surface); color: var(--tp-green); font-weight: 700; box-shadow: var(--card-shadow); }
+    .toggle-btn.active.internal { background: #FEF3C7; color: #92400E; font-weight: 700; box-shadow: var(--card-shadow); }
+
+    .macro-bar { display: flex; gap: 4px; align-items: center; }
+    .macro-chip { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; }
+    .macro-chip:hover { border-color: var(--border-focus); color: var(--text-main); }
+
+    .composer-input-row { display: flex; gap: 8px; align-items: flex-end; }
+    .composer-textarea { flex: 1; resize: none; height: 64px; padding: 8px 12px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
+    .composer-textarea:focus { border-color: var(--border-focus); }
+    .composer-textarea.internal-mode { background: var(--note-bg); border-color: var(--note-border); }
+
+    .btn-send { height: 64px; padding: 0 16px; font-size: 12px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+    .btn-send.public { background: var(--tp-green); color: #fff; }
+    .btn-send.public:hover { opacity: 0.9; }
+    .btn-send.internal { background: #D97706; color: #fff; }
+    .btn-send.internal:hover { opacity: 0.9; }
   </style>
 </head>
 <body>
 
-  <div class="app-layout">
-    
-    <!-- MENU LATERAL (SIDEBAR) -->
-    <aside class="sidebar">
-      <div class="sidebar-top">
-        <div class="brand">
-          <div class="brand-logo">TP</div>
-          <div class="brand-text">
-            <h1>TruckPag</h1>
-            <p>Backoffice Central</p>
-          </div>
-        </div>
+  <div id="root"></div>
 
-        <button class="btn-create" onclick="openModal()">+ Nova Demanda</button>
-
-        <nav class="sidebar-nav">
-          <button class="nav-item active" id="tabKanban" onclick="switchTab('kanban')">
-            <span>📋</span> Quadro Kanban
-          </button>
-          <button class="nav-item" id="tabMetrics" onclick="switchTab('metrics')">
-            <span>📊</span> SLA & Métricas
-          </button>
-          <button class="nav-item" id="tabTable" onclick="switchTab('table')">
-            <span>📑</span> Registros
-          </button>
-          <button class="nav-item" id="tabManual" onclick="switchTab('manual')">
-            <span>📖</span> Base de Conhecimento
-          </button>
-        </nav>
-      </div>
-
-      <div class="sidebar-footer">
-        <span style="font-size: 11px; color: var(--text-muted);">Modo de Exibição</span>
-        <button class="theme-icon-btn" id="btnThemeToggle" onclick="toggleTheme()" title="Alternar Tema Claro / Escuro">🌙</button>
-      </div>
-    </aside>
-
-    <!-- ÁREA PRINCIPAL -->
-    <main class="main-area">
-      
-      <!-- Mini Indicadores (KPIs) -->
-      <div class="kpi-row">
-        <div class="kpi-card">
-          <div class="kpi-title">Total Demandas</div>
-          <div class="kpi-num" id="kpiTotal">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">SLA Médio Histórico</div>
-          <div class="kpi-num" style="color:var(--tp-green-primary);">12.2 d</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">Abertos</div>
-          <div class="kpi-num" id="kpiOpen" style="color:#F59E0B;">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">Em Processo</div>
-          <div class="kpi-num" id="kpiProcess" style="color:#0284C7;">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-title">Concluídos</div>
-          <div class="kpi-num" id="kpiDone" style="color:var(--tp-green-primary);">0</div>
-        </div>
-      </div>
-
-      <!-- Barra de Filtros com Cascata Produto -> Categoria -->
-      <div class="filters-bar" id="filtersBarContainer">
-        <div class="filter-items">
-          <div class="input-icon-wrap">
-            <span class="icon">🔍</span>
-            <input type="text" id="searchBox" placeholder="Buscar cliente, Bitrix..." onkeyup="filterData()" style="width: 170px;">
-          </div>
-          
-          <!-- Filtro 1: Produto -->
-          <div class="input-icon-wrap">
-            <span class="icon">🏷️</span>
-            <select id="filterProduct" onchange="onFilterProductChange()">
-              <option value="">Todos os Produtos</option>
-              <option value="PEDÁGIO">Pedágio</option>
-              <option value="MANUTENÇÃO">Manutenção</option>
-              <option value="ABASTECIMENTO">Abastecimento</option>
-            </select>
-          </div>
-
-          <!-- Filtro 2 (Cascata): Categoria de Solicitação -->
-          <div class="input-icon-wrap">
-            <span class="icon">📂</span>
-            <select id="filterCategory" onchange="filterData()" disabled>
-              <option value="">Todas as Categorias</option>
-            </select>
-          </div>
-
-          <div class="input-icon-wrap">
-            <span class="icon">👤</span>
-            <select id="filterOperator" onchange="filterData()">
-              <option value="">Operador (Todos)</option>
-              <option value="Leandro">Leandro</option>
-              <option value="Mirian">Mirian</option>
-              <option value="Isabelli">Isabelli</option>
-            </select>
-          </div>
-
-          <div class="input-icon-wrap">
-            <span class="icon">🏢</span>
-            <select id="filterDaf" onchange="filterData()">
-              <option value="">Rede DAF (Todas)</option>
-              <option value="DAF ALIS">DAF ALIS</option>
-              <option value="DAF AVANTY">DAF AVANTY</option>
-              <option value="DAF BARIGUI">DAF BARIGUI</option>
-              <option value="DAF CAIOBA TRUCKS">DAF CAIOBA</option>
-              <option value="DAF CAMINHO">DAF CAMINHO</option>
-              <option value="DAF DU GREGORIO">DAF DU GREGORIO</option>
-              <option value="DAF ELDORADO">DAF ELDORADO</option>
-              <option value="DAF FORNECEDORA">DAF FORNECEDORA</option>
-              <option value="DAF MACPONTA">DAF MACPONTA</option>
-              <option value="DAF NOVA">DAF NOVA</option>
-              <option value="DAF VIA TRUCKS">DAF VIA TRUCKS</option>
-            </select>
-          </div>
-
-          <button class="btn-sec" onclick="resetFilters()">🔄 Limpar</button>
-        </div>
-
-        <div>
-          <button class="btn-sec" onclick="exportExcel()">📤 Exportar (BR)</button>
-        </div>
-      </div>
-
-      <!-- ABA 1: KANBAN -->
-      <div id="viewKanban" class="view-pane">
-        <div class="board">
-          <div class="column">
-            <div class="col-header">
-              <span>📥 Aberto</span>
-              <span class="col-count" id="count-todo">0</span>
-            </div>
-            <div class="cards-list" id="col-todo"></div>
-          </div>
-          <div class="column">
-            <div class="col-header">
-              <span>⚙️ Em processo</span>
-              <span class="col-count" id="count-in_progress">0</span>
-            </div>
-            <div class="cards-list" id="col-in_progress"></div>
-          </div>
-          <div class="column">
-            <div class="col-header">
-              <span>✅ Concluído / Finalizado</span>
-              <span class="col-count" id="count-done">0</span>
-            </div>
-            <div class="cards-list" id="col-done"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ABA 2: SLA & MÉTRICAS (SEM PIZZA • COM ACTION HEADLINES) -->
-      <div id="viewMetrics" class="view-pane" style="display:none;">
-        <div class="dashboard-grid">
-          
-          <div class="chart-card col-6">
-            <div class="chart-headline" id="titleChartProduct">
-              Pedágio concentra 70,5% da demanda operacional da central
-            </div>
-            <div class="chart-subheadline" id="subChartProduct">
-              Comparativo de volume absoluto por linha de negócio
-            </div>
-            <div class="chart-container">
-              <canvas id="chartProductShare"></canvas>
-            </div>
-          </div>
-
-          <div class="chart-card col-6">
-            <div class="chart-headline" id="titleChartMonthly">
-              Setembro registrou o pico trimestral com salto de 20% vs Agosto
-            </div>
-            <div class="chart-subheadline">
-              Volume histórico mensal de chamados registrados (Julho a Novembro/2026)
-            </div>
-            <div class="chart-container">
-              <canvas id="chartMonthly"></canvas>
-            </div>
-          </div>
-
-          <div class="chart-card col-6">
-            <div class="chart-headline">
-              Chamados MM e Contestações demandam os maiores ciclos de resolução (>15 dias)
-            </div>
-            <div class="chart-subheadline">
-              Tempo médio real em dias corridos entre a abertura e a conclusão
-            </div>
-            <div class="chart-container">
-              <canvas id="chartSlaBars"></canvas>
-            </div>
-          </div>
-
-          <div class="chart-card col-6">
-            <div class="chart-headline">
-              DAF Caminho concentra a maior frequência de acionamentos de Manutenção
-            </div>
-            <div class="chart-subheadline">
-              Redes e concessionárias com maior número de ocorrências de integração e layout
-            </div>
-            <div class="chart-container">
-              <canvas id="chartDaf"></canvas>
-            </div>
-          </div>
-
-          <div class="chart-card col-12">
-            <div class="chart-headline">
-              Mapeamento de Eficiência Operacional & Prazos Sugeridos de Atendimento
-            </div>
-            <div class="chart-subheadline">
-              Parâmetros calculados sobre o histórico de casos concluídos para alinhamento com clientes
-            </div>
-            <table class="sla-table">
-              <thead>
-                <tr>
-                  <th>Tipo de Solicitação</th>
-                  <th>Tempo Médio Real</th>
-                  <th>Mediana (Caso Típico)</th>
-                  <th>SLA Recomendado ao Cliente</th>
-                  <th>Status do Ciclo</th>
-                </tr>
-              </thead>
-              <tbody id="slaTableBody"></tbody>
-            </table>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ABA 3: REGISTROS -->
-      <div id="viewTable" class="view-pane" style="display:none;">
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Início (BR)</th>
-                <th>Responsável</th>
-                <th>Produto</th>
-                <th>Solicitação</th>
-                <th>Casa DAF</th>
-                <th>Bitrix</th>
-                <th>Cliente</th>
-                <th>Status</th>
-                <th>Término / Retorno</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ABA 4: BASE DE CONHECIMENTO (MANUAL NOTION INTEGRADO) -->
-      <div id="viewManual" class="view-pane" style="display:none;">
-        <div class="kb-header">
-          <h2>📖 Manual de Atendimento BackOffice • Base de Conhecimento</h2>
-          <p>Consulta rápida a procedimentos operacionais, acordos de SLA, regras de faturamento e contatos estratégicos extraídos do Notion oficial da TruckPag.</p>
-          
-          <div class="kb-search-row">
-            <input type="text" class="kb-search-input" id="manualSearchInput" placeholder="🔍 Digite para buscar qualquer processo, regra, contato ou palavra-chave..." onkeyup="filterManual()">
-          </div>
-
-          <div class="kb-chips">
-            <div class="kb-chip active" onclick="setManualCategory('all', this)">Todos os Tópicos</div>
-            <div class="kb-chip" onclick="setManualCategory('abastecimento', this)">⛽ Abastecimento</div>
-            <div class="kb-chip" onclick="setManualCategory('pedagio', this)">🛣️ Pedágio & TAGs</div>
-            <div class="kb-chip" onclick="setManualCategory('manutencao', this)">🔧 Manutenção DAF</div>
-            <div class="kb-chip" onclick="setManualCategory('contatos', this)">📞 Contatos & Gestores</div>
-            <div class="kb-chip" onclick="setManualCategory('templates', this)">💬 Modelos de Mensagem</div>
-          </div>
-        </div>
-
-        <div class="kb-grid" id="kbGridContainer">
-          <!-- Gerado dinamicamente via JavaScript com conteúdo do Notion -->
-        </div>
-      </div>
-
-    </main>
-  </div>
-
-  <!-- MODAL DE CRIAÇÃO / EDIÇÃO -->
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 id="modalTitle">Demanda Operacional</h2>
-        <button onclick="closeModal()" style="border:none; background:none; font-size:16px; cursor:pointer; color:var(--text-muted);">✖</button>
-      </div>
-
-      <form id="taskForm" onsubmit="saveTask(event)">
-        <input type="hidden" id="taskId">
-
-        <div class="form-grid">
-          <div class="form-group full">
-            <label>Cliente / Razão Social</label>
-            <input type="text" id="taskClient" required placeholder="Ex: Transportadora Silva">
-          </div>
-
-          <div class="form-group">
-            <label>Telefone / Contato</label>
-            <input type="text" id="taskContact" placeholder="(00) 00000-0000">
-          </div>
-          <div class="form-group">
-            <label>Responsável</label>
-            <select id="taskOperator" required>
-              <option value="Leandro">Leandro</option>
-              <option value="Mirian">Mirian</option>
-              <option value="Isabelli">Isabelli</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Produto</label>
-            <select id="taskProduct" required onchange="onProductChange()">
-              <option value="PEDÁGIO">Pedágio</option>
-              <option value="MANUTENÇÃO">Manutenção</option>
-              <option value="ABASTECIMENTO">Abastecimento</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Tipo de Solicitação</label>
-            <select id="taskSolicitacao" required onchange="onSolicitacaoChange()"></select>
-          </div>
-
-          <!-- CAMPO OBRIGATÓRIO BITRIX (CHAMADO T.I) -->
-          <div class="bitrix-row" id="boxBitrix">
-            <div class="form-group full" style="margin-bottom:0;">
-              <label style="color:#4338CA;">🔗 Link Card Bitrix (Obrigatório para Chamado T.I)</label>
-              <input type="url" id="taskBitrixLink" placeholder="https://truckpag.bitrix24.com.br/workgroups/group/...">
-            </div>
-          </div>
-
-          <!-- Sugestão SLA -->
-          <div class="sla-hint-row" id="boxSlaHint">
-            <div id="slaHintText">💡 Média histórica: <strong>--</strong></div>
-            <button type="button" class="btn-create" style="padding:3px 8px; font-size:11px;" onclick="applySuggestedSlaDate()">⚡ Aplicar Prazo</button>
-          </div>
-
-          <!-- Concessionária DAF Obrigatória -->
-          <div class="oficina-row" id="boxOficina">
-            <div style="font-weight:700; color:var(--tp-green-primary); margin-bottom: 6px; font-size:11px;">🔧 Concessionária DAF (Obrigatório para Manutenção)</div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-              <div class="form-group">
-                <label>Casa / Rede DAF</label>
-                <select id="taskOficinaRede" onchange="onOficinaRedeChange()"></select>
-              </div>
-              <div class="form-group">
-                <label>Município</label>
-                <select id="taskOficinaMunicipio"></select>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Status</label>
-            <select id="taskStatus">
-              <option value="todo">📥 Aberto</option>
-              <option value="in_progress">⚙️ Em processo</option>
-              <option value="done">✅ Concluído / Finalizado</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Início (BR)</label>
-            <input type="text" id="taskStartDate" readonly>
-          </div>
-
-          <div class="form-group full">
-            <label>Data Limite / Retorno Agendado (BR)</label>
-            <input type="date" id="taskReturnDate">
-          </div>
-
-          <div class="form-group full">
-            <label>Descrição / Histórico</label>
-            <textarea id="taskDesc" rows="2" placeholder="Descreva brevemente a ocorrência..."></textarea>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px;">
-          <button type="button" id="btnDelete" onclick="deleteCurrentTask()" style="display:none; background:var(--badge-danger-bg); color:var(--badge-danger-text); border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">Excluir</button>
-          <div style="margin-left:auto; display:flex; gap:8px;">
-            <button type="button" class="btn-sec" onclick="closeModal()">Cancelar</button>
-            <button type="submit" class="btn-create" style="width:auto; padding:6px 14px;">Salvar Registro</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    // =========================================================================
-    // UTILITÁRIOS DE DATA BR & TIMER
-    // =========================================================================
-    function getNowBR() {
-      const now = new Date();
-      const d = String(now.getDate()).padStart(2, '0');
-      const m = String(now.getMonth() + 1).padStart(2, '0');
-      const y = now.getFullYear();
-      const h = String(now.getHours()).padStart(2, '0');
-      const min = String(now.getMinutes()).padStart(2, '0');
-      return `${d}/${m}/${y} ${h}:${min}`;
-    }
-
-    function formatToBRDate(dateString) {
-      if (!dateString) return '';
-      if (dateString.includes('/')) return dateString.split(' ')[0];
-      if (dateString.includes('-')) {
-        const parts = dateString.split('T')[0].split(' ')[0].split('-');
-        if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-      }
-      return dateString;
-    }
-
-    function parseBRToDateObj(brStr) {
-      if (!brStr) return null;
-      if (brStr.includes('/')) {
-        const [datePart, timePart] = brStr.split(' ');
-        const [dia, mes, ano] = datePart.split('/');
-        const [hora, min] = timePart ? timePart.split(':') : [0, 0];
-        return new Date(ano, mes - 1, dia, hora, min);
-      }
-      return new Date(brStr);
-    }
-
-    function getElapsedTimeLabel(startDateStr, endDateStr, isDone) {
-      const start = parseBRToDateObj(startDateStr);
-      if (!start || isNaN(start.getTime())) return '';
-      const end = isDone && endDateStr ? parseBRToDateObj(endDateStr) : new Date();
-      if (!end || isNaN(end.getTime())) return '';
-
-      const diffMs = Math.max(0, end - start);
-      const diffMinutes = Math.floor(diffMs / 60000);
-      const diffHours = Math.floor(diffMinutes / 60);
-      const diffDays = Math.floor(diffHours / 24);
-
-      if (diffDays > 0) return `⏱️ ${diffDays}d ${diffHours % 24}h`;
-      if (diffHours > 0) return `⏱️ ${diffHours}h ${diffMinutes % 60}m`;
-      return `⏱️ ${diffMinutes}m`;
-    }
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
     // =========================================================================
-    // ESTRUTURAS DE NEGÓCIO (NOTION & EXCEL)
+    // 6 TICKETS FICTÍCIOS REALISTAS (CONTEXTO BACKOFFICE TRUCKPAG)
     // =========================================================================
-    const SOLICITACOES_POR_PRODUTO = {
-      'PEDÁGIO': ['Contestação', 'Chamado T.I', 'Chamado MM', 'API MM', 'Pedidos', 'Isenção', 'Transferência', 'Outros'],
-      'ABASTECIMENTO': ['Logistica', 'Chamado T.I', 'Isenção', 'Outros'],
-      'MANUTENÇÃO': ['Chamado T.I', 'Layout XML', 'Pedidos', 'Orçamento', 'Outros']
-    };
-
-    const SLA_BENCHMARKS = {
-      'Logistica': { mean: 0.7, median: 0.7, suggested: 1 },
-      'Pedidos': { mean: 2.0, median: 1.9, suggested: 2 },
-      'API MM': { mean: 6.3, median: 4.7, suggested: 6 },
-      'Outros': { mean: 7.5, median: 3.9, suggested: 7 },
-      'Layout XML': { mean: 8.5, median: 5.0, suggested: 8 },
-      'Chamado T.I': { mean: 10.6, median: 5.9, suggested: 10 },
-      'Contestação': { mean: 15.6, median: 13.4, suggested: 15 },
-      'Chamado MM': { mean: 28.2, median: 9.4, suggested: 25 },
-      'Isenção': { mean: 30.0, median: 30.0, suggested: 30 }
-    };
-
-    const DAF_UNIDADES = [
-      {"rede": "DAF ALIS", "municipio": "CUIABA/MT"},
-      {"rede": "DAF ALIS", "municipio": "SINOP/MT"},
-      {"rede": "DAF AVANTY", "municipio": "BENEVIDES/PA"},
-      {"rede": "DAF BARIGUI", "municipio": "CASCAVEL/PR"},
-      {"rede": "DAF BARIGUI", "municipio": "SAO JOSE DOS PINHAIS/PR"},
-      {"rede": "DAF CAIOBA TRUCKS", "municipio": "CAMPO GRANDE/MS"},
-      {"rede": "DAF CAMINHO", "municipio": "SAO JOSE DO RIO PRETO/SP"},
-      {"rede": "DAF CAMINHO", "municipio": "RIBEIRAO PRETO/SP"},
-      {"rede": "DAF DU GREGORIO", "municipio": "BRASILIA/DF"},
-      {"rede": "DAF ELDORADO", "municipio": "CAXIAS DO SUL/RS"},
-      {"rede": "DAF FORNECEDORA", "municipio": "TERESINA/PI"},
-      {"rede": "DAF MACPONTA", "municipio": "PONTA GROSSA/PR"},
-      {"rede": "DAF NOVA", "municipio": "MACEIO/AL"},
-      {"rede": "DAF VIA TRUCKS", "municipio": "CONTAGEM/MG"}
-    ];
-
-    // =========================================================================
-    // BASE DE CONHECIMENTO EXTRAÍDA DO NOTION OFICIAL
-    // =========================================================================
-    const MANUAL_ARTICLES = [
+    const INITIAL_TICKETS = [
       {
-        id: "art-1",
-        category: "abastecimento",
-        badge: "⛽ Abastecimento",
-        badgeClass: "badge-abast",
-        title: "Nota Fiscal Tributável vs. NFS Não Tributável",
-        content: "Explicação crucial para transportadoras sobre a natureza da cobrança e a inexistência de bitributação.",
-        box: "<strong>NF-e Tributável (Posto):</strong> Comprova o consumo direto do combustível pelo motorista. Sobre ela incidem ICMS, PIS e COFINS recolhidos na origem pelo posto.<br><br><strong>NFS Não Tributável (TruckPag):</strong> É o documento de repasse e liquidação financeira do crédito utilizado no período. Como o imposto já foi recolhido no abastecimento, a fatura de repasse TruckPag não sofre nova tributação, garantindo conciliação legal e sem bi-tributação ao cliente."
-      },
-      {
-        id: "art-2",
-        category: "abastecimento",
-        badge: "⛽ Abastecimento",
-        badgeClass: "badge-abast",
-        title: "Ciclo de Fatura, Lote Fechado e Estorno",
-        content: "Como proceder quando ocorre cancelamento ou devolução com a fatura do cliente já emitida/liquidada.",
-        box: "<strong>Lote Fechado:</strong> Uma vez consolidada e emitida a fatura do mês, o sistema contábil não pode alterar retroativamente um título já liquidado.<br><br><strong>Compensação de Crédito:</strong> O cancelamento entra automaticamente como crédito no ciclo seguinte. Se o crédito for maior que as novas compras, a fatura do mês seguinte fica com saldo credor (negativo), abatendo os gastos dos meses seguintes até zerar."
-      },
-      {
-        id: "art-3",
-        category: "manutencao",
-        badge: "🔧 Manutenção DAF",
-        badgeClass: "badge-daf",
-        title: "Erro de Preço em Lançamento DAF (Processo Nº 10)",
-        content: "Ocorre quando o valor de peças ou serviços lançados pela concessionária diverge da tabela padrão DAF.",
-        box: "<strong>Emissão inferior a 24 horas:</strong> Orientar a concessionária a cancelar a nota e reemitir com os valores corrigidos da tabela.<br><br><strong>Emissão superior a 24 horas:</strong> Não cancelar na SEFAZ. Solicitar Carta de Correção Eletrônica (CC-e) para itens aceitos ou solicitar processo de estorno e crédito residual via Financeiro/Crédito."
-      },
-      {
-        id: "art-4",
-        category: "manutencao",
-        badge: "🔧 Manutenção DAF",
-        badgeClass: "badge-daf",
-        title: "Erro de Layout XML / Integração DealerNet (Processo Nº 8)",
-        content: "Falha na importação de arquivos XML das concessionárias autorizadas.",
-        box: "<strong>Ação Operacional Backoffice:</strong> Verificar o layout padrão da casa (DealerNet, Linx, NBS). Abrir chamado obrigatório no <strong>Bitrix (TI)</strong> com o arquivo XML original anexado. Copiar o link do chamado Bitrix e vincular diretamente ao card do painel."
-      },
-      {
-        id: "art-5",
-        category: "manutencao",
-        badge: "🔧 Manutenção DAF",
-        badgeClass: "badge-daf",
-        title: "NF + NFS Juntas (Erro Diário Nº 6)",
-        content: "Tratativa quando clientes exigem o faturamento segregado entre peças e serviços.",
-        box: "<strong>Responsável:</strong> Gestor de Relacionamento.<br><strong>Procedimento:</strong> A plataforma TruckPag exige a geração de duas Ordens de Serviço (OS) separadas para que a emissão da NF-e (peças/mercadorias) e da NFS-e (mão de obra) ocorra sem conflito fiscal de alíquotas."
-      },
-      {
-        id: "art-6",
-        category: "pedagio",
-        badge: "🛣️ Pedágio",
-        badgeClass: "badge-ped",
-        title: "Contestações MoveMais e Exceções de TAG",
-        content: "Tratativas de cobrança indevida, passagens duplicadas, eixos suspensos e free flow.",
-        box: "<strong>SLA Base de Atendimento:</strong> 24h para envio da documentação à operadora.<br><strong>SLA da Concessionária da Rodovia:</strong> De 15 a 30 dias úteis para espelho e cancelamento de cobrança.<br><strong>Canal Direto:</strong> relacionamento@movemais.com ou telefone 0800 777 1022 (URA 1 → 2)."
-      },
-      {
-        id: "art-7",
-        category: "contatos",
-        badge: "📞 Contatos & Escalonamento",
-        badgeClass: "badge-contato",
-        title: "Lista de Contatos Chave do BackOffice",
-        content: "Ramais e canais diretos para acionamentos internos e operadoras.",
-        box: "• <strong>Envio de TAGs & Control:</strong> Bruna (45) 99918-0553 | Valdineia (45) 99918-0450<br>• <strong>Operadora MoveMais:</strong> 0800 777 1022 | relacionamento@movemais.com<br>• <strong>Crédito e Risco:</strong> Lorem (até R$ 1 mi) (11) 93374-0566 | Calita (> R$ 1 mi) (49) 99133-1976<br>• <strong>Gestão de Manutenção (DAF):</strong> Rivael (42) 98881-2884<br>• <strong>Logística de Cartões:</strong> Gustavo e Mariana (41) 99143-5462"
-      },
-      {
-        id: "art-8",
-        category: "contatos",
-        badge: "📞 Gestores DAF",
-        badgeClass: "badge-contato",
-        title: "Gestores Responsáveis por Concessionária DAF",
-        content: "Contatos de linha direta dos gestores para resolução de pendências de notas.",
-        box: "• <strong>DAF Alis:</strong> Jessica Moraes - (65) 99665-6898<br>• <strong>DAF Avanthy:</strong> Bruna Cardoso - (91) 99343-3711<br>• <strong>DAF Barigui:</strong> Georgea Ribas - (41) 99186-1106<br>• <strong>DAF Caiobá:</strong> Amanda Alves - (67) 99946-8650<br>• <strong>DAF Caminho:</strong> Shirley Montenegro - (17) 99673-2561<br>• <strong>DAF Du Gregorio:</strong> Flaviane de Lima - (62) 99807-2123<br>• <strong>DAF Eldorado:</strong> Paulo Zviezynski - (51) 99842-8834<br>• <strong>DAF Fornecedora:</strong> Alexandre da Silva - (85) 99825-0282<br>• <strong>DAF Macponta:</strong> Sandra Chempceke - (42) 98815-1731<br>• <strong>DAF Nissey:</strong> Alexandre Brito - (69) 98457-5696<br>• <strong>DAF Nova:</strong> Stella Andrade - (81) 99888-5549<br>• <strong>DAF Sancar:</strong> Fabiano Conrado - (32) 98856-0011<br>• <strong>DAF Somafertil:</strong> Adelvar Nepomucena - (62) 99811-6121<br>• <strong>DAF Via Trucks MG:</strong> Telio Alves - (31) 99368-0396<br>• <strong>DAF Via Trucks SP:</strong> Nivaldo Pistori - (11) 94200-5278"
-      },
-      {
-        id: "art-9",
-        category: "templates",
-        badge: "💬 Template Rápido",
-        badgeClass: "badge-template",
-        title: "Template //cadastro_veiculo (WhatsApp/E-mail)",
-        content: "Modelo rápido para solicitar dados de frotas e veículos novos ao cliente.",
-        templateText: "Para que possamos dar andamento e concluir o cadastro do veículo, solicitamos o envio das seguintes informações:\n\nPlaca:\nMarca/Modelo:\nAno:\nCor:\nEstado/Município:"
-      },
-      {
-        id: "art-10",
-        category: "templates",
-        badge: "💬 Template Rápido",
-        badgeClass: "badge-template",
-        title: "Template //cadastro_usuario (WhatsApp/E-mail)",
-        content: "Modelo rápido para coletar dados cadastrais de novos usuários gestores.",
-        templateText: "Para que possamos dar andamento e concluir a liberação de acesso à plataforma TruckPag, solicitamos o envio dos seguintes dados:\n\nNome completo:\nCPF:\nE-mail corporativo:\nTelefone de contato:"
-      }
-    ];
-
-    // =========================================================================
-    // DADOS INICIAIS DE DEMANDAS
-    // =========================================================================
-    const REAL_DATA = [
-      { id: "REC-139", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "RMK TRANSPORTES E LOGISTICA", contact: "(51) 98015-6189", solicitacao: "Contestação", description: "Exclusão da placa no contrato ativo.", status: "in_progress", startDate: "05/11/2026 15:21", returnDate: "20/11/2026" },
-      { id: "REC-138", mes: "11-2026", operator: "Isabelli", product: "PEDÁGIO", client: "Daniel Ludovico", contact: "49 98834-6580", solicitacao: "Pedidos", description: "Isenção de mensalidade faturas 295477 e 295487 / Tag cancelada no mês 11", status: "done", startDate: "05/11/2026 15:14", endDate: "09/11/2026 08:29", durationDays: 3.7, returnDate: "09/11/2026" },
-      { id: "REC-137", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Andrei, TRANSPORTES WOLSCHICK", contact: "45 9999-2586", solicitacao: "Contestação", description: "Passagem duplicada na rodovia", status: "in_progress", startDate: "05/11/2026 11:05", returnDate: "20/11/2026" },
-      { id: "REC-134", mes: "11-2026", operator: "Leandro", product: "MANUTENÇÃO", client: "DAF ALIS - CUIABA", contact: "(65) 3000-0000", solicitacao: "Chamado T.I", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4590/", description: "Erro de layout xml com integração de faturamento", status: "in_progress", startDate: "04/11/2026 10:00", returnDate: "12/11/2026", oficinaRede: "DAF ALIS", oficinaMunicipio: "CUIABA/MT" },
-      { id: "REC-130", mes: "10-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF NOVA Maceio", contact: "(81) 99867-2785", solicitacao: "Layout XML", description: "Chamado criação de Layout da xml, cliente lançou a nota deu certo", status: "done", startDate: "07/10/2026 13:57", endDate: "15/10/2026 17:23", durationDays: 8.1, returnDate: "15/10/2026", oficinaRede: "DAF NOVA", oficinaMunicipio: "MACEIO/AL" },
-      { id: "REC-120", mes: "10-2026", operator: "Leandro", product: "MANUTENÇÃO", client: "DAF CAMINHO - SAO JOSE DO RIO PRETO", contact: "17 9999-1234", solicitacao: "Chamado T.I", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4412/", description: "Erro de importação de layout xml no sistema", status: "done", startDate: "02/10/2026 10:15", endDate: "04/10/2026 09:30", durationDays: 2.0, returnDate: "04/10/2026", oficinaRede: "DAF CAMINHO", oficinaMunicipio: "SAO JOSE DO RIO PRETO/SP" },
-      { id: "REC-095", mes: "09-2026", operator: "Leandro", product: "ABASTECIMENTO", client: "Menezes Transportes", contact: "(65) 99259-7532", solicitacao: "Logistica", description: "Não recebimento de cartão de abastecimento na base", status: "done", startDate: "31/08/2026 18:25", endDate: "01/09/2026 11:43", durationDays: 0.7, returnDate: "01/09/2026" },
-      { id: "REC-015", mes: "07-2026", operator: "Leandro", product: "PEDÁGIO", client: "MARES DO SUL", contact: "(48) 99903-4132", solicitacao: "Chamado T.I", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/3801/", description: "Ausência de registro de VPO - Integração API MM.", status: "done", startDate: "30/07/2026 10:47", endDate: "14/08/2026 16:20", durationDays: 15.2, returnDate: "14/08/2026" }
-    ];
-
-    let tasks = [];
-    try {
-      const stored = localStorage.getItem('tp_backoffice_v10');
-      tasks = stored ? JSON.parse(stored) : REAL_DATA;
-    } catch(e) {
-      tasks = REAL_DATA;
-    }
-
-    let charts = {};
-    let currentManualCategory = 'all';
-
-    function saveTasks() {
-      try { localStorage.setItem('tp_backoffice_v10', JSON.stringify(tasks)); } catch(e){}
-      updateDashboard();
-    }
-
-    // =========================================================================
-    // TEMA CLARO / ESCURO MINIMALISTA
-    // =========================================================================
-    function initTheme() {
-      const saved = localStorage.getItem('tp_theme') || 'light';
-      if (saved === 'dark') {
-        document.body.classList.add('dark-theme');
-        document.getElementById('btnThemeToggle').innerHTML = '☀️';
-      } else {
-        document.body.classList.remove('dark-theme');
-        document.getElementById('btnThemeToggle').innerHTML = '🌙';
-      }
-    }
-
-    function toggleTheme() {
-      const isDark = document.body.classList.toggle('dark-theme');
-      localStorage.setItem('tp_theme', isDark ? 'dark' : 'light');
-      document.getElementById('btnThemeToggle').innerHTML = isDark ? '☀️' : '🌙';
-      if (document.getElementById('viewMetrics').style.display === 'block') {
-        renderExecutiveCharts();
-      }
-    }
-
-    // =========================================================================
-    // NAVEGAÇÃO ENTRE AS 4 ABAS
-    // =========================================================================
-    function switchTab(tab) {
-      ['kanban', 'metrics', 'table', 'manual'].forEach(t => {
-        const pane = document.getElementById(`view${t.charAt(0).toUpperCase() + t.slice(1)}`);
-        if (pane) pane.style.display = (t === tab ? 'block' : 'none');
-        
-        const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
-        if (btn) {
-          if (t === tab) btn.classList.add('active');
-          else btn.classList.remove('active');
-        }
-      });
-
-      // Esconde ou exibe barra de filtros dependendo da aba
-      const filtersBar = document.getElementById('filtersBarContainer');
-      if (filtersBar) {
-        filtersBar.style.display = (tab === 'manual' ? 'none' : 'flex');
-      }
-
-      if (tab === 'metrics') renderExecutiveCharts();
-      if (tab === 'table') renderTable();
-      if (tab === 'manual') renderManual();
-    }
-
-    // =========================================================================
-    // BASE DE CONHECIMENTO (RENDERIZAÇÃO & FILTROS)
-    // =========================================================================
-    function renderManual() {
-      const container = document.getElementById('kbGridContainer');
-      if (!container) return;
-      container.innerHTML = '';
-
-      const search = (document.getElementById('manualSearchInput')?.value || '').toLowerCase();
-
-      const filtered = MANUAL_ARTICLES.filter(art => {
-        if (currentManualCategory !== 'all' && art.category !== currentManualCategory) return false;
-        if (search) {
-          const textAll = (art.title + ' ' + art.content + ' ' + (art.box || '') + ' ' + (art.templateText || '')).toLowerCase();
-          if (!textAll.includes(search)) return false;
-        }
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<div style="grid-column: span 2; text-align:center; padding: 40px; color: var(--text-muted);">Nenhum procedimento encontrado com o termo pesquisado.</div>`;
-        return;
-      }
-
-      filtered.forEach(art => {
-        const el = document.createElement('div');
-        el.className = 'kb-card';
-
-        let actionArea = '';
-        if (art.templateText) {
-          actionArea = `
-            <div class="template-code">${art.templateText}</div>
-            <button class="btn-copy-template" onclick="copyTemplate(this, \`${art.templateText.replace(/`/g, '\\`')}\`)">📋 Copiar Mensagem</button>
-          `;
-        } else if (art.box) {
-          actionArea = `<div class="kb-card-box">${art.box}</div>`;
-        }
-
-        el.innerHTML = `
-          <div>
-            <span class="kb-card-badge ${art.badgeClass}">${art.badge}</span>
-            <h3>${art.title}</h3>
-            <p>${art.content}</p>
-          </div>
-          ${actionArea}
-        `;
-        container.appendChild(el);
-      });
-    }
-
-    function filterManual() {
-      renderManual();
-    }
-
-    function setManualCategory(cat, btn) {
-      currentManualCategory = cat;
-      document.querySelectorAll('.kb-chips .kb-chip').forEach(c => c.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-      renderManual();
-    }
-
-    function copyTemplate(button, text) {
-      navigator.clipboard.writeText(text).then(() => {
-        const oldText = button.innerHTML;
-        button.innerHTML = '✅ Copiado!';
-        setTimeout(() => button.innerHTML = oldText, 2000);
-      });
-    }
-
-    // =========================================================================
-    // FILTRO EM CASCATA: PRODUTO -> CATEGORIA DE SOLICITAÇÃO
-    // =========================================================================
-    function onFilterProductChange() {
-      const prod = document.getElementById('filterProduct').value;
-      const catSelect = document.getElementById('filterCategory');
-
-      if (!prod) {
-        catSelect.innerHTML = '<option value="">Todas as Categorias</option>';
-        catSelect.disabled = true;
-      } else {
-        catSelect.disabled = false;
-        catSelect.innerHTML = '<option value="">Todas as Categorias (' + prod + ')</option>';
-        (SOLICITACOES_POR_PRODUTO[prod] || []).forEach(cat => {
-          catSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-        });
-      }
-
-      filterData();
-    }
-
-    // =========================================================================
-    // FORMULÁRIO DINÂMICO & BITRIX
-    // =========================================================================
-    function onProductChange() {
-      const prod = document.getElementById('taskProduct').value;
-      const solSelect = document.getElementById('taskSolicitacao');
-      const boxOficina = document.getElementById('boxOficina');
-      
-      solSelect.innerHTML = '';
-      (SOLICITACOES_POR_PRODUTO[prod] || []).forEach(s => {
-        solSelect.innerHTML += `<option value="${s}">${s}</option>`;
-      });
-
-      if (prod === 'MANUTENÇÃO') {
-        boxOficina.style.display = 'block';
-        populateDafRedes();
-      } else {
-        boxOficina.style.display = 'none';
-      }
-      onSolicitacaoChange();
-    }
-
-    function onSolicitacaoChange() {
-      const sol = document.getElementById('taskSolicitacao').value;
-      const boxBitrix = document.getElementById('boxBitrix');
-      const bitrixInput = document.getElementById('taskBitrixLink');
-
-      if (sol === 'Chamado T.I') {
-        boxBitrix.style.display = 'block';
-        bitrixInput.required = true;
-      } else {
-        boxBitrix.style.display = 'none';
-        bitrixInput.required = false;
-      }
-
-      const b = SLA_BENCHMARKS[sol] || { mean: 7, suggested: 7 };
-      document.getElementById('slaHintText').innerHTML = `💡 Média histórica: <strong>~${b.mean} dias</strong> (SLA sugerido: ${b.suggested} dias úteis)`;
-    }
-
-    function applySuggestedSlaDate() {
-      const sol = document.getElementById('taskSolicitacao').value;
-      const b = SLA_BENCHMARKS[sol] || { suggested: 7 };
-      const d = new Date();
-      d.setDate(d.getDate() + b.suggested);
-      document.getElementById('taskReturnDate').value = d.toISOString().split('T')[0];
-    }
-
-    function populateDafRedes() {
-      const redeSel = document.getElementById('taskOficinaRede');
-      const redes = [...new Set(DAF_UNIDADES.map(u => u.rede))].sort();
-      redeSel.innerHTML = '<option value="">Selecione...</option>';
-      redes.forEach(r => redeSel.innerHTML += `<option value="${r}">${r}</option>`);
-    }
-
-    function onOficinaRedeChange() {
-      const rede = document.getElementById('taskOficinaRede').value;
-      const muniSel = document.getElementById('taskOficinaMunicipio');
-      muniSel.innerHTML = '<option value="">Município...</option>';
-      DAF_UNIDADES.filter(u => u.rede === rede).forEach(u => {
-        muniSel.innerHTML += `<option value="${u.municipio}">${u.municipio}</option>`;
-      });
-    }
-
-    // =========================================================================
-    // FILTROS & RENDERIZAÇÃO
-    // =========================================================================
-    function filterData() {
-      const q = document.getElementById('searchBox').value.toLowerCase();
-      const p = document.getElementById('filterProduct').value;
-      const c = document.getElementById('filterCategory').value;
-      const o = document.getElementById('filterOperator').value;
-      const d = document.getElementById('filterDaf').value;
-
-      const filtered = tasks.filter(t => {
-        if (p && t.product !== p) return false;
-        if (c && t.solicitacao !== c) return false;
-        if (o && t.operator !== o) return false;
-        if (d && t.oficinaRede !== d) return false;
-        if (q) {
-          const match = (t.client + " " + t.description + " " + (t.oficinaRede || '') + " " + (t.solicitacao || '') + " " + (t.bitrixLink || '')).toLowerCase();
-          if (!match.includes(q)) return false;
-        }
-        return true;
-      });
-
-      renderKanban(filtered);
-      renderKPIs(filtered);
-      renderTable(filtered);
-      if (document.getElementById('viewMetrics').style.display === 'block') {
-        renderExecutiveCharts(filtered);
-      }
-    }
-
-    function resetFilters() {
-      document.getElementById('searchBox').value = '';
-      document.getElementById('filterProduct').value = '';
-      document.getElementById('filterCategory').innerHTML = '<option value="">Todas as Categorias</option>';
-      document.getElementById('filterCategory').disabled = true;
-      document.getElementById('filterOperator').value = '';
-      document.getElementById('filterDaf').value = '';
-      filterData();
-    }
-
-    function renderKPIs(data) {
-      document.getElementById('kpiTotal').innerText = data.length;
-      document.getElementById('kpiOpen').innerText = data.filter(t => t.status === 'todo').length;
-      document.getElementById('kpiProcess').innerText = data.filter(t => t.status === 'in_progress').length;
-      document.getElementById('kpiDone').innerText = data.filter(t => t.status === 'done').length;
-    }
-
-    function renderKanban(data) {
-      ['todo', 'in_progress', 'done'].forEach(col => {
-        const el = document.getElementById(`col-${col}`);
-        if (el) el.innerHTML = '';
-      });
-
-      const counts = { todo: 0, in_progress: 0, done: 0 };
-
-      data.forEach(t => {
-        if (counts[t.status] !== undefined) counts[t.status]++;
-
-        const isDone = t.status === 'done';
-        const timerLabel = getElapsedTimeLabel(t.startDate, t.endDate, isDone);
-
-        const el = document.createElement('div');
-        el.className = `card status-${isDone ? 'done' : (t.status === 'todo' ? 'todo' : 'process')}`;
-        el.onclick = () => openModal(t.id);
-
-        el.innerHTML = `
-          <div class="card-top-row">
-            <div class="card-tags-group">
-              <span class="tag-clean">${t.product}</span>
-              <span class="tag-clean tag-solic">${t.solicitacao || 'Demanda'}</span>
-              ${t.bitrixLink ? `<a href="${t.bitrixLink}" target="_blank" class="tag-clean tag-bitrix" onclick="event.stopPropagation()">🔗 Bitrix</a>` : ''}
-            </div>
-            ${timerLabel ? `<span class="card-timer" title="Tempo em aberto">${timerLabel}</span>` : ''}
-          </div>
-
-          <div class="card-middle-row">
-            <span class="card-client-name" title="${t.client}">${t.client}</span>
-            ${t.oficinaRede ? `<span class="card-daf-tag">${t.oficinaRede}</span>` : ''}
-          </div>
-
-          <div class="card-bottom-row">
-            <span>👤 ${t.operator}</span>
-            <span>📅 ${t.returnDate ? 'Retorno: ' + formatToBRDate(t.returnDate) : formatToBRDate(t.startDate)}</span>
-          </div>
-        `;
-
-        const container = document.getElementById(`col-${t.status}`);
-        if (container) container.appendChild(el);
-      });
-
-      Object.keys(counts).forEach(k => {
-        const el = document.getElementById(`count-${k}`);
-        if (el) el.innerText = counts[k];
-      });
-    }
-
-    function renderTable(data = null) {
-      const list = data || tasks;
-      const tbody = document.getElementById('tableBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      list.forEach(t => {
-        const statusMap = { 'done': 'Concluído', 'todo': 'Aberto', 'in_progress': 'Em processo' };
-        tbody.innerHTML += `
-          <tr onclick="openModal('${t.id}')">
-            <td style="font-weight:700; color:var(--tp-green-primary);">${t.id}</td>
-            <td>${t.startDate}</td>
-            <td>${t.operator}</td>
-            <td>${t.product}</td>
-            <td>${t.solicitacao || '-'}</td>
-            <td>${t.oficinaRede || '-'}</td>
-            <td>${t.bitrixLink ? `<a href="${t.bitrixLink}" target="_blank" onclick="event.stopPropagation()" style="color:#4F46E5; font-weight:700;">🔗 Bitrix</a>` : '-'}</td>
-            <td style="font-weight:600;">${t.client}</td>
-            <td><span class="tag-clean">${statusMap[t.status] || t.status}</span></td>
-            <td>${formatToBRDate(t.returnDate) || '-'}</td>
-          </tr>
-        `;
-      });
-    }
-
-    // =========================================================================
-    // MODAL FORM
-    // =========================================================================
-    function openModal(id = null) {
-      document.getElementById('taskForm').reset();
-      document.getElementById('taskId').value = id || '';
-      document.getElementById('btnDelete').style.display = id ? 'block' : 'none';
-      document.getElementById('modalTitle').innerText = id ? 'Editar Registro' : 'Nova Demanda';
-
-      if (id) {
-        const t = tasks.find(x => x.id === id);
-        if (t) {
-          document.getElementById('taskClient').value = t.client;
-          document.getElementById('taskContact').value = t.contact || '';
-          document.getElementById('taskOperator').value = t.operator;
-          document.getElementById('taskProduct').value = t.product;
-          onProductChange();
-          document.getElementById('taskSolicitacao').value = t.solicitacao;
-          onSolicitacaoChange();
-          document.getElementById('taskBitrixLink').value = t.bitrixLink || '';
-          document.getElementById('taskStatus').value = t.status;
-          document.getElementById('taskStartDate').value = t.startDate;
-          document.getElementById('taskReturnDate').value = t.returnDate ? t.returnDate.split('/').reverse().join('-') : '';
-          document.getElementById('taskDesc').value = t.description || '';
-
-          if (t.product === 'MANUTENÇÃO') {
-            document.getElementById('taskOficinaRede').value = t.oficinaRede || '';
-            onOficinaRedeChange();
-            document.getElementById('taskOficinaMunicipio').value = t.oficinaMunicipio || '';
+        id: "TP-1042",
+        title: "Erro de Layout XML - Concessionária DAF Alis Cuiabá",
+        client: "Transportes Transnorte Ltda",
+        contact: "(65) 99665-6898 (Jessica)",
+        operator: "Leandro",
+        product: "MANUTENÇÃO",
+        solicitacao: "Chamado T.I",
+        dafRede: "DAF ALIS",
+        dafMunicipio: "CUIABA/MT",
+        bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4590/",
+        status: "in_progress",
+        priority: "Alta",
+        slaCountdown: "3h 40m restantes",
+        slaUrgent: true,
+        startDate: "09/11/2026 09:15",
+        returnDate: "10/11/2026",
+        messages: [
+          {
+            id: 1,
+            type: "client",
+            sender: "Jessica • DAF Alis Cuiabá",
+            time: "09/11/2026 09:15",
+            text: "Bom dia! Estamos tentando subir o arquivo XML da NF 28901 no sistema DealerNet da concessionária, mas o integrador acusa erro de schema na tag de tributação."
+          },
+          {
+            id: 2,
+            type: "internal",
+            sender: "Leandro Silveira (Nota Interna)",
+            time: "09/11/2026 10:20",
+            text: "🔒 Chamado técnico aberto no Bitrix #4590 com o XML original anexado. Equipe de TI já identificou que a concessionária está usando o layout legado."
+          },
+          {
+            id: 3,
+            type: "public",
+            sender: "Leandro Silveira (Suporte TruckPag)",
+            time: "09/11/2026 11:00",
+            text: "Olá Jessica! Nosso time de engenharia já está ajustando os nós do arquivo XML com o suporte do DealerNet. Retornaremos com o arquivo validado até às 17h."
           }
-        }
-      } else {
-        document.getElementById('taskStartDate').value = getNowBR();
-        onProductChange();
+        ]
+      },
+      {
+        id: "TP-1043",
+        title: "Contestação de Cobrança Free Flow SP-330",
+        client: "Moinho Consolata",
+        contact: "(45) 99970-2362 (Carlos)",
+        operator: "Mirian",
+        product: "PEDÁGIO",
+        solicitacao: "Contestação",
+        status: "in_progress",
+        priority: "Média",
+        slaCountdown: "1d 8h restantes",
+        slaUrgent: false,
+        startDate: "08/11/2026 14:30",
+        returnDate: "20/11/2026",
+        messages: [
+          {
+            id: 1,
+            type: "client",
+            sender: "Carlos • Moinho Consolata",
+            time: "08/11/2026 14:30",
+            text: "Identificamos cobrança duplicada no pórtico de pedágio Free Flow do veículo placa BEN-7033 no dia 05/11. Solicitamos cancelamento da cobrança indevida."
+          },
+          {
+            id: 2,
+            type: "internal",
+            sender: "Mirian Santos (Nota Interna)",
+            time: "08/11/2026 16:00",
+            text: "🔒 Ocorrência enviada para relacionamento@movemais.com sob protocolo MoveMais 12443036327 com o relatório de telemetria anexado."
+          },
+          {
+            id: 3,
+            type: "public",
+            sender: "Mirian Santos (Suporte TruckPag)",
+            time: "09/11/2026 08:45",
+            text: "Bom dia, Carlos! O chamado de contestação junto à concessionária da rodovia foi aberto com sucesso sob o protocolo 12443036327. O prazo de espelho é de até 15 dias úteis."
+          }
+        ]
+      },
+      {
+        id: "TP-1044",
+        title: "Compensação de Crédito Estorno Fora de Lote",
+        client: "Auto Posto Araúna / Frotas Silva",
+        contact: "(66) 99641-4871",
+        operator: "Isabelli",
+        product: "ABASTECIMENTO",
+        solicitacao: "Logistica",
+        status: "todo",
+        priority: "Alta",
+        slaCountdown: "1h 50m restantes",
+        slaUrgent: true,
+        startDate: "09/11/2026 13:00",
+        returnDate: "10/11/2026",
+        messages: [
+          {
+            id: 1,
+            type: "client",
+            sender: "Financeiro • Frotas Silva",
+            time: "09/11/2026 13:00",
+            text: "Tivemos um cancelamento de abastecimento de R$ 350,00 referente ao mês de Outubro, porém a fatura fechou com valor integral e já foi liquidada. Como será o reembolso?"
+          },
+          {
+            id: 2,
+            type: "internal",
+            sender: "Isabelli Pereira (Nota Interna)",
+            time: "09/11/2026 13:40",
+            text: "🔒 Confirmado no sistema: fatura de Outubro já liquidada. De acordo com o manual, o estorno fora de lote entra como crédito compensatório no ciclo de Novembro."
+          }
+        ]
+      },
+      {
+        id: "TP-1045",
+        title: "Divergência de Preço Tabela DAF Barigui Cascavel",
+        client: "Expresso Rápido Sul",
+        contact: "(41) 99186-1106 (Georgea)",
+        operator: "Leandro",
+        product: "MANUTENÇÃO",
+        solicitacao: "Orçamento",
+        dafRede: "DAF BARIGUI",
+        dafMunicipio: "CASCAVEL/PR",
+        status: "todo",
+        priority: "Crítica",
+        slaCountdown: "25m restantes",
+        slaUrgent: true,
+        startDate: "09/11/2026 15:10",
+        returnDate: "09/11/2026",
+        messages: [
+          {
+            id: 1,
+            type: "client",
+            sender: "Georgea • Gestão de Frota",
+            time: "09/11/2026 15:10",
+            text: "A concessionária DAF Barigui Cascavel lançou itens de freio na OS 8821 com preço 18% acima da tabela acordada do Programa DAF. Não estamos conseguindo aprovar o chamado."
+          }
+        ]
+      },
+      {
+        id: "TP-1046",
+        title: "Substituição de TAG e Falha de Leitura em Antena",
+        client: "Distribuidora Reis",
+        contact: "(51) 99653-3111",
+        operator: "Mirian",
+        product: "PEDÁGIO",
+        solicitacao: "Chamado MM",
+        status: "done",
+        priority: "Baixa",
+        slaCountdown: "Concluído",
+        slaUrgent: false,
+        startDate: "06/11/2026 11:20",
+        returnDate: "07/11/2026",
+        messages: [
+          {
+            id: 1,
+            type: "client",
+            sender: "Operações • Distribuidora Reis",
+            time: "06/11/2026 11:20",
+            text: "O motorista relatou que a cancela do pedágio não abriu em 3 praças seguidas na BR-101. Suspeitamos de defeito físico na TAG."
+          },
+          {
+            id: 2,
+            type: "public",
+            sender: "Mirian Santos (Suporte TruckPag)",
+            time: "07/11/2026 10:15",
+            text: "Dispositivo anterior cancelado e nova TAG emitida com envio expresso via Sedex. Código de rastreio: BR992144821SP."
+          }
+        ]
+      },
+      {
+        id: "TP-1047",
+        title: "Emissão de 2ª Via de Extrato Consolidado",
+        client: "União Transportes",
+        contact: "(51) 93500-0138",
+        operator: "Isabelli",
+        product: "ABASTECIMENTO",
+        solicitacao: "Outros",
+        status: "done",
+        priority: "Baixa",
+        slaCountdown: "Concluído",
+        slaUrgent: false,
+        startDate: "05/11/2026 09:00",
+        returnDate: "05/11/2026",
+        messages: [
+          {
+            id: 1,
+            type: "client",
+            sender: "Controladoria • União Transportes",
+            time: "05/11/2026 09:00",
+            text: "Solicitamos a 2ª via do relatório analítico e resumo do fechamento da fatura de abastecimento referente a Outubro."
+          },
+          {
+            id: 2,
+            type: "public",
+            sender: "Isabelli Pereira (Suporte TruckPag)",
+            time: "05/11/2026 10:30",
+            text: "Extrato gerado com sucesso e encaminhado diretamente ao e-mail cadastrado na controladoria da transportadora."
+          }
+        ]
       }
-      document.getElementById('modal').style.display = 'flex';
-    }
+    ];
 
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    function App() {
+      const [tickets, setTickets] = useState(INITIAL_TICKETS);
+      const [selectedId, setSelectedId] = useState("TP-1042");
+      const [filterView, setFilterView] = useState("all");
+      const [searchQuery, setSearchQuery] = useState("");
+      const [composerType, setComposerType] = useState("public"); // "public" | "internal"
+      const [composerText, setComposerText] = useState("");
+      const [theme, setTheme] = useState(localStorage.getItem("tp_console_theme") || "light");
 
-    document.getElementById('modal').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
-    });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeModal();
-    });
+      useEffect(() => {
+        if (theme === "dark") {
+          document.body.classList.add("dark-theme");
+        } else {
+          document.body.classList.remove("dark-theme");
+        }
+        localStorage.setItem("tp_console_theme", theme);
+      }, [theme]);
 
-    function saveTask(e) {
-      e.preventDefault();
-      const id = document.getElementById('taskId').value;
-      const existing = id ? tasks.find(x => x.id === id) : null;
-      const prod = document.getElementById('taskProduct').value;
-      const rawReturn = document.getElementById('taskReturnDate').value;
-
-      const record = {
-        id: id || `REC-${Date.now().toString().slice(-4)}`,
-        mes: existing ? existing.mes : '11-2026',
-        client: document.getElementById('taskClient').value,
-        contact: document.getElementById('taskContact').value,
-        operator: document.getElementById('taskOperator').value,
-        product: prod,
-        solicitacao: document.getElementById('taskSolicitacao').value,
-        bitrixLink: document.getElementById('taskBitrixLink').value,
-        status: document.getElementById('taskStatus').value,
-        startDate: document.getElementById('taskStartDate').value,
-        endDate: document.getElementById('taskStatus').value === 'done' ? (existing?.endDate || getNowBR()) : '',
-        returnDate: formatToBRDate(rawReturn),
-        description: document.getElementById('taskDesc').value,
-        oficinaRede: prod === 'MANUTENÇÃO' ? document.getElementById('taskOficinaRede').value : null,
-        oficinaMunicipio: prod === 'MANUTENÇÃO' ? document.getElementById('taskOficinaMunicipio').value : null
+      const toggleTheme = () => {
+        setTheme(theme === "dark" ? "light" : "dark");
       };
 
-      if (id) {
-        tasks = tasks.map(t => t.id === id ? record : t);
-      } else {
-        tasks.unshift(record);
-      }
+      // Ticket selecionado
+      const activeTicket = tickets.find(t => t.id === selectedId) || tickets[0];
 
-      saveTasks();
-      closeModal();
-    }
+      // Filtragem da Fila (Coluna 2)
+      const filteredTickets = tickets.filter(t => {
+        // Filtro da Sidebar
+        if (filterView === "mine" && t.operator !== "Leandro") return false;
+        if (filterView === "urgent" && (!t.slaUrgent || t.status === "done")) return false;
+        if (filterView === "open" && t.status !== "todo") return false;
+        if (filterView === "process" && t.status !== "in_progress") return false;
+        if (filterView === "done" && t.status !== "done") return false;
+        if (filterView === "pedagio" && t.product !== "PEDÁGIO") return false;
+        if (filterView === "abastecimento" && t.product !== "ABASTECIMENTO") return false;
+        if (filterView === "manutencao" && t.product !== "MANUTENÇÃO") return false;
 
-    function deleteCurrentTask() {
-      const id = document.getElementById('taskId').value;
-      if (id && confirm('Excluir este chamado?')) {
-        tasks = tasks.filter(t => t.id !== id);
-        saveTasks();
-        closeModal();
-      }
-    }
+        // Busca
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase();
+          const match = (t.id + " " + t.title + " " + t.client + " " + (t.dafRede || "") + " " + (t.solicitacao || "")).toLowerCase();
+          if (!match.includes(q)) return false;
+        }
 
-    // =========================================================================
-    // BUSINESS INTELLIGENCE • RELATÓRIOS EXECUTIVOS COM TÍTULOS DE CONCLUSÃO
-    // PROIBIDO GRÁFICOS DE PIZZA (USANDO APENAS BARRAS HORIZONTAIS OU COLUNAS)
-    // =========================================================================
-    function renderExecutiveCharts(filteredTasks = null) {
-      const dataToUse = filteredTasks || tasks;
-      const destroy = (id) => { if (charts[id]) charts[id].destroy(); };
-      const isDark = document.body.classList.contains('dark-theme');
-      const textColor = isDark ? '#94A3B8' : '#64748B';
-      const gridColor = isDark ? '#243447' : '#F1F5F9';
-      const primaryGreen = isDark ? '#00A859' : '#008744';
-
-      const selectedProd = document.getElementById('filterProduct').value;
-
-      // 1. Gráfico 1: Barras Horizontais com Conclusão Direta (Produto ou Categoria)
-      destroy('chartProductShare');
-      const titleProdElem = document.getElementById('titleChartProduct');
-      const subProdElem = document.getElementById('subChartProduct');
-
-      let chart1Labels = [];
-      let chart1Values = [];
-
-      if (!selectedProd) {
-        const prodCounts = { 'PEDÁGIO': 0, 'MANUTENÇÃO': 0, 'ABASTECIMENTO': 0 };
-        dataToUse.forEach(t => { if (prodCounts[t.product] !== undefined) prodCounts[t.product]++; });
-        const total = Object.values(prodCounts).reduce((a, b) => a + b, 0);
-
-        chart1Labels = ['Pedágio', 'Manutenção', 'Abastecimento'];
-        chart1Values = [prodCounts['PEDÁGIO'], prodCounts['MANUTENÇÃO'], prodCounts['ABASTECIMENTO']];
-
-        const pedShare = total > 0 ? ((prodCounts['PEDÁGIO'] / total) * 100).toFixed(1) : '70.5';
-        if (titleProdElem) titleProdElem.innerText = `Pedágio concentra ${pedShare}% da demanda operacional da central`;
-        if (subProdElem) subProdElem.innerText = `Comparativo de volume absoluto por linha de negócio (${total} ocorrências)`;
-      } else {
-        const catCounts = {};
-        (SOLICITACOES_POR_PRODUTO[selectedProd] || []).forEach(c => catCounts[c] = 0);
-        dataToUse.filter(t => t.product === selectedProd).forEach(t => {
-          catCounts[t.solicitacao] = (catCounts[t.solicitacao] || 0) + 1;
-        });
-
-        const sortedCats = Object.entries(catCounts).sort((a, b) => b[1] - a[1]).filter(item => item[1] > 0);
-        chart1Labels = sortedCats.map(item => item[0]);
-        chart1Values = sortedCats.map(item => item[1]);
-
-        const topCat = sortedCats[0] || ['Outros', 0];
-        const subTotal = chart1Values.reduce((a, b) => a + b, 0);
-        const topPct = subTotal > 0 ? ((topCat[1] / subTotal) * 100).toFixed(1) : 0;
-
-        if (titleProdElem) titleProdElem.innerText = `${topCat[0]} é o principal ofensor em ${selectedProd} (${topPct}% do volume)`;
-        if (subProdElem) subProdElem.innerText = `Detalhamento de categorias com maior incidência de chamados para ${selectedProd}`;
-      }
-
-      const canvas1 = document.getElementById('chartProductShare');
-      if (canvas1) {
-        charts['chartProductShare'] = new Chart(canvas1, {
-          type: 'bar',
-          data: {
-            labels: chart1Labels,
-            datasets: [{
-              data: chart1Values,
-              backgroundColor: primaryGreen,
-              borderRadius: 4,
-              barThickness: 22
-            }]
-          },
-          options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, precision: 0 } },
-              y: { grid: { display: false }, ticks: { color: textColor } }
-            }
-          }
-        });
-      }
-
-      // 2. Gráfico 2: Evolução Mensal em Colunas Verticais
-      destroy('chartMonthly');
-      const months = ['Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro'];
-      const monthlyVals = [9, 40, 48, 33, 9];
-
-      const canvas2 = document.getElementById('chartMonthly');
-      if (canvas2) {
-        charts['chartMonthly'] = new Chart(canvas2, {
-          type: 'bar',
-          data: {
-            labels: months,
-            datasets: [{
-              label: 'Demandas',
-              data: monthlyVals,
-              backgroundColor: isDark ? '#0284C7' : '#0369A1',
-              borderRadius: 4,
-              barThickness: 28
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
-              x: { grid: { display: false }, ticks: { color: textColor } }
-            }
-          }
-        });
-      }
-
-      // 3. Gráfico 3: Matriz de SLA em Barras Horizontais
-      destroy('chartSlaBars');
-      const slaLabels = Object.keys(SLA_BENCHMARKS);
-      const slaValues = slaLabels.map(k => SLA_BENCHMARKS[k].mean);
-
-      const canvas3 = document.getElementById('chartSlaBars');
-      if (canvas3) {
-        charts['chartSlaBars'] = new Chart(canvas3, {
-          type: 'bar',
-          data: {
-            labels: slaLabels,
-            datasets: [{
-              data: slaValues,
-              backgroundColor: '#F59E0B',
-              borderRadius: 4,
-              barThickness: 18
-            }]
-          },
-          options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
-              y: { grid: { display: false }, ticks: { color: textColor } }
-            }
-          }
-        });
-      }
-
-      // 4. Gráfico 4: Oficinas DAF em Barras Horizontais
-      destroy('chartDaf');
-      const dafLabels = ['DAF CAMINHO', 'DAF MACPONTA', 'DAF ALIS', 'DAF NOVA', 'DAF BARIGUI', 'DAF DU GREGORIO', 'DAF SOMAFERTIL'];
-      const dafValues = [7, 2, 2, 1, 1, 1, 1];
-
-      const canvas4 = document.getElementById('chartDaf');
-      if (canvas4) {
-        charts['chartDaf'] = new Chart(canvas4, {
-          type: 'bar',
-          data: {
-            labels: dafLabels,
-            datasets: [{
-              data: dafValues,
-              backgroundColor: primaryGreen,
-              borderRadius: 4,
-              barThickness: 18
-            }]
-          },
-          options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 } },
-              y: { grid: { display: false }, ticks: { color: textColor } }
-            }
-          }
-        });
-      }
-
-      // 5. Preenchimento da Tabela Analítica de SLA
-      const tbody = document.getElementById('slaTableBody');
-      if (tbody) {
-        tbody.innerHTML = '';
-        slaLabels.forEach(k => {
-          const item = SLA_BENCHMARKS[k];
-          const pillClass = item.mean <= 3 ? 'sla-good' : (item.mean <= 12 ? 'sla-mid' : 'sla-high');
-          const statusText = item.mean <= 3 ? 'Rápido' : (item.mean <= 12 ? 'Moderado' : 'Crítico / Terceiros');
-
-          tbody.innerHTML += `
-            <tr>
-              <td style="font-weight:700; color:var(--tp-green-primary);">${k}</td>
-              <td><strong>${item.mean} dias</strong></td>
-              <td>${item.median} dias</td>
-              <td style="font-weight:600;">${item.suggested} dias úteis</td>
-              <td><span class="sla-pill ${pillClass}">${statusText}</span></td>
-            </tr>
-          `;
-        });
-      }
-    }
-
-    // =========================================================================
-    // EXPORTAÇÃO CSV PADRÃO BRASIL
-    // =========================================================================
-    function exportExcel() {
-      const headers = ['ID', 'Responsável', 'Produto', 'Casa DAF', 'Bitrix', 'Cliente', 'Contato', 'Solicitação', 'Descrição', 'Status', 'Início (BR)', 'Retorno (BR)'];
-      const rows = [headers.join(';')];
-      tasks.forEach(t => {
-        rows.push([
-          t.id,
-          t.operator,
-          t.product,
-          `"${t.oficinaRede || ''}"`,
-          `"${t.bitrixLink || ''}"`,
-          `"${t.client}"`,
-          `"${t.contact || ''}"`,
-          `"${t.solicitacao || ''}"`,
-          `"${(t.description || '').replace(/"/g, '""')}"`,
-          t.status,
-          t.startDate,
-          formatToBRDate(t.returnDate)
-        ].join(';'));
+        return true;
       });
-      const blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `Demandas_TruckPag_BI_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
-      a.click();
+
+      // Enviar mensagem ou nota interna
+      const handleSendMessage = (e) => {
+        e.preventDefault();
+        if (!composerText.trim()) return;
+
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2, '0');
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const y = now.getFullYear();
+        const h = String(now.getHours()).padStart(2, '0');
+        const min = String(now.getMinutes()).padStart(2, '0');
+        const timeFormatted = `${d}/${m}/${y} ${h}:${min}`;
+
+        const newMessage = {
+          id: Date.now(),
+          type: composerType,
+          sender: composerType === "internal" ? "Leandro Silveira (Nota Interna)" : "Leandro Silveira (Suporte TruckPag)",
+          time: timeFormatted,
+          text: composerType === "internal" ? `🔒 ${composerText.trim()}` : composerText.trim()
+        };
+
+        const updated = tickets.map(t => {
+          if (t.id === activeTicket.id) {
+            return {
+              ...t,
+              messages: [...t.messages, newMessage]
+            };
+          }
+          return t;
+        });
+
+        setTickets(updated);
+        setComposerText("");
+      };
+
+      // Alterar status
+      const handleStatusChange = (newStatus) => {
+        const updated = tickets.map(t => {
+          if (t.id === activeTicket.id) {
+            return {
+              ...t,
+              status: newStatus,
+              slaCountdown: newStatus === "done" ? "Concluído" : t.slaCountdown,
+              slaUrgent: newStatus === "done" ? false : t.slaUrgent
+            };
+          }
+          return t;
+        });
+        setTickets(updated);
+      };
+
+      // Alterar operador
+      const handleOperatorChange = (newOp) => {
+        const updated = tickets.map(t => {
+          if (t.id === activeTicket.id) {
+            return { ...t, operator: newOp };
+          }
+          return t;
+        });
+        setTickets(updated);
+      };
+
+      // Inserir Macro
+      const applyMacro = (macro) => {
+        if (macro === "veiculo") {
+          setComposerText(prev => prev + (prev ? "\n" : "") + "Para que possamos concluir o cadastro, informe: Placa, Marca/Modelo, Ano, Cor e Município.");
+        } else if (macro === "usuario") {
+          setComposerText(prev => prev + (prev ? "\n" : "") + "Para liberação de acesso na TruckPag, informe: Nome completo, CPF, E-mail corporativo e Contato.");
+        } else if (macro === "estorno") {
+          setComposerText(prev => prev + (prev ? "\n" : "") + "Como o lote do ciclo anterior já foi liquidado, o cancelamento entrará como crédito automático na fatura do ciclo subsequente.");
+        }
+      };
+
+      return (
+        <div className="app-container">
+          
+          {/* =================================================================
+              COLUNA 1: SIDEBAR / FILAS & VISÕES
+              ================================================================= */}
+          <aside className="col-sidebar">
+            <div>
+              <div className="brand-box">
+                <div className="brand-logo">TP</div>
+                <div className="brand-info">
+                  <h1>TruckPag</h1>
+                  <p>Operations Console</p>
+                </div>
+              </div>
+
+              <div className="nav-section-title">Filas de Atendimento</div>
+              <div className="nav-list">
+                <button className={`nav-btn ${filterView === 'all' ? 'active' : ''}`} onClick={() => setFilterView('all')}>
+                  <span>📥 Todos os Tickets</span>
+                  <span className="nav-badge">{tickets.length}</span>
+                </button>
+                <button className={`nav-btn ${filterView === 'mine' ? 'active' : ''}`} onClick={() => setFilterView('mine')}>
+                  <span>👤 Meus Atendimentos</span>
+                  <span className="nav-badge">{tickets.filter(t => t.operator === 'Leandro').length}</span>
+                </button>
+                <button className={`nav-btn ${filterView === 'urgent' ? 'active' : ''}`} onClick={() => setFilterView('urgent')}>
+                  <span>🔥 SLA Crítico / Urgente</span>
+                  <span className="nav-badge" style={{color:'#EF4444'}}>{tickets.filter(t => t.slaUrgent && t.status !== 'done').length}</span>
+                </button>
+                <button className={`nav-btn ${filterView === 'open' ? 'active' : ''}`} onClick={() => setFilterView('open')}>
+                  <span>⚡ Em Aberto</span>
+                  <span className="nav-badge">{tickets.filter(t => t.status === 'todo').length}</span>
+                </button>
+                <button className={`nav-btn ${filterView === 'process' ? 'active' : ''}`} onClick={() => setFilterView('process')}>
+                  <span>⚙️ Em Processo</span>
+                  <span className="nav-badge">{tickets.filter(t => t.status === 'in_progress').length}</span>
+                </button>
+                <button className={`nav-btn ${filterView === 'done' ? 'active' : ''}`} onClick={() => setFilterView('done')}>
+                  <span>✅ Concluídos</span>
+                  <span className="nav-badge">{tickets.filter(t => t.status === 'done').length}</span>
+                </button>
+              </div>
+
+              <div className="nav-section-title">Por Unidade de Negócio</div>
+              <div className="nav-list">
+                <button className={`nav-btn ${filterView === 'pedagio' ? 'active' : ''}`} onClick={() => setFilterView('pedagio')}>
+                  <span>🛣️ Pedágio</span>
+                  <span className="nav-badge">{tickets.filter(t => t.product === 'PEDÁGIO').length}</span>
+                </button>
+                <button className={`nav-btn ${filterView === 'abastecimento' ? 'active' : ''}`} onClick={() => setFilterView('abastecimento')}>
+                  <span>⛽ Abastecimento</span>
+                  <span className="nav-badge">{tickets.filter(t => t.product === 'ABASTECIMENTO').length}</span>
+                </button>
+                <button className={`nav-btn ${filterView === 'manutencao' ? 'active' : ''}`} onClick={() => setFilterView('manutencao')}>
+                  <span>🔧 Manutenção DAF</span>
+                  <span className="nav-badge">{tickets.filter(t => t.product === 'MANUTENÇÃO').length}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="sidebar-footer">
+              <div className="operator-profile">
+                <div className="operator-avatar">L</div>
+                <div>
+                  <div className="operator-name">Leandro S.</div>
+                  <div style={{fontSize:'10px', color:'var(--tp-green)', fontWeight:'700'}}>● Online</div>
+                </div>
+              </div>
+              <button className="theme-toggle-btn" onClick={toggleTheme} title="Alternar Modo Escuro / Claro">
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
+            </div>
+          </aside>
+
+          {/* =================================================================
+              COLUNA 2: FILA DE TICKETS (ALTA DENSIDADE)
+              ================================================================= */}
+          <section className="col-tickets">
+            <div className="tickets-header">
+              <div className="tickets-search-wrap">
+                <span className="search-icon">🔍</span>
+                <input 
+                  type="text" 
+                  className="tickets-search-input" 
+                  placeholder="Buscar cliente, Bitrix, DAF, ID..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="tickets-meta-bar">
+                <span>Fila ({filteredTickets.length})</span>
+                <span>Classificar: Recentes</span>
+              </div>
+            </div>
+
+            <div className="tickets-scroll-list">
+              {filteredTickets.map(t => {
+                const isSelected = t.id === activeTicket.id;
+                const isDone = t.status === "done";
+                return (
+                  <div 
+                    key={t.id} 
+                    className={`ticket-card ${isSelected ? 'selected' : ''}`}
+                    onClick={() => setSelectedId(t.id)}
+                  >
+                    <div className="ticket-card-top">
+                      <span className="ticket-id">#{t.id}</span>
+                      <span className={`ticket-sla ${isDone ? 'sla-done' : (t.slaUrgent ? 'sla-urgent' : 'sla-normal')}`}>
+                        {isDone ? '✓ Concluído' : `⏱️ ${t.slaCountdown}`}
+                      </span>
+                    </div>
+
+                    <div className="ticket-title" title={t.title}>{t.title}</div>
+                    <div className="ticket-client">🏢 {t.client}</div>
+
+                    <div className="ticket-tags">
+                      <span className="tag-pill">{t.product}</span>
+                      <span className="tag-pill">{t.solicitacao}</span>
+                      {t.dafRede && <span className="tag-pill tag-daf">🏢 {t.dafRede}</span>}
+                      {t.bitrixLink && <span className="tag-pill tag-bitrix">🔗 Bitrix</span>}
+                      <span style={{marginLeft:'auto', fontSize:'10px', color:'var(--text-subtle)'}}>👤 {t.operator}</span>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {filteredTickets.length === 0 && (
+                <div style={{textAlign:'center', padding:'30px 10px', color:'var(--text-muted)'}}>
+                  Nenhum ticket encontrado nesta fila.
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* =================================================================
+              COLUNA 3: DETALHES & LINHA DO TEMPO / CHAT INTERATIVO
+              ================================================================= */}
+          <main className="col-detail">
+            {/* Topbar com ID, Ações de Status e Atribuição */}
+            <div className="detail-topbar">
+              <div className="detail-title-group">
+                <h2>
+                  <span style={{color:'var(--tp-green)', fontFamily:'monospace'}}>#{activeTicket.id}</span>
+                  <span>{activeTicket.title}</span>
+                </h2>
+                <div className="detail-subtitle">
+                  Aberto em: {activeTicket.startDate} • Cliente: {activeTicket.client}
+                </div>
+              </div>
+
+              <div className="detail-actions">
+                <select 
+                  className="status-select"
+                  value={activeTicket.status}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                >
+                  <option value="todo">📥 Aberto</option>
+                  <option value="in_progress">⚙️ Em processo</option>
+                  <option value="done">✅ Concluído</option>
+                </select>
+
+                <select 
+                  className="op-select"
+                  value={activeTicket.operator}
+                  onChange={(e) => handleOperatorChange(e.target.value)}
+                >
+                  <option value="Leandro">👤 Leandro</option>
+                  <option value="Mirian">👤 Mirian</option>
+                  <option value="Isabelli">👤 Isabelli</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Strip de Metadados Horizontal */}
+            <div className="metadata-strip">
+              <div className="meta-item">📞 Contato: <strong>{activeTicket.contact}</strong></div>
+              <div className="meta-item">🏷️ Produto: <strong>{activeTicket.product} ({activeTicket.solicitacao})</strong></div>
+              {activeTicket.dafRede && (
+                <div className="meta-item">🏢 Rede DAF: <strong>{activeTicket.dafRede} ({activeTicket.dafMunicipio})</strong></div>
+              )}
+              {activeTicket.bitrixLink && (
+                <div className="meta-item">
+                  <a href={activeTicket.bitrixLink} target="_blank" rel="noreferrer" style={{color:'#4F46E5', fontWeight:'700', textDecoration:'none'}}>
+                    🔗 Abrir Card Bitrix ↗
+                  </a>
+                </div>
+              )}
+              <div className="meta-item">📅 Retorno Alvo: <strong>{activeTicket.returnDate}</strong></div>
+            </div>
+
+            {/* Linha do Tempo de Mensagens */}
+            <div className="timeline-container">
+              {activeTicket.messages.map(msg => (
+                <div key={msg.id} className={`message-row ${msg.type}`}>
+                  <div className={`message-avatar ${msg.type === 'client' ? 'avatar-client' : (msg.type === 'public' ? 'avatar-public' : 'avatar-internal')}`}>
+                    {msg.type === 'client' ? 'C' : (msg.type === 'public' ? 'TP' : '🔒')}
+                  </div>
+
+                  <div className="message-bubble">
+                    <div className="message-header">
+                      <span className="message-sender">{msg.sender}</span>
+                      <span className="message-time">{msg.time}</span>
+                    </div>
+                    <div>{msg.text}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Compositor Interativo (Resposta Pública vs Nota Interna) */}
+            <form className="composer-area" onSubmit={handleSendMessage}>
+              <div className="composer-tabs">
+                <div className="tab-toggles">
+                  <button 
+                    type="button" 
+                    className={`toggle-btn ${composerType === 'public' ? 'active public' : ''}`}
+                    onClick={() => setComposerType('public')}
+                  >
+                    💬 Resposta Pública (Cliente)
+                  </button>
+                  <button 
+                    type="button" 
+                    className={`toggle-btn ${composerType === 'internal' ? 'active internal' : ''}`}
+                    onClick={() => setComposerType('internal')}
+                  >
+                    🔒 Nota Interna (BackOffice)
+                  </button>
+                </div>
+
+                <div className="macro-bar">
+                  <span style={{fontSize:'10px', color:'var(--text-subtle)'}}>Macros Rápidas:</span>
+                  <button type="button" className="macro-chip" onClick={() => applyMacro('veiculo')}>+ //veiculo</button>
+                  <button type="button" className="macro-chip" onClick={() => applyMacro('usuario')}>+ //usuario</button>
+                  <button type="button" className="macro-chip" onClick={() => applyMacro('estorno')}>+ //estorno_lote</button>
+                </div>
+              </div>
+
+              <div className="composer-input-row">
+                <textarea 
+                  className={`composer-textarea ${composerType === 'internal' ? 'internal-mode' : ''}`}
+                  placeholder={composerType === 'public' ? "Escreva uma resposta pública oficial para o cliente..." : "Escreva uma nota interna confidencial (visível apenas para a equipe de BackOffice)..."}
+                  value={composerText}
+                  onChange={(e) => setComposerText(e.target.value)}
+                ></textarea>
+
+                <button 
+                  type="submit" 
+                  className={`btn-send ${composerType === 'public' ? 'public' : 'internal'}`}
+                >
+                  <span>{composerType === 'public' ? 'Enviar' : 'Salvar'}</span>
+                  <span style={{fontSize:'10px', fontWeight:'normal'}}>{composerType === 'public' ? 'Público' : 'Interno'}</span>
+                </button>
+              </div>
+            </form>
+          </main>
+
+        </div>
+      );
     }
 
-    function updateDashboard() {
-      filterData();
-    }
-
-    // Inicialização do Painel Completo
-    initTheme();
-    updateDashboard();
-    renderManual();
-
-    // Atualização dinâmica a cada 60s
-    setInterval(() => {
-      filterData();
-    }, 60000);
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
