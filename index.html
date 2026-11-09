@@ -3,166 +3,217 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TruckPag Backoffice • Painel de Demandas & SLA</title>
-  <!-- Chart.js para Relatórios Executivos -->
+  <title>TruckPag Backoffice • Gestão de Demandas & SLA</title>
+  <!-- Chart.js para Relatórios -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* ==========================================================================
+       TEMA CLARO (PADRÃO VERDE TRUCKPAG)
+       ========================================================================== */
     :root {
-      --tp-navy: #003876;
-      --tp-navy-dark: #002248;
-      --tp-orange: #F37021;
-      --tp-orange-hover: #D85C13;
-      --tp-blue-soft: #F0F6FC;
-      --bg: #F8FAFC;
+      --tp-green-primary: #008744;
+      --tp-green-accent: #00A859;
+      --tp-green-hover: #006E37;
+      --tp-green-light: #ECFDF5;
+      --tp-green-border: #A7F3D0;
+      
+      --bg: #F4F7F5;
       --surface: #FFFFFF;
+      --surface-subtle: #F8FAF9;
       --border: #E2E8F0;
-      --border-focus: #CBD5E1;
+      --border-focus: #10B981;
       --text-main: #0F172A;
       --text-muted: #64748B;
       --text-subtle: #94A3B8;
-      
-      --status-done-bg: #DCFCE7;
-      --status-done-text: #166534;
-      --status-progress-bg: #DBEAFE;
-      --status-progress-text: #1E40AF;
-      --status-waiting-bg: #EDE9FE;
-      --status-waiting-text: #5B21B6;
-      --status-todo-bg: #FEF3C7;
-      --status-todo-text: #92400E;
+
+      --badge-todo-bg: #FEF3C7;
+      --badge-todo-text: #92400E;
+      --badge-process-bg: #E0F2FE;
+      --badge-process-text: #0369A1;
+      --badge-done-bg: #DCFCE7;
+      --badge-done-text: #166534;
+      --badge-danger-bg: #FEE2E2;
+      --badge-danger-text: #991B1B;
+
+      --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      --card-hover-shadow: 0 6px 14px rgba(0, 135, 68, 0.08);
+      --chart-grid: #F1F5F9;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    /* ==========================================================================
+       TEMA ESCURO (VERDE TRUCKPAG NIGHT)
+       ========================================================================== */
+    body.dark-theme {
+      --tp-green-primary: #00A859;
+      --tp-green-accent: #34D399;
+      --tp-green-hover: #059669;
+      --tp-green-light: #064E3B;
+      --tp-green-border: #047857;
+
+      --bg: #0B111A;
+      --surface: #141E2E;
+      --surface-subtle: #1B273A;
+      --border: #243447;
+      --border-focus: #34D399;
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-subtle: #64748B;
+
+      --badge-todo-bg: #78350F;
+      --badge-todo-text: #FDE68A;
+      --badge-process-bg: #0C4A6E;
+      --badge-process-text: #BAE6FD;
+      --badge-done-bg: #064E3B;
+      --badge-done-text: #A7F3D0;
+      --badge-danger-bg: #7F1D1D;
+      --badge-danger-text: #FECACA;
+
+      --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      --card-hover-shadow: 0 6px 16px rgba(0, 168, 89, 0.15);
+      --chart-grid: #243447;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; transition: background-color 0.2s, border-color 0.2s, color 0.2s; }
     body { background-color: var(--bg); color: var(--text-main); padding: 20px; font-size: 13px; line-height: 1.5; }
 
     /* Header Corporativo */
-    header { background: var(--surface); padding: 18px 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid var(--border); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-    .brand-group { display: flex; align-items: center; gap: 14px; }
-    .brand-logo { width: 38px; height: 38px; background: linear-gradient(135deg, var(--tp-navy), var(--tp-orange)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 18px; }
-    .brand-title h1 { font-size: 18px; color: var(--tp-navy); font-weight: 700; }
+    header { background: var(--surface); padding: 16px 22px; border-radius: 12px; box-shadow: var(--card-shadow); border: 1px solid var(--border); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .brand-group { display: flex; align-items: center; gap: 12px; }
+    .brand-logo { width: 38px; height: 38px; background: linear-gradient(135deg, var(--tp-green-primary), var(--tp-green-accent)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 18px; }
+    .brand-title h1 { font-size: 18px; color: var(--tp-green-primary); font-weight: 700; letter-spacing: -0.3px; }
     .brand-title p { color: var(--text-muted); font-size: 12px; }
 
-    .nav-tabs { display: flex; background: #F1F5F9; padding: 4px; border-radius: 8px; gap: 4px; }
-    .nav-btn { padding: 6px 14px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; }
-    .nav-btn.active { background: var(--surface); color: var(--tp-navy); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .nav-tabs { display: flex; background: var(--surface-subtle); padding: 4px; border-radius: 8px; gap: 4px; border: 1px solid var(--border); }
+    .nav-btn { padding: 6px 14px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; }
+    .nav-btn.active { background: var(--surface); color: var(--tp-green-primary); box-shadow: var(--card-shadow); font-weight: 700; }
 
     /* Botões Padrão */
-    button, select, input, textarea { font-size: 12px; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); outline: none; transition: 0.15s; }
+    button, select, input, textarea { font-size: 12px; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); outline: none; }
     button { cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-    button.primary { background: var(--tp-orange); color: #fff; border: none; }
-    button.primary:hover { background: var(--tp-orange-hover); }
-    button.secondary { background: var(--tp-navy); color: #fff; border: none; }
-    button.secondary:hover { background: var(--tp-navy-dark); }
-    button.outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
-    button.outline:hover { background: #F8FAFC; color: var(--text-main); }
-    button.sm-btn { padding: 3px 8px; font-size: 11px; border-radius: 4px; }
+    button.primary { background: var(--tp-green-primary); color: #fff; border: none; }
+    button.primary:hover { background: var(--tp-green-hover); }
+    button.secondary { background: var(--surface-subtle); color: var(--text-main); border: 1px solid var(--border); }
+    button.secondary:hover { border-color: var(--tp-green-accent); color: var(--tp-green-accent); }
+    button.theme-toggle { background: var(--surface-subtle); border: 1px solid var(--border); color: var(--text-main); padding: 6px 12px; border-radius: 8px; font-size: 12px; }
+    button.theme-toggle:hover { border-color: var(--tp-green-accent); }
 
     /* KPIs Executivos */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
-    .kpi-card { background: var(--surface); padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .kpi-card { background: var(--surface); padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border); box-shadow: var(--card-shadow); }
     .kpi-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .kpi-value { font-size: 24px; font-weight: 700; color: var(--tp-navy); }
+    .kpi-value { font-size: 24px; font-weight: 700; color: var(--tp-green-primary); }
     .kpi-sub { font-size: 11px; color: var(--text-subtle); margin-top: 2px; }
 
-    /* Barra de Filtros */
-    .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; background: var(--surface); padding: 12px 18px; border-radius: 10px; border: 1px solid var(--border); }
+    /* Barra de Filtros Intuitiva com Ícones */
+    .toolbar { background: var(--surface); padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border); box-shadow: var(--card-shadow); margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
     .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .filter-group { display: flex; align-items: center; position: relative; }
+    .filter-group select, .filter-group input { padding-left: 28px; }
+    .filter-icon { position: absolute; left: 8px; font-size: 12px; color: var(--text-muted); pointer-events: none; }
 
-    /* Kanban */
+    /* Kanban (Aberto, Em processo, Concluído/Finalizado) */
     .view-content { display: block; }
-    .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: start; }
-    @media (max-width: 1100px) { .board { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 650px) { .board { grid-template-columns: 1fr; } }
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+    @media (max-width: 950px) { .board { grid-template-columns: 1fr; } }
 
-    .column { background: #F1F5F9; border-radius: 10px; padding: 14px; min-height: 580px; border: 1px solid #E2E8F0; }
-    .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 12px; font-weight: 700; color: var(--tp-navy); text-transform: uppercase; }
-    .badge-count { background: #E2E8F0; color: var(--text-muted); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+    .column { background: var(--surface-subtle); border-radius: 10px; padding: 14px; min-height: 560px; border: 1px solid var(--border); }
+    .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 12px; font-weight: 700; color: var(--tp-green-primary); text-transform: uppercase; }
+    .badge-count { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; }
 
-    /* Cards Kanban */
+    .col-banner-done { background: var(--tp-green-light); border: 1px dashed var(--tp-green-border); border-radius: 6px; padding: 10px; margin-bottom: 12px; font-size: 11px; color: var(--tp-green-primary); display: flex; justify-content: space-between; align-items: center; }
+
+    /* Cards */
     .cards-list { display: flex; flex-direction: column; gap: 10px; }
-    .card { background: var(--surface); border-radius: 8px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s ease; border-left: 4px solid var(--tp-navy); }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.06); border-color: var(--border-focus); }
-    .card.prio-alta { border-left-color: #EF4444; }
-    .card.prio-media { border-left-color: var(--tp-orange); }
+    .card { background: var(--surface); border-radius: 8px; padding: 14px; box-shadow: var(--card-shadow); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s ease; border-left: 4px solid var(--tp-green-primary); }
+    .card:hover { transform: translateY(-2px); box-shadow: var(--card-hover-shadow); border-color: var(--border-focus); }
+    
+    .card.status-todo { border-left-color: #F59E0B; }
+    .card.status-process { border-left-color: #0284C7; }
+    .card.status-done { border-left-color: var(--tp-green-primary); }
 
     .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
     .tag { padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; }
-    .tag-prod-pedagio { background: #E0F2FE; color: #0369A1; }
-    .tag-prod-manutencao { background: #DCFCE7; color: #15803D; }
-    .tag-prod-abastecimento { background: #FEF3C7; color: #B45309; }
-    .tag-solicitacao { background: #F1F5F9; color: var(--text-muted); border: 1px solid #E2E8F0; }
-    .tag-urgent { background: #FEE2E2; color: #B91C1C; font-weight: 700; }
+    .tag-prod { background: var(--surface-subtle); border: 1px solid var(--border); color: var(--text-main); }
+    .tag-solicitacao { background: var(--tp-green-light); color: var(--tp-green-primary); border: 1px solid var(--tp-green-border); }
+    .tag-urgent { background: var(--badge-danger-bg); color: var(--badge-danger-text); font-weight: 700; }
 
-    /* Etiqueta Visual de Casa DAF no Card */
-    .card-daf-badge { display: inline-flex; align-items: center; gap: 6px; background: #EFF6FF; border: 1px solid #BFDBFE; color: #1D4ED8; padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; margin-bottom: 8px; width: fit-content; }
-    .card-daf-badge .daf-muni { font-weight: 500; color: #3B82F6; }
-
+    .card-daf-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--tp-green-light); border: 1px solid var(--tp-green-border); color: var(--tp-green-primary); padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+    
     .card-title { font-weight: 700; font-size: 13px; color: var(--text-main); margin-bottom: 4px; }
     .card-client { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-    .card-desc { font-size: 11px; color: #475569; line-height: 1.4; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); border-top: 1px solid #F1F5F9; padding-top: 8px; }
+    .card-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 8px; }
 
-    /* Dashboard de Gráficos e SLA */
+    /* Dashboard & SLA */
     .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 10px; }
-    .chart-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .chart-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; box-shadow: var(--card-shadow); }
     .chart-box.col-4 { grid-column: span 4; }
-    .chart-box.col-6 { grid-column: span 6; }
     .chart-box.col-8 { grid-column: span 8; }
     .chart-box.col-12 { grid-column: span 12; }
-    @media (max-width: 900px) { .chart-box.col-4, .chart-box.col-6, .chart-box.col-8 { grid-column: span 12; } }
+    @media (max-width: 900px) { .chart-box.col-4, .chart-box.col-8 { grid-column: span 12; } }
 
     .chart-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .chart-box-header h3 { font-size: 13px; font-weight: 700; color: var(--tp-navy); text-transform: uppercase; letter-spacing: 0.4px; }
-    .chart-box-header span { font-size: 11px; color: var(--text-muted); }
+    .chart-box-header h3 { font-size: 13px; font-weight: 700; color: var(--tp-green-primary); text-transform: uppercase; letter-spacing: 0.4px; }
     .chart-canvas-container { position: relative; height: 260px; width: 100%; }
 
-    /* Tabela de SLA / Tempo Médio */
+    /* Tabela de SLA */
     .sla-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .sla-table th { background: #F8FAFC; padding: 8px 12px; font-weight: 700; color: var(--tp-navy); border-bottom: 1px solid var(--border); text-align: left; }
-    .sla-table td { padding: 8px 12px; border-bottom: 1px solid #F1F5F9; }
+    .sla-table th { background: var(--surface-subtle); padding: 8px 12px; font-weight: 700; color: var(--tp-green-primary); border-bottom: 1px solid var(--border); text-align: left; }
+    .sla-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
     .sla-badge { font-weight: 700; padding: 2px 7px; border-radius: 4px; font-size: 11px; }
-    .sla-fast { background: #DCFCE7; color: #166534; }
-    .sla-medium { background: #FEF3C7; color: #92400E; }
-    .sla-slow { background: #FEE2E2; color: #991B1B; }
+    .sla-fast { background: var(--badge-done-bg); color: var(--badge-done-text); }
+    .sla-medium { background: var(--badge-todo-bg); color: var(--badge-todo-text); }
+    .sla-slow { background: var(--badge-danger-bg); color: var(--badge-danger-text); }
 
-    /* Tabela de Registros Geral */
-    .table-container { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); overflow-x: auto; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
-    thead tr { background: #F8FAFC; border-bottom: 1px solid var(--border); }
-    th { padding: 10px 14px; font-weight: 700; color: var(--tp-navy); }
-    td { padding: 10px 14px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
-    tbody tr:hover { background: #F8FAFC; cursor: pointer; }
+    /* Tabela Registros */
+    .table-container { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); overflow-x: auto; margin-top: 10px; box-shadow: var(--card-shadow); }
+    table.data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+    table.data-table thead tr { background: var(--surface-subtle); border-bottom: 1px solid var(--border); }
+    table.data-table th { padding: 10px 14px; font-weight: 700; color: var(--tp-green-primary); }
+    table.data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    table.data-table tbody tr:hover { background: var(--surface-subtle); cursor: pointer; }
+
+    .status-pill { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; display: inline-flex; }
+    .pill-todo { background: var(--badge-todo-bg); color: var(--badge-todo-text); }
+    .pill-process { background: var(--badge-process-bg); color: var(--badge-process-text); }
+    .pill-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
+
+    /* Chips de filtro na aba Registros */
+    .table-chips { display: flex; gap: 8px; margin-bottom: 12px; }
+    .chip { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); }
+    .chip.active { background: var(--tp-green-primary); color: #fff; border-color: var(--tp-green-primary); }
 
     /* Modal Backdrop */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
-    .modal-content { background: var(--surface); width: 95%; max-width: 620px; padding: 24px; border-radius: 12px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
+    .modal-content { background: var(--surface); width: 95%; max-width: 620px; padding: 24px; border-radius: 12px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); border: 1px solid var(--border); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-    .modal-header h2 { font-size: 16px; color: var(--tp-navy); font-weight: 700; }
+    .modal-header h2 { font-size: 16px; color: var(--tp-green-primary); font-weight: 700; }
     
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
     .form-group.full { grid-column: span 2; }
-    .form-group label { font-size: 11px; font-weight: 700; color: var(--tp-navy); }
-    .form-group input[readonly] { background: #F1F5F9; cursor: not-allowed; }
+    .form-group label { font-size: 11px; font-weight: 700; color: var(--tp-green-primary); }
+    .form-group input[readonly] { background: var(--surface-subtle); cursor: not-allowed; }
 
-    /* Caixa Auxiliar de SLA dentro do Modal */
-    .sla-hint-box { grid-column: span 2; background: #F0F9FF; border: 1px solid #BAE6FD; padding: 10px 14px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #0369A1; margin-bottom: 6px; }
-
-    .oficina-section { grid-column: span 2; background: #F0F7FF; border: 1px solid #BFDBFE; padding: 12px; border-radius: 8px; display: none; margin-bottom: 6px; }
+    .sla-hint-box { grid-column: span 2; background: var(--tp-green-light); border: 1px solid var(--tp-green-border); padding: 10px 14px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--tp-green-primary); margin-bottom: 6px; }
+    .oficina-section { grid-column: span 2; background: var(--surface-subtle); border: 1px solid var(--tp-green-border); padding: 12px; border-radius: 8px; display: none; margin-bottom: 6px; }
   </style>
 </head>
 <body>
 
-  <!-- Topo & Navegação -->
+  <!-- Topo & Controles -->
   <header>
     <div class="brand-group">
       <div class="brand-logo">TP</div>
       <div class="brand-title">
         <h1>Central de Demandas • Backoffice</h1>
-        <p>Monitoramento Operacional, Rede DAF & Gestão de SLA</p>
+        <p>Painel Operacional TruckPag & Controle de SLA</p>
       </div>
     </div>
     
-    <div style="display: flex; gap: 10px; align-items: center;">
+    <div class="header-actions">
+      <button class="theme-toggle" id="btnThemeToggle" onclick="toggleTheme()">🌙 Modo Escuro</button>
       <div class="nav-tabs">
         <button class="nav-btn active" id="tabKanban" onclick="switchTab('kanban')">📋 Quadro</button>
         <button class="nav-btn" id="tabMetrics" onclick="switchTab('metrics')">📊 SLA & Métricas</button>
@@ -172,136 +223,179 @@
     </div>
   </header>
 
-  <!-- KPI Cards Executivos -->
+  <!-- KPIs Executivos -->
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-label">Total de Demandas</div>
       <div class="kpi-value" id="kpiTotal">0</div>
-      <div class="kpi-sub">Histórico integrado</div>
+      <div class="kpi-sub">Histórico geral</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Tempo Médio Resolução</div>
-      <div class="kpi-value" id="kpiAvgSla" style="color:var(--tp-navy);">12.2 d</div>
+      <div class="kpi-value" id="kpiAvgSla">12.2 dias</div>
       <div class="kpi-sub">Mediana real: 6.3 dias</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Em Aberto / Tratamento</div>
-      <div class="kpi-value" id="kpiOpen" style="color:var(--tp-orange);">0</div>
-      <div class="kpi-sub">Fila ativa dos operadores</div>
+      <div class="kpi-label">Abertos</div>
+      <div class="kpi-value" id="kpiOpen" style="color:#F59E0B;">0</div>
+      <div class="kpi-sub">Demandas novas</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Aguardando Terceiro</div>
-      <div class="kpi-value" id="kpiWaiting" style="color:#7C3AED;">0</div>
-      <div class="kpi-sub">Concessionárias, TI, Move Mais</div>
+      <div class="kpi-label">Em Processo</div>
+      <div class="kpi-value" id="kpiProcess" style="color:#0284C7;">0</div>
+      <div class="kpi-sub">Fila em andamento</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Finalizados (Registros)</div>
+      <div class="kpi-value" id="kpiDone" style="color:var(--tp-green-primary);">0</div>
+      <div class="kpi-sub" id="kpiRate">Taxa: 0%</div>
     </div>
   </div>
 
-  <!-- Barra de Filtros -->
+  <!-- Barra de Filtros Intuitivos com Ícones -->
   <div class="toolbar">
     <div class="filters">
-      <input type="text" id="searchBox" placeholder="Buscar cliente, chamado, DAF..." onkeyup="filterData()" style="width: 220px;">
-      <select id="filterProduct" onchange="filterData()">
-        <option value="">Todos os Produtos</option>
-        <option value="PEDÁGIO">Pedágio</option>
-        <option value="MANUTENÇÃO">Manutenção</option>
-        <option value="ABASTECIMENTO">Abastecimento</option>
-      </select>
-      <select id="filterOperator" onchange="filterData()">
-        <option value="">Todos os Operadores</option>
-        <option value="Leandro">Leandro</option>
-        <option value="Mirian">Mirian</option>
-        <option value="Isabelli">Isabelli</option>
-      </select>
-      <select id="filterDaf" onchange="filterData()">
-        <option value="">Todas as Concessionárias</option>
-        <option value="DAF ALIS">DAF ALIS</option>
-        <option value="DAF AVANTY">DAF AVANTY</option>
-        <option value="DAF BARIGUI">DAF BARIGUI</option>
-        <option value="DAF CAIOBA TRUCKS">DAF CAIOBA TRUCKS</option>
-        <option value="DAF CAMINHO">DAF CAMINHO</option>
-        <option value="DAF DU GREGORIO">DAF DU GREGORIO</option>
-        <option value="DAF ELDORADO">DAF ELDORADO</option>
-        <option value="DAF FORNECEDORA">DAF FORNECEDORA</option>
-        <option value="DAF MACPONTA">DAF MACPONTA</option>
-        <option value="DAF NISSEY">DAF NISSEY</option>
-        <option value="DAF NOVA">DAF NOVA</option>
-        <option value="DAF SANCAR PONTUAL">DAF SANCAR PONTUAL</option>
-        <option value="DAF SOMAFERTIL">DAF SOMAFERTIL</option>
-        <option value="DAF VIA TRUCKS">DAF VIA TRUCKS</option>
-        <option value="DAF VITORIA">DAF VITORIA</option>
-      </select>
-      <button class="outline" onclick="resetFilters()">Limpar</button>
+      <div class="filter-group">
+        <span class="filter-icon">🔍</span>
+        <input type="text" id="searchBox" placeholder="Buscar cliente, chamado..." onkeyup="filterData()" style="width: 210px;">
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-icon">🏷️</span>
+        <select id="filterProduct" onchange="filterData()">
+          <option value="">Todos os Produtos</option>
+          <option value="PEDÁGIO">Pedágio</option>
+          <option value="MANUTENÇÃO">Manutenção</option>
+          <option value="ABASTECIMENTO">Abastecimento</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-icon">⚡</span>
+        <select id="filterStatus" onchange="filterData()">
+          <option value="">Todos os Status</option>
+          <option value="todo">📥 Aberto</option>
+          <option value="in_progress">⚙️ Em processo</option>
+          <option value="done">✅ Concluído / Finalizado</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-icon">👤</span>
+        <select id="filterOperator" onchange="filterData()">
+          <option value="">Todos os Operadores</option>
+          <option value="Leandro">Leandro</option>
+          <option value="Mirian">Mirian</option>
+          <option value="Isabelli">Isabelli</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-icon">🏢</span>
+        <select id="filterDaf" onchange="filterData()">
+          <option value="">Todas as Concessionárias</option>
+          <option value="DAF ALIS">DAF ALIS</option>
+          <option value="DAF AVANTY">DAF AVANTY</option>
+          <option value="DAF BARIGUI">DAF BARIGUI</option>
+          <option value="DAF CAIOBA TRUCKS">DAF CAIOBA TRUCKS</option>
+          <option value="DAF CAMINHO">DAF CAMINHO</option>
+          <option value="DAF DU GREGORIO">DAF DU GREGORIO</option>
+          <option value="DAF ELDORADO">DAF ELDORADO</option>
+          <option value="DAF FORNECEDORA">DAF FORNECEDORA</option>
+          <option value="DAF MACPONTA">DAF MACPONTA</option>
+          <option value="DAF NISSEY">DAF NISSEY</option>
+          <option value="DAF NOVA">DAF NOVA</option>
+          <option value="DAF SANCAR PONTUAL">DAF SANCAR PONTUAL</option>
+          <option value="DAF SOMAFERTIL">DAF SOMAFERTIL</option>
+          <option value="DAF VIA TRUCKS">DAF VIA TRUCKS</option>
+          <option value="DAF VITORIA">DAF VITORIA</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-icon">📅</span>
+        <select id="filterMonth" onchange="filterData()">
+          <option value="">Todos os Meses</option>
+          <option value="11-2026">Novembro/2026</option>
+          <option value="10-2026">Outubro/2026</option>
+          <option value="09-2026">Setembro/2026</option>
+          <option value="08-2026">Agosto/2026</option>
+          <option value="07-2026">Julho/2026</option>
+        </select>
+      </div>
+
+      <button class="secondary" onclick="resetFilters()">🔄 Limpar</button>
     </div>
 
-    <div style="display: flex; gap: 8px;">
-      <button class="secondary" onclick="exportExcel()">📤 Exportar Excel</button>
+    <div>
+      <button class="secondary" onclick="exportExcel()">📤 Exportar Excel (BR)</button>
     </div>
   </div>
 
-  <!-- ABA 1: QUADRO KANBAN -->
+  <!-- ABA 1: KANBAN COM APENAS 3 COLUNAS -->
   <div id="viewKanban" class="view-content">
     <div class="board">
+      
+      <!-- Coluna 1: Aberto -->
       <div class="column">
         <div class="col-header">
-          <span>Aberto / Novo</span>
+          <span>📥 Aberto</span>
           <span class="badge-count" id="count-todo">0</span>
         </div>
         <div class="cards-list" id="col-todo"></div>
       </div>
+
+      <!-- Coluna 2: Em processo -->
       <div class="column">
         <div class="col-header">
-          <span>Em Tratamento</span>
+          <span>⚙️ Em processo</span>
           <span class="badge-count" id="count-in_progress">0</span>
         </div>
         <div class="cards-list" id="col-in_progress"></div>
       </div>
+
+      <!-- Coluna 3: Concluído / Finalizado -->
       <div class="column">
         <div class="col-header">
-          <span>Aguardando Terceiro</span>
-          <span class="badge-count" id="count-waiting">0</span>
-        </div>
-        <div class="cards-list" id="col-waiting"></div>
-      </div>
-      <div class="column">
-        <div class="col-header">
-          <span>Concluído</span>
+          <span>✅ Concluído / Finalizado</span>
           <span class="badge-count" id="count-done">0</span>
+        </div>
+        <div class="col-banner-done">
+          <span>📁 Casos arquivados na base</span>
+          <button class="primary" style="padding: 3px 8px; font-size: 10px;" onclick="goToRegistrosDone()">Ver em Registros</button>
         </div>
         <div class="cards-list" id="col-done"></div>
       </div>
+
     </div>
   </div>
 
-  <!-- ABA 2: DASHBOARD EXECUTIVO (SLA & GRÁFICOS) -->
+  <!-- ABA 2: DASHBOARD EXECUTIVO & SLA -->
   <div id="viewMetrics" class="view-content" style="display:none;">
     <div class="dashboard-grid">
       
-      <!-- Seção de Tempo Médio de Finalização (SLA Real) -->
       <div class="chart-box col-12">
         <div class="chart-box-header">
-          <h3>⏱️ Tempo Médio de Finalização por Tipo de Solicitação (SLA Real)</h3>
-          <span>Base calculada sobre demandas concluídas • TruckPag Backoffice</span>
+          <h3>⏱️ Tempo Médio de Finalização por Demanda (SLA Histórico)</h3>
+          <span>Calculado a partir de chamados concluídos da base • TruckPag</span>
         </div>
         <table class="sla-table">
           <thead>
             <tr>
               <th>Tipo de Solicitação</th>
-              <th>Casos Concluídos</th>
-              <th>Tempo Médio Real</th>
-              <th>Tempo Mediano (Típico)</th>
-              <th>SLA Sugerido para o Cliente</th>
+              <th>Total Concluído</th>
+              <th>Média Real</th>
+              <th>Mediana (Típico)</th>
+              <th>SLA Sugerido</th>
             </tr>
           </thead>
-          <tbody id="slaTableBody">
-            <!-- Gerado dinamicamente -->
-          </tbody>
+          <tbody id="slaTableBody"></tbody>
         </table>
       </div>
 
-      <!-- Gráfico SLA Médio por Demanda -->
       <div class="chart-box col-8">
         <div class="chart-box-header">
-          <h3>Média de Dias para Finalização por Demanda</h3>
+          <h3>Média de Dias por Demanda</h3>
           <span>Tempo decorrido entre início e término</span>
         </div>
         <div class="chart-canvas-container">
@@ -309,22 +403,20 @@
         </div>
       </div>
 
-      <!-- Gráfico Proporção Produto -->
       <div class="chart-box col-4">
         <div class="chart-box-header">
           <h3>Demanda por Produto</h3>
-          <span>Volume por Unidade de Negócio</span>
+          <span>Volume por Unidade</span>
         </div>
         <div class="chart-canvas-container">
           <canvas id="chartProductShare"></canvas>
         </div>
       </div>
 
-      <!-- Gráfico Top Oficinas DAF -->
       <div class="chart-box col-12">
         <div class="chart-box-header">
-          <h3>Rede DAF • Oficinas Mais Acionadas em Manutenção</h3>
-          <span>Casas / Redes com maior volume de chamados operacionais</span>
+          <h3>Top Concessionárias DAF em Manutenção</h3>
+          <span>Redes com maior volume de solicitações</span>
         </div>
         <div class="chart-canvas-container" style="height: 220px;">
           <canvas id="chartDaf"></canvas>
@@ -336,12 +428,19 @@
 
   <!-- ABA 3: TABELA DE REGISTROS -->
   <div id="viewTable" class="view-content" style="display:none;">
+    <div class="table-chips">
+      <div class="chip active" onclick="setTableChipFilter('all', this)">Todos</div>
+      <div class="chip" onclick="setTableChipFilter('todo', this)">📥 Abertos</div>
+      <div class="chip" onclick="setTableChipFilter('in_progress', this)">⚙️ Em processo</div>
+      <div class="chip" onclick="setTableChipFilter('done', this)">✅ Concluídos / Finalizados</div>
+    </div>
+
     <div class="table-container">
-      <table>
+      <table class="data-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Data Início</th>
+            <th>Data/Hora Início</th>
             <th>Responsável</th>
             <th>Produto</th>
             <th>Solicitação</th>
@@ -349,7 +448,7 @@
             <th>Cliente</th>
             <th>Contato</th>
             <th>Status</th>
-            <th>Data Término</th>
+            <th>Data Término / Retorno</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -371,7 +470,7 @@
         <div class="form-grid">
           <div class="form-group full">
             <label>Cliente / Razão Social</label>
-            <input type="text" id="taskClient" required placeholder="Ex: Transportadora Silva ou DAF Alis">
+            <input type="text" id="taskClient" required placeholder="Ex: Transportadora Silva">
           </div>
 
           <div class="form-group">
@@ -398,20 +497,18 @@
 
           <div class="form-group">
             <label>Tipo de Solicitação</label>
-            <select id="taskSolicitacao" required onchange="onSolicitacaoChange()">
-              <!-- Preenchido dinamicamente -->
-            </select>
+            <select id="taskSolicitacao" required onchange="onSolicitacaoChange()"></select>
           </div>
 
-          <!-- Assistente Inteligente de SLA / Previsão de Retorno -->
+          <!-- Assistente SLA -->
           <div class="sla-hint-box" id="boxSlaHint">
-            <div id="slaHintText">💡 Média histórica para esta demanda: <strong>-- dias</strong></div>
-            <button type="button" class="sm-btn primary" onclick="applySuggestedSlaDate()">⚡ Aplicar Prazo Sugerido</button>
+            <div id="slaHintText">💡 Média histórica para esta solicitação: <strong>--</strong></div>
+            <button type="button" class="primary" style="padding: 3px 8px; font-size: 11px;" onclick="applySuggestedSlaDate()">⚡ Aplicar Prazo Sugerido</button>
           </div>
 
-          <!-- Campos Obrigatórios para Manutenção (Oficinas DAF) -->
+          <!-- Concessionária DAF Obrigatória -->
           <div class="oficina-section" id="boxOficina">
-            <div style="font-weight:700; color:var(--tp-navy); margin-bottom: 6px;">🔧 Concessionária / Oficina DAF (Obrigatório)</div>
+            <div style="font-weight:700; color:var(--tp-green-primary); margin-bottom: 6px;">🔧 Concessionária / Oficina DAF (Obrigatório)</div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
               <div class="form-group">
                 <label>Casa / Rede DAF</label>
@@ -427,34 +524,32 @@
           <div class="form-group">
             <label>Status Atual</label>
             <select id="taskStatus">
-              <option value="todo">Aberto / Novo</option>
-              <option value="in_progress">Em Andamento</option>
-              <option value="waiting">Aguardando Terceiro</option>
-              <option value="done">Concluído</option>
-              <option value="cancelled">Cancelado</option>
+              <option value="todo">📥 Aberto</option>
+              <option value="in_progress">⚙️ Em processo</option>
+              <option value="done">✅ Concluído / Finalizado</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label>Data de Início</label>
-            <input type="text" id="taskStartDate" readonly>
+            <label>Data/Hora Início (Padrão BR)</label>
+            <input type="text" id="taskStartDate" readonly placeholder="DD/MM/AAAA HH:mm">
           </div>
 
           <div class="form-group full">
-            <label>Data Limite / Retorno Agendado ao Cliente</label>
+            <label>Data Limite / Retorno Agendado (Padrão BR: DD/MM/AAAA)</label>
             <input type="date" id="taskReturnDate">
           </div>
 
           <div class="form-group full">
             <label>Descrição do Chamado / Histórico</label>
-            <textarea id="taskDesc" rows="3" style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border);" placeholder="Descreva os detalhes da ocorrência, protocolos ou dados da nota fiscal..."></textarea>
+            <textarea id="taskDesc" rows="3" placeholder="Descreva os detalhes da ocorrência, protocolos ou notas fiscais..."></textarea>
           </div>
         </div>
 
         <div style="display: flex; justify-content: space-between; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px;">
-          <button type="button" id="btnDelete" onclick="deleteCurrentTask()" style="display:none; background:#FEE2E2; color:#B91C1C; border:none;">Excluir</button>
+          <button type="button" id="btnDelete" onclick="deleteCurrentTask()" style="display:none; background:var(--badge-danger-bg); color:var(--badge-danger-text); border:none;">Excluir</button>
           <div style="margin-left:auto; display:flex; gap:8px;">
-            <button type="button" class="outline" onclick="closeModal()">Cancelar</button>
+            <button type="button" class="secondary" onclick="closeModal()">Cancelar</button>
             <button type="submit" class="primary">Salvar Registro</button>
           </div>
         </div>
@@ -463,14 +558,63 @@
   </div>
 
   <script>
-    // Subdemandas
+    // =========================================================================
+    // UTILITÁRIOS DE FORMATAÇÃO DE DATAS NO PADRÃO BR (DD/MM/AAAA)
+    // =========================================================================
+    function getNowBR() {
+      const now = new Date();
+      const d = String(now.getDate()).padStart(2, '0');
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const y = now.getFullYear();
+      const h = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      return `${d}/${m}/${y} ${h}:${min}`;
+    }
+
+    function formatToBRDate(dateString) {
+      if (!dateString) return '';
+      if (dateString.includes('/')) return dateString.split(' ')[0]; // Já está formatada
+      if (dateString.includes('-')) {
+        const parts = dateString.split('T')[0].split(' ')[0].split('-');
+        if (parts.length === 3) {
+          return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+      }
+      return dateString;
+    }
+
+    function formatToBRDateTime(dateString) {
+      if (!dateString) return '';
+      if (dateString.includes('/')) return dateString;
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return dateString;
+      const dia = String(d.getDate()).padStart(2, '0');
+      const mes = String(d.getMonth() + 1).padStart(2, '0');
+      const ano = d.getFullYear();
+      const hora = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      return `${dia}/${mes}/${ano} ${hora}:${min}`;
+    }
+
+    function parseBRToISODate(brDateStr) {
+      if (!brDateStr) return '';
+      if (brDateStr.includes('-')) return brDateStr.split(' ')[0];
+      const parts = brDateStr.split(' ')[0].split('/');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+      return '';
+    }
+
+    // =========================================================================
+    // REGRAS DE NEGÓCIO E DAF
+    // =========================================================================
     const SOLICITACOES = {
       'PEDÁGIO': ['Contestação', 'Chamado T.I', 'Chamado MM', 'API MM', 'Pedidos', 'Isenção', 'Transferência', 'Outros'],
       'ABASTECIMENTO': ['Logistica', 'Chamado T.I', 'Isenção', 'Outros'],
       'MANUTENÇÃO': ['Chamado T.I', 'Layout XML', 'Pedidos', 'Orçamento', 'Outros']
     };
 
-    // Médias Históricas Reais (em dias) extraídas dos dados da planilha
     const SLA_BENCHMARKS = {
       'Logistica': { mean: 0.7, median: 0.7, suggested: 1 },
       'Pedidos': { mean: 2.0, median: 1.9, suggested: 2 },
@@ -483,7 +627,6 @@
       'Isenção': { mean: 30.0, median: 30.0, suggested: 30 }
     };
 
-    // 79 Concessionárias DAF
     const DAF_UNIDADES = [
       {"rede": "DAF ALIS", "municipio": "AGUA BOA/MT"},
       {"rede": "DAF ALIS", "municipio": "CUIABA/MT"},
@@ -564,37 +707,64 @@
       {"rede": "DAF VITORIA", "municipio": "VITORIA DA CONQUISTA/BA"}
     ];
 
-    // Registros representativos integrados da planilha com Casas DAF e durações
+    // Histórico de Dados reais com Datas no Formato BR
     const REAL_DATA = [
-      { id: "REC-139", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "RMK TRANSPORTES E LOGISTICA", contact: "(51) 98015-6189", solicitacao: "Contestação", description: "Exclusão da placa no contrato ativo.", status: "waiting", startDate: "2026-11-05 15:21", returnDate: "2026-11-20" },
-      { id: "REC-138", mes: "11-2026", operator: "Isabelli", product: "PEDÁGIO", client: "Daniel Ludovico", contact: "49 98834-6580", solicitacao: "Pedidos", description: "Isenção de mensalidade faturas 295477 e 295487 / Tag cancelada no mês 11", status: "done", startDate: "2026-11-05 15:14", endDate: "2026-11-09 08:29", durationDays: 3.7, returnDate: "2026-11-09" },
-      { id: "REC-137", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Andrei, TRANSPORTES WOLSCHICK", contact: "45 9999-2586", solicitacao: "Contestação", description: "Passagem duplicada na rodovia", status: "waiting", startDate: "2026-11-05 11:05", returnDate: "2026-11-20" },
-      { id: "REC-136", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Globopiso", contact: "48) 99610-0095", solicitacao: "Contestação", description: "Transferência de cobrança free flow", status: "waiting", startDate: "2026-11-05 08:33", returnDate: "2026-11-20" },
-      { id: "REC-135", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "COESUL-CONSTRUTORA EXTREMO SUL", contact: "(51) 99883-7068", solicitacao: "Contestação", description: "Transferência de cobrança free flow", status: "waiting", startDate: "2026-11-04 17:23", returnDate: "2026-11-19" },
-      { id: "REC-135D", mes: "11-2026", operator: "Leandro", product: "MANUTENÇÃO", client: "DAF ALIS - CUIABA", contact: "(65) 3000-0000", solicitacao: "Layout XML", description: "Erro de layout xml com integração de faturamento", status: "waiting", startDate: "2026-11-04 10:00", returnDate: "2026-11-12", oficinaRede: "DAF ALIS", oficinaMunicipio: "CUIABA/MT" },
-      { id: "REC-130", mes: "10-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF NOVA Maceio", contact: "(81) 99867-2785", solicitacao: "Layout XML", description: "Chamado criação de Layout da xml, cliente lançou a nota deu certo", status: "done", startDate: "2026-10-07 13:57", endDate: "2026-10-15 17:23", durationDays: 8.1, oficinaRede: "DAF NOVA", oficinaMunicipio: "MACEIO/AL" },
-      { id: "REC-120", mes: "10-2026", operator: "Leandro", product: "MANUTENÇÃO", client: "DAF CAMINHO - SAO JOSE DO RIO PRETO", contact: "17 9999-1234", solicitacao: "Chamado T.I", description: "Erro de importação de layout xml no sistema", status: "done", startDate: "2026-10-02 10:15", endDate: "2026-10-04 09:30", durationDays: 2.0, oficinaRede: "DAF CAMINHO", oficinaMunicipio: "SAO JOSE DO RIO PRETO/SP" },
-      { id: "REC-095", mes: "09-2026", operator: "Leandro", product: "ABASTECIMENTO", client: "Menezes Transportes", contact: "(65) 99259-7532", solicitacao: "Logistica", description: "Não recebimento de cartão de abastecimento na base", status: "done", startDate: "2026-08-31 18:25", endDate: "2026-09-01 11:43", durationDays: 0.7 },
-      { id: "REC-085", mes: "09-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF Barigui São José dos Pinhais", contact: "55 (41) 3098-8056", solicitacao: "Layout XML", description: "Validação de Layout XML da concessionária", status: "done", startDate: "2026-09-22 10:00", endDate: "2026-09-28 15:00", durationDays: 6.2, oficinaRede: "DAF BARIGUI", oficinaMunicipio: "SAO JOSE DOS PINHAIS/PR" },
-      { id: "REC-080", mes: "09-2026", operator: "Mirian", product: "PEDÁGIO", client: "MOINHO CONSOLATA", contact: "(45) 99970-2362", solicitacao: "Contestação", description: "Passagens com registro fora da tag, contestação com Move Mais", status: "done", startDate: "2026-09-02 08:10", endDate: "2026-10-19 00:00", durationDays: 46.7 },
-      { id: "REC-015", mes: "07-2026", operator: "Leandro", product: "PEDÁGIO", client: "MARES DO SUL", contact: "(48) 99903-4132", solicitacao: "Chamado T.I", description: "Ausência de registro de VPO - Integração API MM.", status: "done", startDate: "2026-07-30 10:47", endDate: "2026-08-14 16:20", durationDays: 15.2 }
+      { id: "REC-139", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "RMK TRANSPORTES E LOGISTICA", contact: "(51) 98015-6189", solicitacao: "Contestação", description: "Exclusão da placa no contrato ativo.", status: "in_progress", startDate: "05/11/2026 15:21", returnDate: "20/11/2026" },
+      { id: "REC-138", mes: "11-2026", operator: "Isabelli", product: "PEDÁGIO", client: "Daniel Ludovico", contact: "49 98834-6580", solicitacao: "Pedidos", description: "Isenção de mensalidade faturas 295477 e 295487 / Tag cancelada no mês 11", status: "done", startDate: "05/11/2026 15:14", endDate: "09/11/2026 08:29", durationDays: 3.7, returnDate: "09/11/2026" },
+      { id: "REC-137", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Andrei, TRANSPORTES WOLSCHICK", contact: "45 9999-2586", solicitacao: "Contestação", description: "Passagem duplicada na rodovia", status: "in_progress", startDate: "05/11/2026 11:05", returnDate: "20/11/2026" },
+      { id: "REC-136", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Globopiso", contact: "48) 99610-0095", solicitacao: "Contestação", description: "Transferência de cobrança free flow", status: "in_progress", startDate: "05/11/2026 08:33", returnDate: "20/11/2026" },
+      { id: "REC-135", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "COESUL-CONSTRUTORA EXTREMO SUL", contact: "(51) 99883-7068", solicitacao: "Contestação", description: "Transferência de cobrança free flow", status: "in_progress", startDate: "04/11/2026 17:23", returnDate: "19/11/2026" },
+      { id: "REC-134", mes: "11-2026", operator: "Leandro", product: "MANUTENÇÃO", client: "DAF ALIS - CUIABA", contact: "(65) 3000-0000", solicitacao: "Layout XML", description: "Erro de layout xml com integração de faturamento", status: "in_progress", startDate: "04/11/2026 10:00", returnDate: "12/11/2026", oficinaRede: "DAF ALIS", oficinaMunicipio: "CUIABA/MT" },
+      { id: "REC-130", mes: "10-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF NOVA Maceio", contact: "(81) 99867-2785", solicitacao: "Layout XML", description: "Chamado criação de Layout da xml, cliente lançou a nota deu certo", status: "done", startDate: "07/10/2026 13:57", endDate: "15/10/2026 17:23", durationDays: 8.1, returnDate: "15/10/2026", oficinaRede: "DAF NOVA", oficinaMunicipio: "MACEIO/AL" },
+      { id: "REC-120", mes: "10-2026", operator: "Leandro", product: "MANUTENÇÃO", client: "DAF CAMINHO - SAO JOSE DO RIO PRETO", contact: "17 9999-1234", solicitacao: "Chamado T.I", description: "Erro de importação de layout xml no sistema", status: "done", startDate: "02/10/2026 10:15", endDate: "04/10/2026 09:30", durationDays: 2.0, returnDate: "04/10/2026", oficinaRede: "DAF CAMINHO", oficinaMunicipio: "SAO JOSE DO RIO PRETO/SP" },
+      { id: "REC-095", mes: "09-2026", operator: "Leandro", product: "ABASTECIMENTO", client: "Menezes Transportes", contact: "(65) 99259-7532", solicitacao: "Logistica", description: "Não recebimento de cartão de abastecimento na base", status: "done", startDate: "31/08/2026 18:25", endDate: "01/09/2026 11:43", durationDays: 0.7, returnDate: "01/09/2026" },
+      { id: "REC-085", mes: "09-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF Barigui São José dos Pinhais", contact: "55 (41) 3098-8056", solicitacao: "Layout XML", description: "Validação de Layout XML da concessionária", status: "done", startDate: "22/09/2026 10:00", endDate: "28/09/2026 15:00", durationDays: 6.2, returnDate: "28/09/2026", oficinaRede: "DAF BARIGUI", oficinaMunicipio: "SAO JOSE DOS PINHAIS/PR" },
+      { id: "REC-080", mes: "09-2026", operator: "Mirian", product: "PEDÁGIO", client: "MOINHO CONSOLATA", contact: "(45) 99970-2362", solicitacao: "Contestação", description: "Passagens com registro fora da tag, contestação com Move Mais", status: "done", startDate: "02/09/2026 08:10", endDate: "19/10/2026 00:00", durationDays: 46.7, returnDate: "19/10/2026" },
+      { id: "REC-015", mes: "07-2026", operator: "Leandro", product: "PEDÁGIO", client: "MARES DO SUL", contact: "(48) 99903-4132", solicitacao: "Chamado T.I", description: "Ausência de registro de VPO - Integração API MM.", status: "done", startDate: "30/07/2026 10:47", endDate: "14/08/2026 16:20", durationDays: 15.2, returnDate: "14/08/2026" }
     ];
 
     let tasks = [];
     try {
-      const stored = localStorage.getItem('tp_backoffice_v6');
+      const stored = localStorage.getItem('tp_backoffice_v7');
       tasks = stored ? JSON.parse(stored) : REAL_DATA;
     } catch(e) {
       tasks = REAL_DATA;
     }
 
     let charts = {};
+    let tableCurrentChip = 'all';
 
     function saveTasks() {
-      try { localStorage.setItem('tp_backoffice_v6', JSON.stringify(tasks)); } catch(e){}
+      try { localStorage.setItem('tp_backoffice_v7', JSON.stringify(tasks)); } catch(e){}
       updateDashboard();
     }
 
+    // =========================================================================
+    // CONTROLE DE TEMA CLARO / ESCURO
+    // =========================================================================
+    function initTheme() {
+      const savedTheme = localStorage.getItem('tp_theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.getElementById('btnThemeToggle').innerHTML = '☀️ Modo Claro';
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.getElementById('btnThemeToggle').innerHTML = '🌙 Modo Escuro';
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle('dark-theme');
+      localStorage.setItem('tp_theme', isDark ? 'dark' : 'light');
+      document.getElementById('btnThemeToggle').innerHTML = isDark ? '☀️ Modo Claro' : '🌙 Modo Escuro';
+      if (document.getElementById('viewMetrics').style.display === 'block') {
+        renderExecutiveCharts();
+      }
+    }
+
+    // =========================================================================
+    // NAVEGAÇÃO ENTRE ABAS
+    // =========================================================================
     function switchTab(tab) {
       ['kanban', 'metrics', 'table'].forEach(t => {
         document.getElementById(`view${t.charAt(0).toUpperCase() + t.slice(1)}`).style.display = t === tab ? 'block' : 'none';
@@ -604,6 +774,22 @@
       if (tab === 'table') renderTable();
     }
 
+    function goToRegistrosDone() {
+      switchTab('table');
+      const doneChip = document.querySelectorAll('.table-chips .chip')[3];
+      setTableChipFilter('done', doneChip);
+    }
+
+    function setTableChipFilter(status, el) {
+      tableCurrentChip = status;
+      document.querySelectorAll('.table-chips .chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      filterData();
+    }
+
+    // =========================================================================
+    // CAMPOS DINÂMICOS & SLA ASSISTANT
+    // =========================================================================
     function onProductChange() {
       const prod = document.getElementById('taskProduct').value;
       const solSelect = document.getElementById('taskSolicitacao');
@@ -620,22 +806,22 @@
       } else {
         boxOficina.style.display = 'none';
       }
-
       onSolicitacaoChange();
     }
 
     function onSolicitacaoChange() {
       const sol = document.getElementById('taskSolicitacao').value;
-      const benchmark = SLA_BENCHMARKS[sol] || { mean: 7, suggested: 7 };
-      document.getElementById('slaHintText').innerHTML = `💡 Média histórica para <strong>${sol}</strong>: <strong>~${benchmark.mean} dias</strong> (SLA sugerido: ${benchmark.suggested} dias úteis)`;
+      const b = SLA_BENCHMARKS[sol] || { mean: 7, suggested: 7 };
+      document.getElementById('slaHintText').innerHTML = `💡 Média histórica para <strong>${sol}</strong>: <strong>~${b.mean} dias</strong> (SLA sugerido: ${b.suggested} dias úteis)`;
     }
 
     function applySuggestedSlaDate() {
       const sol = document.getElementById('taskSolicitacao').value;
-      const benchmark = SLA_BENCHMARKS[sol] || { suggested: 7 };
+      const b = SLA_BENCHMARKS[sol] || { suggested: 7 };
       const d = new Date();
-      d.setDate(d.getDate() + benchmark.suggested);
-      document.getElementById('taskReturnDate').value = d.toISOString().split('T')[0];
+      d.setDate(d.getDate() + b.suggested);
+      const iso = d.toISOString().split('T')[0];
+      document.getElementById('taskReturnDate').value = iso;
     }
 
     function populateDafRedes() {
@@ -654,18 +840,25 @@
       });
     }
 
+    // =========================================================================
+    // FILTROS & RENDERIZAÇÃO
+    // =========================================================================
     function filterData() {
       const q = document.getElementById('searchBox').value.toLowerCase();
       const p = document.getElementById('filterProduct').value;
+      const s = document.getElementById('filterStatus').value;
       const o = document.getElementById('filterOperator').value;
       const d = document.getElementById('filterDaf').value;
+      const m = document.getElementById('filterMonth').value;
 
       const filtered = tasks.filter(t => {
         if (p && t.product !== p) return false;
+        if (s && t.status !== s) return false;
         if (o && t.operator !== o) return false;
         if (d && t.oficinaRede !== d) return false;
+        if (m && t.mes !== m) return false;
         if (q) {
-          const match = (t.client + " " + t.description + " " + (t.oficinaRede || '') + " " + (t.oficinaMunicipio || '') + " " + (t.solicitacao || '')).toLowerCase();
+          const match = (t.client + " " + t.description + " " + (t.oficinaRede || '') + " " + (t.solicitacao || '')).toLowerCase();
           if (!match.includes(q)) return false;
         }
         return true;
@@ -673,67 +866,72 @@
 
       renderKanban(filtered);
       renderKPIs(filtered);
-      if (document.getElementById('viewTable').style.display === 'block') renderTable(filtered);
+      renderTable(filtered);
     }
 
     function resetFilters() {
       document.getElementById('searchBox').value = '';
       document.getElementById('filterProduct').value = '';
+      document.getElementById('filterStatus').value = '';
       document.getElementById('filterOperator').value = '';
       document.getElementById('filterDaf').value = '';
+      document.getElementById('filterMonth').value = '';
       filterData();
     }
 
     function renderKPIs(data) {
       const total = data.length;
-      const open = data.filter(t => t.status === 'todo' || t.status === 'in_progress').length;
-      const waiting = data.filter(t => t.status === 'waiting').length;
+      const open = data.filter(t => t.status === 'todo').length;
+      const process = data.filter(t => t.status === 'in_progress').length;
+      const done = data.filter(t => t.status === 'done').length;
 
       document.getElementById('kpiTotal').innerText = total;
       document.getElementById('kpiOpen').innerText = open;
-      document.getElementById('kpiWaiting').innerText = waiting;
+      document.getElementById('kpiProcess').innerText = process;
+      document.getElementById('kpiDone').innerText = done;
+      const rate = total > 0 ? Math.round((done / total) * 100) : 0;
+      document.getElementById('kpiRate').innerText = `Taxa: ${rate}%`;
     }
 
     function renderKanban(data) {
-      ['todo', 'in_progress', 'waiting', 'done'].forEach(col => {
+      // 3 Colunas: Aberto, Em processo, Concluído / Finalizado
+      ['todo', 'in_progress', 'done'].forEach(col => {
         document.getElementById(`col-${col}`).innerHTML = '';
       });
 
-      const counts = { todo: 0, in_progress: 0, waiting: 0, done: 0 };
-      const today = new Date().toISOString().split('T')[0];
+      const counts = { todo: 0, in_progress: 0, done: 0 };
+      const todayISO = new Date().toISOString().split('T')[0];
 
       data.forEach(t => {
         if (counts[t.status] !== undefined) counts[t.status]++;
 
-        const isUrgent = t.returnDate && t.status !== 'done' && t.returnDate <= today;
-        const prodClass = t.product.toLowerCase().replace('á', 'a').replace('çã', 'ca');
+        const returnISO = parseBRToISODate(t.returnDate);
+        const isUrgent = returnISO && t.status !== 'done' && returnISO <= todayISO;
 
         const el = document.createElement('div');
-        el.className = `card ${isUrgent ? 'prio-alta' : 'prio-media'}`;
+        el.className = `card status-${t.status === 'done' ? 'done' : (t.status === 'todo' ? 'todo' : 'process')} ${isUrgent ? 'prio-alta' : ''}`;
         el.onclick = () => openModal(t.id);
 
         el.innerHTML = `
           <div class="card-tags">
-            <span class="tag tag-prod-${prodClass}">${t.product}</span>
-            <span class="tag tag-solicitacao">${t.solicitacao || 'Chamado'}</span>
+            <span class="tag tag-prod">${t.product}</span>
+            <span class="tag tag-solicitacao">${t.solicitacao || 'Demanda'}</span>
             ${isUrgent ? '<span class="tag tag-urgent">⏰ Retorno Pendente</span>' : ''}
           </div>
 
-          <!-- NOME DA CASA DAF EM DESTAQUE NO CARD -->
           ${t.oficinaRede ? `
             <div class="card-daf-badge">
-              <span>🏢</span>
-              <span>${t.oficinaRede}</span>
-              ${t.oficinaMunicipio && t.oficinaMunicipio !== 'Unidade Principal' ? `<span class="daf-muni">• ${t.oficinaMunicipio}</span>` : ''}
+              <span>🏢 ${t.oficinaRede}</span>
+              ${t.oficinaMunicipio && t.oficinaMunicipio !== 'Unidade Principal' ? `<span>• ${t.oficinaMunicipio}</span>` : ''}
             </div>
           ` : ''}
 
           <div class="card-title">${t.client}</div>
           ${t.contact ? `<div class="card-client">📞 ${t.contact}</div>` : ''}
-          <div class="card-desc">${t.description || 'Sem detalhes informados.'}</div>
+          <div class="card-desc">${t.description || 'Sem detalhes.'}</div>
           <div class="card-footer">
             <span>👤 ${t.operator}</span>
-            <span>${t.returnDate ? '📅 Retorno: ' + t.returnDate.split('-').reverse().join('/') : t.startDate.split(' ')[0]}</span>
+            <span>📅 ${t.returnDate ? 'Retorno: ' + formatToBRDate(t.returnDate) : formatToBRDate(t.startDate)}</span>
           </div>
         `;
 
@@ -747,32 +945,42 @@
     }
 
     function renderTable(data = null) {
-      const list = data || tasks;
+      let list = data || tasks;
+      if (tableCurrentChip !== 'all') {
+        list = list.filter(t => t.status === tableCurrentChip);
+      }
+
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
       list.forEach(t => {
+        const pillClass = t.status === 'done' ? 'pill-done' : (t.status === 'todo' ? 'pill-todo' : 'pill-process');
+        const statusLabel = t.status === 'done' ? 'Concluído' : (t.status === 'todo' ? 'Aberto' : 'Em processo');
+
         tbody.innerHTML += `
           <tr onclick="openModal('${t.id}')">
-            <td style="font-weight:700; color:var(--tp-navy);">${t.id}</td>
-            <td>${t.startDate}</td>
+            <td style="font-weight:700; color:var(--tp-green-primary);">${t.id}</td>
+            <td>${formatToBRDateTime(t.startDate)}</td>
             <td>${t.operator}</td>
-            <td><span class="tag tag-solicitacao">${t.product}</span></td>
+            <td><span class="tag tag-prod">${t.product}</span></td>
             <td>${t.solicitacao || '-'}</td>
             <td>${t.oficinaRede ? `<strong>${t.oficinaRede}</strong>` : '-'}</td>
             <td style="font-weight:600;">${t.client}</td>
             <td>${t.contact || '-'}</td>
-            <td><span class="tag" style="background:#F1F5F9;">${t.status}</span></td>
-            <td>${t.returnDate || '-'}</td>
+            <td><span class="status-pill ${pillClass}">${statusLabel}</span></td>
+            <td>${formatToBRDate(t.returnDate) || '-'}</td>
           </tr>
         `;
       });
     }
 
+    // =========================================================================
+    // MODAL FORM & EVENTOS
+    // =========================================================================
     function openModal(id = null) {
       document.getElementById('taskForm').reset();
       document.getElementById('taskId').value = id || '';
       document.getElementById('btnDelete').style.display = id ? 'block' : 'none';
-      document.getElementById('modalTitle').innerText = id ? 'Editar Registro' : 'Nova Demanda Backoffice';
+      document.getElementById('modalTitle').innerText = id ? 'Editar Demanda' : 'Nova Demanda Backoffice';
 
       if (id) {
         const t = tasks.find(x => x.id === id);
@@ -784,8 +992,8 @@
           onProductChange();
           document.getElementById('taskSolicitacao').value = t.solicitacao;
           document.getElementById('taskStatus').value = t.status;
-          document.getElementById('taskStartDate').value = t.startDate;
-          document.getElementById('taskReturnDate').value = t.returnDate || '';
+          document.getElementById('taskStartDate').value = formatToBRDateTime(t.startDate);
+          document.getElementById('taskReturnDate').value = parseBRToISODate(t.returnDate);
           document.getElementById('taskDesc').value = t.description;
 
           if (t.product === 'MANUTENÇÃO') {
@@ -795,8 +1003,7 @@
           }
         }
       } else {
-        const now = new Date();
-        document.getElementById('taskStartDate').value = now.toISOString().replace('T', ' ').substring(0, 16);
+        document.getElementById('taskStartDate').value = getNowBR();
         onProductChange();
       }
       document.getElementById('modal').style.display = 'flex';
@@ -804,17 +1011,12 @@
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-    // FECHAR AO CLICAR FORA DO MODAL (BACKDROP CLICK) E VIA ESC
+    // Fechar ao clicar fora (Backdrop) ou pressionar ESC
     document.getElementById('modal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeModal();
-      }
+      if (e.target === this) closeModal();
     });
-
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closeModal();
-      }
+      if (e.key === 'Escape') closeModal();
     });
 
     function saveTask(e) {
@@ -822,6 +1024,9 @@
       const id = document.getElementById('taskId').value;
       const existing = id ? tasks.find(x => x.id === id) : null;
       const prod = document.getElementById('taskProduct').value;
+
+      const rawReturn = document.getElementById('taskReturnDate').value; // Formato YYYY-MM-DD do input
+      const formattedReturnBR = formatToBRDate(rawReturn);
 
       const record = {
         id: id || `REC-${Date.now().toString().slice(-4)}`,
@@ -832,8 +1037,8 @@
         product: prod,
         solicitacao: document.getElementById('taskSolicitacao').value,
         status: document.getElementById('taskStatus').value,
-        startDate: document.getElementById('taskStartDate').value,
-        returnDate: document.getElementById('taskReturnDate').value,
+        startDate: document.getElementById('taskStartDate').value, // Formato BR
+        returnDate: formattedReturnBR, // Formato BR
         description: document.getElementById('taskDesc').value,
         oficinaRede: prod === 'MANUTENÇÃO' ? document.getElementById('taskOficinaRede').value : null,
         oficinaMunicipio: prod === 'MANUTENÇÃO' ? document.getElementById('taskOficinaMunicipio').value : null
@@ -851,29 +1056,31 @@
 
     function deleteCurrentTask() {
       const id = document.getElementById('taskId').value;
-      if (id && confirm('Deseja excluir este registro?')) {
+      if (id && confirm('Excluir este registro permanentemente?')) {
         tasks = tasks.filter(t => t.id !== id);
         saveTasks();
         closeModal();
       }
     }
 
-    // Renderização da Tabela de SLA e Gráficos
+    // =========================================================================
+    // RELATÓRIOS EXECUTIVOS & GRÁFICOS
+    // =========================================================================
     function renderExecutiveCharts() {
       const destroy = (id) => { if (charts[id]) charts[id].destroy(); };
+      const isDark = document.body.classList.contains('dark-theme');
+      const textColor = isDark ? '#94A3B8' : '#64748B';
+      const gridColor = isDark ? '#243447' : '#F1F5F9';
+      const primaryGreen = isDark ? '#00A859' : '#008744';
 
-      // 1. Preenchimento da Tabela de Tempo Médio de Resolução (SLA)
+      // 1. Tabela SLA
       const tbody = document.getElementById('slaTableBody');
       tbody.innerHTML = '';
-      
-      const slaOrder = ['Logistica', 'Pedidos', 'API MM', 'Layout XML', 'Outros', 'Chamado T.I', 'Contestação', 'Chamado MM', 'Isenção'];
       const chartLabels = [];
       const chartDataDays = [];
 
-      slaOrder.forEach(sol => {
+      Object.keys(SLA_BENCHMARKS).forEach(sol => {
         const item = SLA_BENCHMARKS[sol];
-        if (!item) return;
-
         chartLabels.push(sol);
         chartDataDays.push(item.mean);
 
@@ -881,27 +1088,27 @@
 
         tbody.innerHTML += `
           <tr>
-            <td style="font-weight:700; color:var(--tp-navy);">${sol}</td>
+            <td style="font-weight:700; color:var(--tp-green-primary);">${sol}</td>
             <td>${sol === 'Contestação' ? '36 casos' : (sol === 'Chamado T.I' ? '22 casos' : 'Amostra')}</td>
             <td><span class="sla-badge ${badgeClass}">${item.mean} dias</span></td>
             <td>${item.median} dias</td>
-            <td style="font-weight:600; color:var(--tp-navy);">${item.suggested} dias úteis</td>
+            <td style="font-weight:600; color:var(--tp-green-primary);">${item.suggested} dias úteis</td>
           </tr>
         `;
       });
 
-      // 2. Gráfico de Barras: Média de Dias por Demanda
+      // 2. Gráfico Barras SLA
       destroy('chartSlaBars');
       charts['chartSlaBars'] = new Chart(document.getElementById('chartSlaBars'), {
         type: 'bar',
         data: {
           labels: chartLabels,
           datasets: [{
-            label: 'Média de Dias para Finalização',
+            label: 'Média de Dias',
             data: chartDataDays,
-            backgroundColor: '#003876',
+            backgroundColor: primaryGreen,
             borderRadius: 6,
-            barThickness: 22
+            barThickness: 20
           }]
         },
         options: {
@@ -909,11 +1116,14 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { x: { beginAtZero: true, grid: { color: '#F1F5F9' } }, y: { grid: { display: false } } }
+          scales: {
+            x: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+            y: { grid: { display: false }, ticks: { color: textColor } }
+          }
         }
       });
 
-      // 3. Gráfico Donut de Produtos
+      // 3. Gráfico Donut Produtos
       destroy('chartProductShare');
       charts['chartProductShare'] = new Chart(document.getElementById('chartProductShare'), {
         type: 'doughnut',
@@ -921,20 +1131,20 @@
           labels: ['Pedágio', 'Manutenção', 'Abastecimento'],
           datasets: [{
             data: [98, 22, 19],
-            backgroundColor: ['#003876', '#10B981', '#F37021'],
+            backgroundColor: ['#008744', '#00A859', '#F59E0B'],
             borderWidth: 2,
-            borderColor: '#FFFFFF'
+            borderColor: isDark ? '#141E2E' : '#FFFFFF'
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           cutout: '72%',
-          plugins: { legend: { position: 'bottom' } }
+          plugins: { legend: { position: 'bottom', labels: { color: textColor } } }
         }
       });
 
-      // 4. Gráfico Top Concessionárias DAF
+      // 4. Gráfico Concessionárias DAF
       destroy('chartDaf');
       charts['chartDaf'] = new Chart(document.getElementById('chartDaf'), {
         type: 'bar',
@@ -943,7 +1153,7 @@
           datasets: [{
             label: 'Chamados',
             data: [5, 3, 2, 2, 1, 1, 1],
-            backgroundColor: '#64748B',
+            backgroundColor: '#0284C7',
             borderRadius: 6
           }]
         },
@@ -951,16 +1161,23 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#F1F5F9' } }, x: { grid: { display: false } } }
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } },
+            x: { grid: { display: false }, ticks: { color: textColor } }
+          }
         }
       });
     }
 
+    // =========================================================================
+    // EXPORTAR EXCEL NO PADRÃO BR (SEPARADOR PONTO-E-VÍRGULA E DATAS BR)
+    // =========================================================================
     function exportExcel() {
-      const headers = ['Responsável', 'Produto', 'Casa DAF', 'Cliente', 'Contato', 'Solicitação', 'Descrição', 'Status', 'Data Início', 'Data Término'];
+      const headers = ['ID', 'Responsável', 'Produto', 'Casa DAF', 'Cliente', 'Contato', 'Solicitação', 'Descrição', 'Status', 'Data Início (BR)', 'Data Término (BR)'];
       const rows = [headers.join(';')];
       tasks.forEach(t => {
         rows.push([
+          t.id,
           t.operator,
           t.product,
           `"${t.oficinaRede || ''}"`,
@@ -969,14 +1186,14 @@
           `"${t.solicitacao || ''}"`,
           `"${(t.description || '').replace(/"/g, '""')}"`,
           t.status,
-          t.startDate,
-          t.returnDate || ''
+          formatToBRDateTime(t.startDate),
+          formatToBRDate(t.returnDate)
         ].join(';'));
       });
       const blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `BackOffice_Demandas_TruckPag_${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `Demandas_TruckPag_BR_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
       a.click();
     }
 
@@ -985,6 +1202,7 @@
     }
 
     // Inicialização
+    initTheme();
     updateDashboard();
   </script>
 </body>
