@@ -6,68 +6,425 @@
   <title>Painel de Operações - TruckPag</title>
   <style>
     :root {
-      /* Paleta TruckPag */
       --tp-blue: #003876;
       --tp-orange: #F37021;
-      --tp-light-blue: #E6F0FA;
-      
+      --tp-light-blue: #EBF3FA;
       --bg: #F4F7F9;
       --surface: #FFFFFF;
-      --border: #E0E6ED;
+      --border: #D8E2EC;
       --text-main: #1E293B;
       --text-muted: #64748B;
-      
       --danger: #EF4444;
       --warning: #F59E0B;
       --success: #10B981;
     }
     
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); padding: 20px; font-size: 14px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); padding: 16px; font-size: 13px; }
     
-    /* Header & Navbar */
-    header { background: var(--surface); padding: 20px 24px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,56,118,0.05); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--tp-blue); }
-    .header-title h1 { font-size: 22px; color: var(--tp-blue); margin-bottom: 4px; }
-    .header-title p { color: var(--text-muted); font-size: 13px; }
+    header { background: var(--surface); padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--tp-blue); }
+    .header-title h1 { font-size: 20px; color: var(--tp-blue); margin-bottom: 2px; }
+    .header-title p { color: var(--text-muted); font-size: 12px; }
     
-    /* Buttons & Inputs */
-    button, select, input { font-size: 13px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: var(--text-main); outline: none; transition: 0.2s; }
-    button { cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-    button:hover { border-color: var(--text-muted); }
+    button, select, input { font-size: 12px; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); background: #fff; color: var(--text-main); outline: none; }
+    button { cursor: pointer; font-weight: 600; }
     button.primary { background: var(--tp-orange); color: #fff; border: none; }
     button.primary:hover { background: #d9621c; }
     button.secondary { background: var(--tp-blue); color: #fff; border: none; }
-    button.secondary:hover { background: #002855; }
     
-    /* Toolbar */
-    .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; background: var(--surface); padding: 12px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .filter-label { font-weight: 600; color: var(--text-muted); font-size: 12px; }
+    .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; background: var(--surface); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     
-    /* Kanban Board */
-    .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; align-items: start; }
-    .column { background: var(--tp-light-blue); border-radius: 8px; padding: 12px; min-height: 500px; border: 1px solid #D1E3F5; }
-    .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 13px; font-weight: 700; color: var(--tp-blue); text-transform: uppercase; }
-    .count { background: var(--tp-blue); color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 11px; }
+    .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; align-items: start; }
+    .column { background: var(--tp-light-blue); border-radius: 8px; padding: 12px; min-height: 480px; border: 1px solid #D1E3F5; }
+    .col-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; font-weight: 700; color: var(--tp-blue); text-transform: uppercase; }
+    .count { background: var(--tp-blue); color: #fff; padding: 2px 7px; border-radius: 10px; font-size: 11px; }
     
-    /* Cards */
-    .cards-list { display: flex; flex-direction: column; gap: 12px; }
-    .card { background: var(--surface); border-radius: 8px; padding: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border: 1px solid var(--border); cursor: pointer; border-left: 4px solid transparent; transition: all 0.2s; }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
+    .cards-list { display: flex; flex-direction: column; gap: 10px; }
+    .card { background: var(--surface); border-radius: 6px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid var(--border); cursor: pointer; border-left: 4px solid transparent; transition: transform 0.1s; }
+    .card:hover { transform: translateY(-2px); }
     
     .card.prio-Alta { border-left-color: var(--danger); }
     .card.prio-Média { border-left-color: var(--warning); }
     .card.prio-Baixa { border-left-color: var(--success); }
     
-    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .card-title { font-weight: 700; font-size: 14px; color: var(--tp-blue); }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .card-title { font-weight: 700; font-size: 13px; color: var(--tp-blue); }
     
-    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-    .tag { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
-    .tag-op { background: #F1F5F9; color: var(--text-muted); border: 1px solid var(--border); }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+    .tag { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+    .tag-op { background: #E2E8F0; color: #475569; }
     .tag-type { background: #FEF3C7; color: #92400E; }
     
-    .card-details { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px; }
+    .card-details { font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
     .card-details strong { color: var(--text-main); }
     
-    .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 8px
+    .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 6px; }
+    
+    .alert-badge { padding: 2px 5px; border-radius: 4px; font-weight: bold; font-size: 9px; }
+    .alert-danger { background: #FEE2E2; color: var(--danger); }
+    .alert-warning { background: #FEF3C7; color: var(--warning); }
+    
+    .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); justify-content: center; align-items: center; z-index: 100; }
+    .modal-content { background: var(--surface); width: 95%; max-width: 520px; padding: 20px; border-radius: 8px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    .form-group.full { grid-column: span 2; }
+    .form-group label { font-size: 11px; font-weight: 700; color: var(--tp-blue); }
+    .form-group input[readonly] { background: var(--bg); cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <h1>Painel de Operações TruckPag</h1>
+      <p>Gestão de Demandas de Backoffice</p>
+    </div>
+    <button class="primary" onclick="openModal()">+ Nova Demanda</button>
+  </header>
+
+  <div class="toolbar">
+    <div class="filters">
+      <select id="filterOperator" onchange="renderCards()">
+        <option value="">Todos os Operadores</option>
+        <option value="Leandro">Leandro</option>
+        <option value="Isabelli">Isabelli</option>
+        <option value="Mirian">Mirian</option>
+      </select>
+      <input type="month" id="filterMonth" onchange="renderCards()">
+      <button onclick="clearFilters()">Limpar Filtros</button>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button class="secondary" onclick="exportCSV()">Exportar CSV</button>
+      <button onclick="document.getElementById('importInput').click()">Importar</button>
+      <input type="file" id="importInput" style="display:none" accept=".json" onchange="importData(event)">
+    </div>
+  </div>
+
+  <div class="board">
+    <div class="column">
+      <div class="col-header"><span>Pendentes</span><span class="count" id="count-todo">0</span></div>
+      <div class="cards-list" id="col-todo"></div>
+    </div>
+    <div class="column">
+      <div class="col-header"><span>Em Tratamento</span><span class="count" id="count-in_progress">0</span></div>
+      <div class="cards-list" id="col-in_progress"></div>
+    </div>
+    <div class="column">
+      <div class="col-header"><span>Aguardando Retorno</span><span class="count" id="count-waiting">0</span></div>
+      <div class="cards-list" id="col-waiting"></div>
+    </div>
+    <div class="column">
+      <div class="col-header"><span>Finalizadas</span><span class="count" id="count-done">0</span></div>
+      <div class="cards-list" id="col-done"></div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle" style="color:var(--tp-blue); font-size:16px;">Nova Demanda</h2>
+        <button onclick="closeModal()" style="border:none; background:none; font-size:16px;">✖</button>
+      </div>
+      
+      <form id="taskForm" onsubmit="saveTask(event)">
+        <input type="hidden" id="taskId">
+        
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Assunto da Demanda</label>
+            <input type="text" id="taskTitle" required placeholder="Ex: Ajuste de Faturamento">
+          </div>
+          
+          <div class="form-group">
+            <label>Data/Hora Inicial</label>
+            <input type="text" id="taskCreatedAt" readonly>
+          </div>
+          <div class="form-group">
+            <label>Operador</label>
+            <select id="taskOperator" required>
+              <option value="Leandro">Leandro</option>
+              <option value="Isabelli">Isabelli</option>
+              <option value="Mirian">Mirian</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Cliente / Frota</label>
+            <input type="text" id="taskClient" required placeholder="Nome do cliente">
+          </div>
+          <div class="form-group">
+            <label>Tipo de Demanda</label>
+            <select id="taskType">
+              <option value="Financeiro">Financeiro</option>
+              <option value="Suporte Técnico">Suporte Técnico</option>
+              <option value="Comercial">Comercial</option>
+              <option value="Cadastro/Operacional">Cadastro/Operacional</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Serviço / Produto</label>
+            <input type="text" id="taskProduct" placeholder="Ex: Cartão Combustível" required>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="taskStatus">
+              <option value="todo">Pendente</option>
+              <option value="in_progress">Em Tratamento</option>
+              <option value="waiting">Aguardando Retorno</option>
+              <option value="done">Finalizada</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Data Limite Retorno</label>
+            <input type="date" id="taskDueDate">
+          </div>
+          <div class="form-group">
+            <label>Prioridade</label>
+            <select id="taskPriority">
+              <option value="Alta">Alta</option>
+              <option value="Média" selected>Média</option>
+              <option value="Baixa">Baixa</option>
+            </select>
+          </div>
+
+          <div class="form-group full">
+            <label>Observações / Ações</label>
+            <input type="text" id="taskAction" placeholder="Histórico ou ação pendente">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px;">
+          <button type="button" id="btnDelete" onclick="deleteCurrentTask()" style="display:none; background:#FEE2E2; color:var(--danger); border:none;">Excluir</button>
+          <div style="margin-left:auto; display:flex; gap:8px;">
+            <button type="button" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="primary">Salvar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const INITIAL_DATA = [
+      { id: '1', createdAt: new Date().toISOString(), title: 'Análise de Faturamento', client: 'Transportadora Silva', operator: 'Leandro', type: 'Financeiro', product: 'Cartão Combustível', status: 'in_progress', priority: 'Alta', dueDate: '2026-11-10', action: 'Enviar 2ª via' },
+      { id: '2', createdAt: new Date().toISOString(), title: 'Dúvida na Utilização de Tag', client: 'Expresso Log', operator: 'Isabelli', type: 'Suporte Técnico', product: 'Tag Pedágio', status: 'waiting', priority: 'Média', dueDate: '2026-11-12', action: 'Aguardando cliente retornar' },
+      { id: '3', createdAt: new Date().toISOString(), title: 'Atualização Cadastral de Frota', client: 'Viação Rápida', operator: 'Mirian', type: 'Cadastro/Operacional', product: 'Gestão de Frotas', status: 'done', priority: 'Baixa', dueDate: '', action: 'Cadastro concluído' }
+    ];
+
+    let tasks = [];
+    try {
+      const stored = localStorage.getItem('tp_tasks_v2');
+      tasks = stored ? JSON.parse(stored) : INITIAL_DATA;
+    } catch (e) {
+      tasks = INITIAL_DATA;
+    }
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem('tp_tasks_v2', JSON.stringify(tasks));
+      } catch (e) {}
+      renderCards();
+    }
+
+    function clearFilters() {
+      document.getElementById('filterOperator').value = '';
+      document.getElementById('filterMonth').value = '';
+      renderCards();
+    }
+
+    function renderCards() {
+      const opFilter = document.getElementById('filterOperator').value;
+      const monthFilter = document.getElementById('filterMonth').value;
+
+      ['todo', 'in_progress', 'waiting', 'done'].forEach(col => {
+        const el = document.getElementById(`col-${col}`);
+        if (el) el.innerHTML = '';
+      });
+
+      const counts = { todo: 0, in_progress: 0, waiting: 0, done: 0 };
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      tasks.forEach(t => {
+        if (opFilter && t.operator !== opFilter) return;
+        if (monthFilter && t.createdAt && !t.createdAt.startsWith(monthFilter)) return;
+
+        if (counts[t.status] !== undefined) counts[t.status]++;
+
+        let alertHTML = '';
+        if (t.status !== 'done' && t.dueDate) {
+          const parts = t.dueDate.split('-');
+          if (parts.length === 3) {
+            const due = new Date(parts[0], parts[1] - 1, parts[2]);
+            due.setHours(0,0,0,0);
+            if (due < today) {
+              alertHTML = '<span class="alert-badge alert-danger">⚠️ Atrasado</span>';
+            } else if (due.getTime() === today.getTime()) {
+              alertHTML = '<span class="alert-badge alert-warning">⏰ Vence Hoje</span>';
+            }
+          }
+        }
+
+        const el = document.createElement('div');
+        el.className = `card prio-${t.priority}`;
+        el.onclick = () => openModal(t.id);
+
+        const createdDate = t.createdAt ? new Date(t.createdAt).toLocaleDateString('pt-BR') : '';
+        const dueFormatted = t.dueDate ? t.dueDate.split('-').reverse().join('/') : 'Sem prazo';
+
+        el.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${t.title}</div>
+            ${alertHTML}
+          </div>
+          <div class="card-tags">
+            <span class="tag tag-op">👤 ${t.operator}</span>
+            <span class="tag tag-type">${t.type}</span>
+          </div>
+          <div class="card-details">
+            <div><strong>Cliente:</strong> ${t.client}</div>
+            <div><strong>Serviço:</strong> ${t.product}</div>
+            ${t.action ? `<div style="margin-top:4px; font-style:italic;">"${t.action}"</div>` : ''}
+          </div>
+          <div class="card-footer">
+            <span>Criado: ${createdDate}</span>
+            <span style="font-weight:600;">Retorno: ${dueFormatted}</span>
+          </div>
+        `;
+
+        const container = document.getElementById(`col-${t.status}`);
+        if (container) container.appendChild(el);
+      });
+
+      Object.keys(counts).forEach(k => {
+        const el = document.getElementById(`count-${k}`);
+        if (el) el.innerText = counts[k];
+      });
+    }
+
+    function openModal(id = null) {
+      document.getElementById('taskForm').reset();
+      document.getElementById('taskId').value = id || '';
+      document.getElementById('btnDelete').style.display = id ? 'block' : 'none';
+      document.getElementById('modalTitle').innerText = id ? 'Editar Demanda' : 'Nova Demanda';
+
+      if (id) {
+        const task = tasks.find(t => t.id === id);
+        if (task) {
+          document.getElementById('taskTitle').value = task.title;
+          document.getElementById('taskCreatedAt').value = new Date(task.createdAt).toLocaleString('pt-BR');
+          document.getElementById('taskClient').value = task.client;
+          document.getElementById('taskOperator').value = task.operator;
+          document.getElementById('taskType').value = task.type || 'Financeiro';
+          document.getElementById('taskProduct').value = task.product;
+          document.getElementById('taskStatus').value = task.status;
+          document.getElementById('taskPriority').value = task.priority;
+          document.getElementById('taskDueDate').value = task.dueDate || '';
+          document.getElementById('taskAction').value = task.action || '';
+        }
+      } else {
+        document.getElementById('taskCreatedAt').value = new Date().toLocaleString('pt-BR');
+      }
+
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    function saveTask(e) {
+      e.preventDefault();
+      const id = document.getElementById('taskId').value;
+      const existing = id ? tasks.find(t => t.id === id) : null;
+
+      const data = {
+        id: id || Date.now().toString(),
+        createdAt: existing ? existing.createdAt : new Date().toISOString(),
+        title: document.getElementById('taskTitle').value,
+        client: document.getElementById('taskClient').value,
+        operator: document.getElementById('taskOperator').value,
+        type: document.getElementById('taskType').value,
+        product: document.getElementById('taskProduct').value,
+        status: document.getElementById('taskStatus').value,
+        priority: document.getElementById('taskPriority').value,
+        dueDate: document.getElementById('taskDueDate').value,
+        action: document.getElementById('taskAction').value
+      };
+
+      if (id) {
+        tasks = tasks.map(t => t.id === id ? data : t);
+      } else {
+        tasks.push(data);
+      }
+
+      saveToStorage();
+      closeModal();
+    }
+
+    function deleteCurrentTask() {
+      const id = document.getElementById('taskId').value;
+      if (id && confirm('Excluir esta demanda?')) {
+        tasks = tasks.filter(t => t.id !== id);
+        saveToStorage();
+        closeModal();
+      }
+    }
+
+    function exportCSV() {
+      if (!tasks.length) return alert('Sem demandas para exportar.');
+      const headers = ['ID', 'Criado em', 'Operador', 'Cliente', 'Tipo', 'Servico', 'Status', 'Prioridade', 'Data Retorno', 'Observacoes'];
+      const rows = [headers.join(';')];
+
+      tasks.forEach(t => {
+        rows.push([
+          t.id,
+          t.createdAt ? new Date(t.createdAt).toLocaleString('pt-BR').replace(';', '') : '',
+          t.operator,
+          `"${t.client}"`,
+          t.type,
+          `"${t.product}"`,
+          t.status,
+          t.priority,
+          t.dueDate ? t.dueDate.split('-').reverse().join('/') : '',
+          `"${(t.action || '').replace(/"/g, '""')}"`
+        ].join(';'));
+      });
+
+      const blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `demandas_truckpag_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (Array.isArray(imported)) {
+            tasks = imported;
+            saveToStorage();
+            alert('Dados importados com sucesso!');
+          }
+        } catch {
+          alert('Arquivo inválido.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    renderCards();
+  </script>
+</body>
+</html>
