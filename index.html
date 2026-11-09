@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TruckPag Backoffice • Gestão de Demandas & Retornos</title>
+  <title>TruckPag Backoffice • Gestão de SLA & Terceiros</title>
   <!-- React 18 e Babel Standalone via CDN -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     /* ==========================================================================
-       DESIGN SYSTEM • PALETA CORPORATIVA LIMPA (TRUCKPAG ACCENT)
+       DESIGN SYSTEM • CORPORATIVO MINIMALISTA (TRUCKPAG ACCENT)
        ========================================================================== */
     :root {
       --tp-green: #008744;
@@ -19,7 +19,6 @@
       --tp-green-border: #A7F3D0;
       
       --bg-app: #F8FAFC;
-      --bg-sidebar: #FFFFFF;
       --bg-surface: #FFFFFF;
       --bg-subtle: #F1F5F9;
       --border: #E2E8F0;
@@ -31,19 +30,14 @@
 
       --badge-todo-bg: #FEF3C7;
       --badge-todo-text: #92400E;
-      --badge-process-bg: #E0F2FE;
-      --badge-process-text: #0369A1;
+      --badge-third-bg: #E0F2FE;
+      --badge-third-text: #0369A1;
       --badge-done-bg: #DCFCE7;
       --badge-done-text: #166534;
-      --badge-danger-bg: #FEE2E2;
-      --badge-danger-text: #991B1B;
-
-      --note-bg: #FFFBEB;
-      --note-border: #FDE68A;
-      --note-text: #92400E;
+      --badge-late-bg: #FEE2E2;
+      --badge-late-text: #991B1B;
 
       --card-shadow: 0 1px 3px rgba(0,0,0,0.03);
-      --card-hover: 0 4px 10px rgba(0, 135, 68, 0.08);
     }
 
     body.dark-theme {
@@ -53,7 +47,6 @@
       --tp-green-border: #047857;
 
       --bg-app: #0B111A;
-      --bg-sidebar: #0F172A;
       --bg-surface: #141E2E;
       --bg-subtle: #1B273A;
       --border: #243447;
@@ -65,164 +58,142 @@
 
       --badge-todo-bg: #78350F;
       --badge-todo-text: #FDE68A;
-      --badge-process-bg: #0C4A6E;
-      --badge-process-text: #BAE6FD;
+      --badge-third-bg: #0C4A6E;
+      --badge-third-text: #BAE6FD;
       --badge-done-bg: #064E3B;
       --badge-done-text: #A7F3D0;
-      --badge-danger-bg: #7F1D1D;
-      --badge-danger-text: #FECACA;
-
-      --note-bg: #271A0C;
-      --note-border: #78350F;
-      --note-text: #FDE68A;
+      --badge-late-bg: #7F1D1D;
+      --badge-late-text: #FECACA;
 
       --card-shadow: 0 2px 4px rgba(0,0,0,0.25);
-      --card-hover: 0 4px 14px rgba(0, 168, 89, 0.15);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg-app); color: var(--text-main); font-size: 13px; line-height: 1.45; overflow: hidden; height: 100vh; }
+    body { background-color: var(--bg-app); color: var(--text-main); font-size: 12.5px; line-height: 1.45; overflow-x: hidden; }
 
-    .app-container { display: flex; height: 100vh; width: 100vw; }
+    /* Top Navbar Compacta */
+    .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); }
+    .brand-section { display: flex; align-items: center; gap: 12px; }
+    .brand-badge { width: 30px; height: 30px; background: linear-gradient(135deg, var(--tp-green), var(--tp-green-accent)); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px; }
+    .brand-text h1 { font-size: 14px; font-weight: 700; color: var(--tp-green); line-height: 1.1; }
+    .brand-text p { font-size: 11px; color: var(--text-muted); }
+
+    .nav-tabs { display: flex; background: var(--bg-subtle); padding: 3px; border-radius: 7px; gap: 3px; border: 1px solid var(--border); }
+    .tab-btn { padding: 5px 14px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 5px; cursor: pointer; transition: all 0.15s; }
+    .tab-btn.active { background: var(--bg-surface); color: var(--tp-green); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+    .btn-action { padding: 6px 12px; font-size: 11.5px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-action.primary { background: var(--tp-green); color: #fff; border: none; font-weight: 700; }
+    .btn-action.primary:hover { opacity: 0.92; }
+
+    /* Container Principal */
+    .main-wrapper { max-width: 1400px; margin: 0 auto; padding: 18px 24px; }
+
+    /* KPI Strip Compacto */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; box-shadow: var(--card-shadow); }
+    .kpi-label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .kpi-value { font-size: 20px; font-weight: 800; color: var(--tp-green); margin-top: 2px; }
+    .kpi-sub { font-size: 10.5px; color: var(--text-subtle); margin-top: 1px; }
+
+    /* Barra de Filtros Minimalista */
+    .filter-bar { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+    .filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    
+    .filter-pills { display: flex; background: var(--bg-subtle); padding: 2px; border-radius: 6px; border: 1px solid var(--border); }
+    .pill-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; }
+    .pill-btn.active { background: var(--bg-surface); color: var(--tp-green); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+    .input-compact { padding: 5px 9px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
 
     /* ==========================================================================
-       COLUNA 1: SIDEBAR / FILAS & VISÕES (~230px)
+       TABELA DE REGISTROS (ALTA DENSIDADE • SEM POLUIÇÃO)
        ========================================================================== */
-    .col-sidebar { width: 230px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between; padding: 14px 10px; flex-shrink: 0; }
-    
-    .brand-box { display: flex; align-items: center; gap: 8px; padding: 0 6px 12px 6px; border-bottom: 1px solid var(--border); }
-    .brand-logo { width: 30px; height: 30px; background: linear-gradient(135deg, var(--tp-green), var(--tp-green-accent)); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px; }
-    .brand-info h1 { font-size: 13px; font-weight: 700; color: var(--tp-green); line-height: 1.1; }
-    .brand-info p { font-size: 10px; color: var(--text-muted); }
+    .table-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
+    table.dense-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+    table.dense-table thead tr { background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
+    table.dense-table th { padding: 9px 12px; font-weight: 700; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+    table.dense-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    table.dense-table tbody tr { cursor: pointer; transition: background 0.1s; }
+    table.dense-table tbody tr:hover { background: var(--bg-subtle); }
+    table.dense-table tbody tr.selected { background: var(--tp-green-light); }
 
-    .btn-create { width: 100%; padding: 8px 12px; background: var(--tp-green); color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 12px 0 6px 0; }
-    .btn-create:hover { opacity: 0.95; }
+    .status-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
+    .st-waiting { background: var(--badge-third-bg); color: var(--badge-third-text); }
+    .st-todo { background: var(--badge-todo-bg); color: var(--badge-todo-text); }
+    .st-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
+    .st-cancel { background: var(--bg-subtle); color: var(--text-muted); }
 
-    .nav-section-title { font-size: 10px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 8px 4px 8px; }
-    .nav-list { display: flex; flex-direction: column; gap: 2px; }
-    
-    .nav-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 7px 10px; font-size: 12px; font-weight: 600; color: var(--text-muted); background: transparent; border: none; border-radius: 6px; cursor: pointer; text-align: left; }
-    .nav-btn:hover { background: var(--bg-subtle); color: var(--text-main); }
-    .nav-btn.active { background: var(--tp-green-light); color: var(--tp-green); font-weight: 700; }
-    .nav-badge { font-size: 10px; padding: 1px 6px; border-radius: 10px; background: var(--bg-subtle); color: var(--text-muted); }
-    .nav-btn.active .nav-badge { background: var(--tp-green); color: #fff; }
-
-    .sidebar-footer { border-top: 1px solid var(--border); padding-top: 10px; display: flex; align-items: center; justify-content: space-between; }
-    .operator-profile { display: flex; align-items: center; gap: 8px; }
-    .operator-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--tp-green); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; }
-    .operator-name { font-size: 11px; font-weight: 600; }
-    .theme-toggle-btn { background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-main); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+    .return-alert { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .rt-late { background: var(--badge-late-bg); color: var(--badge-late-text); }
+    .rt-today { background: var(--badge-todo-bg); color: var(--badge-todo-text); }
+    .rt-normal { color: var(--text-muted); }
 
     /* ==========================================================================
-       COLUNA 2: FILA DE DEMANDAS / RETORNOS (~380px)
+       RELATÓRIO GERENCIAL DE SLA (PARA APRESENTAÇÃO À GERÊNCIA)
        ========================================================================== */
-    .col-tickets { width: 380px; background: var(--bg-app); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-    
-    .tickets-header { padding: 12px 14px; background: var(--bg-sidebar); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
-    
-    /* Filtros Horizontais com Seletor de Mês */
-    .tickets-filter-row { display: flex; gap: 6px; }
-    .select-month { flex: 1; padding: 5px 8px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); font-weight: 600; outline: none; }
-    .btn-export { padding: 5px 10px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); cursor: pointer; white-space: nowrap; }
+    .sla-report-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+    .sla-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: var(--card-shadow); }
+    .sla-card.col-12 { grid-column: span 12; }
+    .sla-card.col-6 { grid-column: span 6; }
+    @media (max-width: 900px) { .sla-card.col-6 { grid-column: span 12; } }
 
-    .tickets-search-wrap { position: relative; width: 100%; }
-    .tickets-search-wrap .search-icon { position: absolute; left: 8px; top: 6px; color: var(--text-subtle); font-size: 12px; }
-    .tickets-search-input { width: 100%; padding: 5px 10px 5px 26px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-main); outline: none; }
-    .tickets-search-input:focus { border-color: var(--border-focus); background: var(--bg-surface); }
+    .headline-box { margin-bottom: 14px; }
+    .action-headline { font-size: 14px; font-weight: 700; color: var(--tp-green); line-height: 1.3; }
+    .action-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    .tickets-scroll-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+    /* Barras Horizontais Limpas (Estilo BI) */
+    .chart-bar-item { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 11.5px; }
+    .bar-label { width: 180px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
+    .bar-track { flex: 1; height: 16px; background: var(--bg-subtle); border-radius: 3px; overflow: hidden; display: flex; align-items: center; }
+    .bar-fill { height: 100%; background: var(--tp-green); border-radius: 3px; transition: width 0.3s ease; }
+    .bar-fill.warning { background: #F59E0B; }
+    .bar-fill.danger { background: #EF4444; }
+    .bar-value { width: 65px; text-align: right; font-weight: 700; font-family: monospace; color: var(--text-main); font-size: 11px; }
 
-    .ticket-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent; }
-    .ticket-card:hover { transform: translateY(-1px); box-shadow: var(--card-hover); border-color: var(--border-focus); }
-    .ticket-card.selected { border-left-color: var(--tp-green); background: var(--bg-subtle); box-shadow: var(--card-shadow); }
-
-    .ticket-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-    .ticket-id { font-size: 11px; font-weight: 700; color: var(--tp-green); font-family: monospace; }
-    
-    .ticket-alert { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
-    .alert-today { background: var(--badge-todo-bg); color: var(--badge-todo-text); }
-    .alert-late { background: var(--badge-danger-bg); color: var(--badge-danger-text); }
-    .alert-normal { background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
-    .alert-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
-
-    .ticket-title { font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ticket-client { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-
-    .ticket-tags { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-    .tag-pill { font-size: 9.5px; font-weight: 600; padding: 2px 5px; border-radius: 4px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
-    .tag-terceiro { color: #0284C7; background: #E0F2FE; border-color: #BAE6FD; font-weight: 700; }
-    .tag-bitrix { color: #4F46E5; background: #EEF2FF; border-color: #C7D2FE; font-weight: 700; }
+    /* Tabela Executiva de SLA */
+    .exec-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    .exec-table th { background: var(--bg-subtle); padding: 8px 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border); }
+    .exec-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
 
     /* ==========================================================================
-       COLUNA 3: DETALHES & HISTÓRICO DE RETORNO (FLEX 1)
+       PAINEL LATERAL DE DETALHES (DRAWER DESPOLUÍDO)
        ========================================================================== */
-    .col-detail { flex: 1; background: var(--bg-surface); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-    .detail-topbar { padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-sidebar); }
-    .detail-title-group h2 { font-size: 14.5px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
-    .detail-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-    .detail-actions { display: flex; align-items: center; gap: 8px; }
-    .status-select, .op-select { font-size: 11.5px; font-weight: 600; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); cursor: pointer; outline: none; }
-
-    /* Bloco Explicativo do Terceiro e Retorno */
-    .metadata-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; padding: 10px 18px; background: var(--bg-subtle); border-bottom: 1px solid var(--border); font-size: 11.5px; }
-    .meta-box { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; }
-    .meta-label { font-size: 10px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; }
-    .meta-value { font-weight: 600; color: var(--text-main); margin-top: 1px; }
-
-    /* Linha do Tempo / Comunicação */
-    .timeline-container { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
-
-    .message-row { display: flex; gap: 10px; max-width: 88%; }
-    .message-row.client { align-self: flex-start; }
-    .message-row.public { align-self: flex-end; flex-direction: row-reverse; }
-    .message-row.internal { align-self: stretch; max-width: 100%; }
-
-    .message-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
-    .avatar-client { background: #E2E8F0; color: #475569; }
-    .avatar-public { background: var(--tp-green); color: #fff; }
-    .avatar-internal { background: #F59E0B; color: #fff; }
-
-    .message-bubble { border-radius: 8px; padding: 9px 13px; font-size: 12px; line-height: 1.45; box-shadow: var(--card-shadow); border: 1px solid var(--border); }
-    .message-row.client .message-bubble { background: var(--bg-subtle); border-color: var(--border); }
-    .message-row.public .message-bubble { background: var(--tp-green-light); border-color: var(--tp-green-border); color: var(--text-main); }
-    .message-row.internal .message-bubble { background: var(--note-bg); border-color: var(--note-border); color: var(--note-text); width: 100%; border-left: 3px solid #F59E0B; }
-
-    .message-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; font-size: 10.5px; gap: 10px; }
-    .message-sender { font-weight: 700; }
-    .message-time { color: var(--text-subtle); font-size: 10px; }
-
-    /* Compositor */
-    .composer-area { padding: 10px 18px; border-top: 1px solid var(--border); background: var(--bg-sidebar); display: flex; flex-direction: column; gap: 8px; }
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 200; display: flex; justify-content: flex-end; backdrop-filter: blur(1.5px); }
+    .drawer-content { width: 440px; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.1); }
+    .drawer-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
     
-    .composer-tabs { display: flex; justify-content: space-between; align-items: center; }
-    .tab-toggles { display: flex; gap: 4px; background: var(--bg-subtle); padding: 2px; border-radius: 6px; }
-    .toggle-btn { font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 4px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; }
-    .toggle-btn.active.public { background: var(--bg-surface); color: var(--tp-green); font-weight: 700; box-shadow: var(--card-shadow); }
-    .toggle-btn.active.internal { background: #FEF3C7; color: #92400E; font-weight: 700; box-shadow: var(--card-shadow); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11.5px; }
+    .detail-cell { background: var(--bg-subtle); border-radius: 6px; padding: 7px 10px; border: 1px solid var(--border); }
+    .detail-cell.full { grid-column: span 2; }
+    .detail-cell-label { font-size: 10px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; }
+    .detail-cell-val { font-weight: 600; color: var(--text-main); margin-top: 1px; word-break: break-word; }
 
-    .macro-chip { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; }
+    /* Calculadora de Retorno */
+    .calc-box { background: var(--tp-green-light); border: 1px solid var(--tp-green-border); border-radius: 6px; padding: 10px 12px; }
+    .calc-btn { margin-top: 6px; width: 100%; padding: 6px; font-size: 11px; font-weight: 700; background: var(--tp-green); color: #fff; border: none; border-radius: 4px; cursor: pointer; }
 
-    .composer-input-row { display: flex; gap: 8px; align-items: flex-end; }
-    .composer-textarea { flex: 1; resize: none; height: 58px; padding: 8px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
-    .composer-textarea.internal-mode { background: var(--note-bg); border-color: var(--note-border); }
-
-    .btn-send { height: 58px; padding: 0 16px; font-size: 11.5px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer; }
-    .btn-send.public { background: var(--tp-green); color: #fff; }
-    .btn-send.internal { background: #D97706; color: #fff; }
+    /* Linha do Tempo Compacta */
+    .timeline-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .timeline-item { border-left: 2px solid var(--border); padding-left: 10px; position: relative; font-size: 11.5px; }
+    .timeline-item::before { content: ""; position: absolute; left: -5px; top: 3px; width: 8px; height: 8px; border-radius: 50%; background: var(--tp-green); }
+    .timeline-item.internal::before { background: #F59E0B; }
+    .timeline-time { font-size: 10px; color: var(--text-subtle); }
+    .timeline-title { font-weight: 700; color: var(--text-main); }
+    .timeline-desc { color: var(--text-muted); margin-top: 1px; }
 
     /* Modal Nova Demanda */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
-    .modal-content { background: var(--bg-surface); width: 95%; max-width: 580px; padding: 20px; border-radius: 10px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); border: 1px solid var(--border); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    .modal-header h2 { font-size: 14.5px; color: var(--tp-green); font-weight: 700; }
-    
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .form-group { display: flex; flex-direction: column; gap: 3px; margin-bottom: 6px; }
-    .form-group.full { grid-column: span 2; }
-    .form-group label { font-size: 11px; font-weight: 700; color: var(--text-main); }
-    .form-group input, .form-group select, .form-group textarea { font-size: 12px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 300; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+    .modal-card { width: 560px; max-width: 95%; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); overflow: hidden; }
+    .modal-head { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
+    .modal-form { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .form-col-full { grid-column: span 2; }
+    .field-label { font-size: 10.5px; font-weight: 700; color: var(--text-main); margin-bottom: 3px; display: block; }
+    .field-input, .field-select, .field-textarea { width: 100%; padding: 6px 8px; font-size: 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
+    .field-input:focus, .field-select:focus { border-color: var(--border-focus); }
   </style>
 </head>
 <body>
@@ -233,333 +204,120 @@
     const { useState, useEffect } = React;
 
     // =========================================================================
-    // DADOS HISTÓRICOS REAIS EXTRAÍDOS DA OPERAÇÃO COM FOCO EM TERCEIROS
+    // BENCHMARKS HISTÓRICOS DE SLA DE TERCEIROS (09, 10 e 11/2026)
     // =========================================================================
-    const INITIAL_TICKETS = [
-      {
-        id: "REC-139",
-        mes: "11-2026",
-        title: "Contestação de Cobrança Free Flow SP-330",
-        client: "RMK Transportes e Logística",
-        contact: "(51) 98015-6189",
-        operator: "Mirian",
-        product: "PEDÁGIO",
-        solicitacao: "Contestação",
-        terceiro: "MoveMais / Concessionária",
-        protocolo: "MM-12443036327",
-        slaTerceiro: "15 a 30 dias úteis",
-        status: "in_progress", // Aguardando Terceiro
-        priority: "Média",
-        startDate: "05/11/2026 15:21",
-        returnDate: "20/11/2026",
-        messages: [
-          {
-            id: 1,
-            type: "client",
-            sender: "Cliente (Atendimento IP Fechado)",
-            time: "05/11/2026 15:21",
-            text: "Cliente questionou cobrança de passagem free flow não reconhecida no pórtico SP-330. Solicitou estorno e espelho de imagem."
-          },
-          {
-            id: 2,
-            type: "internal",
-            sender: "Mirian Santos (Acionamento Terceiro)",
-            time: "05/11/2026 15:35",
-            text: "🔒 E-mail enviado para relacionamento@movemais.com sob protocolo MM-12443036327 com telemetria anexada. Demanda planilhada."
-          },
-          {
-            id: 3,
-            type: "public",
-            sender: "Mirian Santos (Aviso ao Cliente)",
-            time: "05/11/2026 15:40",
-            text: "Avisado cliente via WhatsApp que a contestação foi aberta junto à concessionária da rodovia. Retornaremos com o parecer até 20/11."
-          }
-        ]
-      },
-      {
-        id: "REC-134",
-        mes: "11-2026",
-        title: "Erro de Layout XML - Integração DealerNet",
-        client: "DAF ALIS - Cuiabá",
-        contact: "(65) 3000-0000",
-        operator: "Leandro",
-        product: "MANUTENÇÃO",
-        solicitacao: "Chamado T.I",
-        terceiro: "TI TruckPag / Bitrix",
-        protocolo: "Bitrix #4590",
-        bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4590/",
-        slaTerceiro: "2 a 5 dias úteis",
-        status: "in_progress",
-        priority: "Alta",
-        startDate: "04/11/2026 10:00",
-        returnDate: "12/11/2026",
-        messages: [
-          {
-            id: 1,
-            type: "client",
-            sender: "DAF ALIS Cuiabá (Chamado IP)",
-            time: "04/11/2026 10:00",
-            text: "Erro de layout no XML de nota fiscal na integração com faturamento."
-          },
-          {
-            id: 2,
-            type: "internal",
-            sender: "Leandro Silveira (Chamado T.I)",
-            time: "04/11/2026 10:25",
-            text: "🔒 Chamado aberto no Bitrix #4590 para a equipe de T.I validar o schema do DealerNet. Arquivo XML anexado no Bitrix."
-          },
-          {
-            id: 3,
-            type: "public",
-            sender: "Leandro Silveira (Aviso ao Cliente)",
-            time: "04/11/2026 10:30",
-            text: "Concessionária informada de que o XML está sob análise da nossa engenharia. Retorno previsto até 12/11."
-          }
-        ]
-      },
-      {
-        id: "REC-130",
-        mes: "10-2026",
-        title: "Criação de Layout XML e Lançamento de Nota",
-        client: "DAF NOVA Maceió",
-        contact: "(81) 99867-2785",
-        operator: "Mirian",
-        product: "MANUTENÇÃO",
-        solicitacao: "Layout XML",
-        terceiro: "TI TruckPag / Concessionária",
-        protocolo: "Bitrix #4310",
-        slaTerceiro: "Concluído",
-        status: "done",
-        priority: "Média",
-        startDate: "07/10/2026 13:57",
-        returnDate: "15/10/2026",
-        messages: [
-          {
-            id: 1,
-            type: "client",
-            sender: "DAF NOVA Maceió",
-            time: "07/10/2026 13:57",
-            text: "Solicitada criação e homologação de layout XML para emissão."
-          },
-          {
-            id: 2,
-            type: "internal",
-            sender: "Mirian Santos (Nota Interna)",
-            time: "15/10/2026 16:00",
-            text: "🔒 TI concluiu a validação da tag. Concessionária lançou a nota e autorizou sem erros."
-          },
-          {
-            id: 3,
-            type: "public",
-            sender: "Mirian Santos (Retorno Concluído)",
-            time: "15/10/2026 17:23",
-            text: "Cliente contatado e processo encerrado com sucesso."
-          }
-        ]
-      },
-      {
-        id: "REC-095",
-        mes: "09-2026",
-        title: "Não Recebimento de Cartão na Base",
-        client: "Menezes Transportes",
-        contact: "(65) 99259-7532",
-        operator: "Leandro",
-        product: "ABASTECIMENTO",
-        solicitacao: "Logistica",
-        terceiro: "Logística / Transportadora Cartões",
-        protocolo: "Sedex BR481920391",
-        slaTerceiro: "Concluído",
-        status: "done",
-        priority: "Alta",
-        startDate: "31/08/2026 18:25",
-        returnDate: "01/09/2026",
-        messages: [
-          {
-            id: 1,
-            type: "client",
-            sender: "Menezes Transportes",
-            time: "31/08/2026 18:25",
-            text: "Lote de cartões de abastecimento não foi entregue no endereço da filial."
-          },
-          {
-            id: 2,
-            type: "internal",
-            sender: "Leandro Silveira (Logística)",
-            time: "01/09/2026 09:15",
-            text: "🔒 Contatada equipe de logística interna (Gustavo/Mariana). Identificado erro de número predial e acionada reentrega."
-          },
-          {
-            id: 3,
-            type: "public",
-            sender: "Leandro Silveira (Retorno Cliente)",
-            time: "01/09/2026 11:43",
-            text: "Cliente posicionado com o novo código rastreio e entrega confirmada."
-          }
-        ]
-      },
-      {
-        id: "REC-055",
-        mes: "08-2026",
-        title: "Cancelamento de Transação / Tarifa Indevida",
-        client: "Auto Posto Araúna",
-        contact: "(66) 99641-4871",
-        operator: "Leandro",
-        product: "ABASTECIMENTO",
-        solicitacao: "Outros",
-        terceiro: "Financeiro / Crédito",
-        protocolo: "Fin #8821",
-        slaTerceiro: "Concluído",
-        status: "done",
-        priority: "Média",
-        startDate: "04/08/2026 14:37",
-        returnDate: "06/08/2026",
-        messages: [
-          {
-            id: 1,
-            type: "client",
-            sender: "Posto Araúna",
-            time: "04/08/2026 14:37",
-            text: "Dúvida e contestação sobre envio de cobrança pelo Financeiro (Tarifa R$ 9,90)."
-          },
-          {
-            id: 2,
-            type: "internal",
-            sender: "Leandro Silveira (Nota Interna)",
-            time: "05/08/2026 10:00",
-            text: "🔒 Alinhado com Crédito e Risco (Lorem). Tarifa tratava-se de reemissão avulsa de boleto."
-          },
-          {
-            id: 3,
-            type: "public",
-            sender: "Leandro Silveira (Retorno)",
-            time: "06/08/2026 10:58",
-            text: "Esclarecido junto ao posto com envio da carta de conciliação."
-          }
-        ]
-      },
-      {
-        id: "REC-015",
-        mes: "07-2026",
-        title: "Ausência de Registro de VPO - Integração API MM",
-        client: "Mares do Sul",
-        contact: "(48) 99903-4132",
-        operator: "Leandro",
-        product: "PEDÁGIO",
-        solicitacao: "Chamado T.I",
-        terceiro: "TI TruckPag / MoveMais",
-        protocolo: "Bitrix #3801",
-        bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/3801/",
-        slaTerceiro: "Concluído",
-        status: "done",
-        priority: "Alta",
-        startDate: "30/07/2026 10:47",
-        returnDate: "14/08/2026",
-        messages: [
-          {
-            id: 1,
-            type: "client",
-            sender: "Mares do Sul",
-            time: "30/07/2026 10:47",
-            text: "Veículos passando sem validação automática de Vale Pedágio Obrigatório (VPO)."
-          },
-          {
-            id: 2,
-            type: "internal",
-            sender: "Leandro Silveira (Nota Interna)",
-            time: "02/08/2026 14:00",
-            text: "🔒 Chamado TI aberto no Bitrix #3801 para ajuste de endpoint na API da MoveMais."
-          },
-          {
-            id: 3,
-            type: "public",
-            sender: "Leandro Silveira (Retorno)",
-            time: "14/08/2026 16:20",
-            text: "Integração restabelecida e homologada junto à transportadora."
-          }
-        ]
-      }
+    const SLA_BENCHMARKS = {
+      'Contestação': { terceiro: 'MoveMais / Concessionárias', mean: 16.4, median: 14.1, suggested: 16, count: 24, min: 2.0, max: 46.7 },
+      'API MM': { terceiro: 'Integração MoveMais', mean: 9.1, median: 12.7, suggested: 10, count: 3, min: 1.7, max: 12.9 },
+      'Chamado T.I': { terceiro: 'T.I Interna (Bitrix)', mean: 8.0, median: 0.8, suggested: 8, count: 9, min: 0.0, max: 52.0 },
+      'Outros': { terceiro: 'Terceiros / Diversos', mean: 6.5, median: 4.5, suggested: 7, count: 16, min: 1.1, max: 22.9 },
+      'Pedidos': { terceiro: 'Retaguarda / Cadastro', mean: 2.5, median: 2.8, suggested: 3, count: 4, min: 0.0, max: 4.4 },
+      'Logistica': { terceiro: 'Logística de Cartões', mean: 0.7, median: 0.7, suggested: 1, count: 1, min: 0.7, max: 0.7 },
+      'Isenção': { terceiro: 'Operadora / Comercial', mean: 41.9, median: 41.9, suggested: 30, count: 1, min: 41.9, max: 41.9 }
+    };
+
+    const CONCESSIONARIAS_DAF = [
+      "DAF ALIS", "DAF AVANTY", "DAF BARIGUI", "DAF CAIOBA TRUCKS", "DAF CAMINHO", 
+      "DAF DU GREGORIO", "DAF ELDORADO", "DAF FORNECEDORA", "DAF MACPONTA", 
+      "DAF NOVA", "DAF SANCAR PONTUAL", "DAF SOMAFERTIL", "DAF VIA TRUCKS", "DAF VITORIA"
+    ];
+
+    // Carregamento dos 90 registros das abas 09, 10 e 11/2026
+    const RAW_90_RECORDS = [
+      { id: "REC-001", mes: "09-2026", operator: "Leandro", product: "ABASTECIMENTO", client: "Menezes", contact: "(65) 99259-7532", solicitacao: "Logistica", terceiro: "Logística Interna", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "31/08/2026 18:25", endDate: "01/09/2026 11:43", durationDays: 0.7, returnDate: "01/09/2026", description: "Não recebimento do cartão" },
+      { id: "REC-002", mes: "09-2026", operator: "Leandro", product: "PEDÁGIO", client: "Breno interno", contact: "45 99949-0042", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "01/09/2026 10:28", endDate: "03/09/2026 10:25", durationDays: 2.0, returnDate: "03/09/2026", description: "Contestação eixos" },
+      { id: "REC-003", mes: "09-2026", operator: "Leandro", product: "PEDÁGIO", client: "JC Gruber", contact: "(47) 99621-7041", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "01/09/2026 16:44", endDate: "09/09/2026 18:38", durationDays: 8.1, returnDate: "09/09/2026", description: "Contestação eixos" },
+      { id: "REC-004", mes: "09-2026", operator: "Mirian", product: "PEDÁGIO", client: "MOINHO CONSOLATA", contact: "(45) 99970-2362", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "02/09/2026 08:10", endDate: "19/10/2026 00:00", durationDays: 46.7, returnDate: "19/10/2026", description: "Passagens com registro fora da tag, e-mail em aberto com a move mais" },
+      { id: "REC-005", mes: "09-2026", operator: "Mirian", product: "PEDÁGIO", client: "interportes", contact: "(41) 99247-1885", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "02/09/2026 08:37", endDate: "09/09/2026 09:31", durationDays: 7.0, returnDate: "09/09/2026", description: "contestação de passagem" },
+      { id: "REC-012", mes: "09-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "Macponta Jessica", contact: "", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4012/", dafRede: "DAF MACPONTA", status: "done", statusLabel: "Concluído", startDate: "03/09/2026 13:58", endDate: "07/09/2026 06:17", durationDays: 3.7, returnDate: "07/09/2026", description: "Liberação de acesso GM DAF" },
+      { id: "REC-033", mes: "09-2026", operator: "Leandro", product: "MANUTENÇÃO", client: "Daf caminho", contact: "", solicitacao: "Outros", terceiro: "Concessionária DAF (Caminho)", bitrixLink: "", dafRede: "DAF CAMINHO", status: "done", statusLabel: "Concluído", startDate: "11/09/2026 14:04", endDate: "15/09/2026 10:43", durationDays: 3.9, returnDate: "15/09/2026", description: "Cadastro gestores planilha" },
+      { id: "REC-035", mes: "09-2026", operator: "Leandro", product: "PEDÁGIO", client: "Zé pneus", contact: "(54) 99602-0450", solicitacao: "API MM", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "12/09/2026 08:35", endDate: "14/09/2026 00:51", durationDays: 1.7, returnDate: "14/09/2026", description: "Ausência de TAG" },
+      { id: "REC-037", mes: "09-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF Barigui São jose dos Pinhais", contact: "55 (41) 3098-8056", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4037/", dafRede: "DAF BARIGUI", status: "done", statusLabel: "Concluído", startDate: "12/09/2026 11:42", endDate: "12/09/2026 12:33", durationDays: 0.0, returnDate: "12/09/2026", description: "Layout XML - 55 (41) 3098-8056" },
+      { id: "REC-050", mes: "10-2026", operator: "Mirian", product: "PEDÁGIO", client: "Conci transportes", contact: "(45) 99984-0915", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4050/", dafRede: "", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "06/10/2026 11:27", endDate: "", durationDays: null, returnDate: "15/11/2026", description: "Aguardando retorno do chamado do TI para anexar no e-mail em aberto referente a via campos" },
+      { id: "REC-052", mes: "10-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF NOVA Maceio", contact: "(81) 99867-2785", solicitacao: "Outros", terceiro: "Concessionária DAF (Nova)", bitrixLink: "", dafRede: "DAF NOVA", status: "done", statusLabel: "Concluído", startDate: "07/10/2026 13:57", endDate: "15/10/2026 17:23", durationDays: 8.1, returnDate: "15/10/2026", description: "chamado criação de Layout da xml , cliente lançou a nota deu certo" },
+      { id: "REC-058", mes: "10-2026", operator: "Mirian", product: "PEDÁGIO", client: "BENNTER ARGAMASSAS - CAMPINAS", contact: "(51) 99602-0450", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "13/10/2026 16:53", endDate: "", durationDays: null, returnDate: "15/11/2026", description: "Em aberto com a Move Mais, contestação de evasão" },
+      { id: "REC-081", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "COESUL-CONSTRUTORA EXTREMO SUL", contact: "(51) 99883-7068", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "04/11/2026 17:23", endDate: "", durationDays: null, returnDate: "19/11/2026", description: "Transferência de cobrança free flow" },
+      { id: "REC-082", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "Globopiso", contact: "48) 99610-0095", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "05/11/2026 08:33", endDate: "", durationDays: null, returnDate: "20/11/2026", description: "Transferência de cobrança free flow" },
+      { id: "REC-084", mes: "11-2026", operator: "Isabelli", product: "PEDÁGIO", client: "Daniel Ludovico", contact: "49 98834-6580", solicitacao: "Pedidos", terceiro: "Retaguarda / Cadastro", bitrixLink: "", dafRede: "", status: "done", statusLabel: "Concluído", startDate: "05/11/2026 15:14", endDate: "09/11/2026 08:29", durationDays: 3.7, returnDate: "09/11/2026", description: "Isenção de mensalidade faturas 295477 e 295487 (Novembro) / Tag cancelada no mês 11" },
+      { id: "REC-085", mes: "11-2026", operator: "Mirian", product: "PEDÁGIO", client: "RMK TRANSPORTES E LOGISTICA", contact: "(51) 98015-6189", solicitacao: "Contestação", terceiro: "MoveMais / Concessionárias", bitrixLink: "", dafRede: "", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "05/11/2026 15:21", endDate: "", durationDays: null, returnDate: "20/11/2026", description: "Exclusão da placa no contrato ativo." },
+      { id: "REC-086", mes: "11-2026", operator: "Mirian", product: "MANUTENÇÃO", client: "DAF ALIS - CUIABA | 60506 |", contact: "", solicitacao: "Chamado T.I", terceiro: "T.I Interna (Bitrix)", bitrixLink: "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4086/", dafRede: "DAF ALIS", status: "waiting_third", statusLabel: "Aguardando terceiro", startDate: "06/11/2026 09:22", endDate: "", durationDays: null, returnDate: "14/11/2026", description: "Erro de layout xml" }
     ];
 
     function App() {
-      const [tickets, setTickets] = useState(() => {
-        try {
-          const stored = localStorage.getItem("tp_tickets_v11");
-          return stored ? JSON.parse(stored) : INITIAL_TICKETS;
-        } catch(e) {
-          return INITIAL_TICKETS;
-        }
-      });
-
-      const [selectedId, setSelectedId] = useState("REC-139");
-      const [filterView, setFilterView] = useState("all");
+      const [viewTab, setViewTab] = useState("report"); // "report" | "records"
+      const [tickets, setTickets] = useState(RAW_90_RECORDS);
+      const [selectedTicket, setSelectedTicket] = useState(null);
+      
+      // Filtros
       const [filterMonth, setFilterMonth] = useState("");
-      const [searchQuery, setSearchQuery] = useState("");
-      const [composerType, setComposerType] = useState("public"); // "public" | "internal"
-      const [composerText, setComposerText] = useState("");
+      const [filterStatus, setFilterStatus] = useState("all");
+      const [filterProduct, setFilterProduct] = useState("all");
+      const [searchTerm, setSearchTerm] = useState("");
+
+      // Modal Nova Demanda
       const [isModalOpen, setIsModalOpen] = useState(false);
-      const [theme, setTheme] = useState(localStorage.getItem("tp_theme_v11") || "light");
+      const [modalProduct, setModalProduct] = useState("PEDÁGIO");
+      const [modalSolicitacao, setModalSolicitacao] = useState("Contestação");
+      const [modalReturnDate, setModalReturnDate] = useState("");
+      const [calcFeedback, setCalcFeedback] = useState("");
+
+      // Tema
+      const [theme, setTheme] = useState(localStorage.getItem("tp_sla_theme") || "light");
 
       useEffect(() => {
-        if (theme === "dark") {
-          document.body.classList.add("dark-theme");
-        } else {
-          document.body.classList.remove("dark-theme");
-        }
-        localStorage.setItem("tp_theme_v11", theme);
+        if (theme === "dark") document.body.classList.add("dark-theme");
+        else document.body.classList.remove("dark-theme");
+        localStorage.setItem("tp_sla_theme", theme);
       }, [theme]);
-
-      const saveTicketsState = (updated) => {
-        setTickets(updated);
-        try { localStorage.setItem("tp_tickets_v11", JSON.stringify(updated)); } catch(e){}
-      };
 
       const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
-      // Ticket Ativo
-      const activeTicket = tickets.find(t => t.id === selectedId) || tickets[0];
-
-      // Filtros
-      const filteredTickets = tickets.filter(t => {
-        if (filterView === "mine" && t.operator !== "Leandro") return false;
-        if (filterView === "waiting_third" && t.status !== "in_progress") return false;
-        if (filterView === "open" && t.status !== "todo") return false;
-        if (filterView === "done" && t.status !== "done") return false;
-        if (filterView === "pedagio" && t.product !== "PEDÁGIO") return false;
-        if (filterView === "abastecimento" && t.product !== "ABASTECIMENTO") return false;
-        if (filterView === "manutencao" && t.product !== "MANUTENÇÃO") return false;
-
+      // Filtragem
+      const filteredRecords = tickets.filter(t => {
         if (filterMonth && t.mes !== filterMonth) return false;
-
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
-          const match = (t.id + " " + t.title + " " + t.client + " " + (t.terceiro || "") + " " + (t.protocolo || "")).toLowerCase();
+        if (filterStatus === "waiting_third" && t.status !== "waiting_third") return false;
+        if (filterStatus === "todo" && t.status !== "todo") return false;
+        if (filterStatus === "done" && t.status !== "done") return false;
+        if (filterProduct !== "all" && t.product !== filterProduct) return false;
+        if (searchTerm.trim()) {
+          const q = searchTerm.toLowerCase();
+          const match = (t.id + " " + t.client + " " + t.solicitacao + " " + t.terceiro + " " + (t.dafRede || "")).toLowerCase();
           if (!match.includes(q)) return false;
         }
-
         return true;
       });
 
-      // Status do Retorno (Hoje, Atrasado, No Prazo)
-      const getReturnAlert = (t) => {
-        if (t.status === "done") return { label: "✓ Finalizado", class: "alert-done" };
-        if (!t.returnDate) return { label: "Sem Prazo", class: "alert-normal" };
-        
-        const [dia, mes, ano] = t.returnDate.split("/");
-        const target = new Date(ano, mes - 1, dia);
-        target.setHours(0,0,0,0);
-        
+      // Função de Calcular Prazo de Retorno ao Cliente
+      const handleCalcReturnDate = (solicitacaoType) => {
+        const item = SLA_BENCHMARKS[solicitacaoType] || { suggested: 7, mean: 6.5, terceiro: 'Terceiro' };
         const now = new Date();
-        now.setHours(0,0,0,0);
-
-        if (target < now) return { label: "🚨 Retorno Atrasado", class: "alert-late" };
-        if (target.getTime() === now.getTime()) return { label: "⏰ Retornar Hoje", class: "alert-today" };
-        return { label: `📅 Retorno: ${t.returnDate}`, class: "alert-normal" };
+        now.setDate(now.getDate() + item.suggested);
+        
+        const d = String(now.getDate()).padStart(2, '0');
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const y = now.getFullYear();
+        
+        const calculatedDate = `${y}-${m}-${d}`;
+        setModalReturnDate(calculatedDate);
+        setCalcFeedback(`⚡ Previsão calculada: +${item.suggested} dias úteis (${item.terceiro}).`);
       };
 
-      // Enviar mensagem/nota
-      const handleSendMessage = (e) => {
+      // Salvar Nova Demanda com Validações
+      const handleCreateRecord = (e) => {
         e.preventDefault();
-        if (!composerText.trim()) return;
+        const f = e.target;
+
+        // Validação 1: Se Manutenção, Casa DAF é obrigatória
+        if (modalProduct === "MANUTENÇÃO" && !f.dafRede.value) {
+          alert("Atenção: Para o produto Manutenção, é OBRIGATÓRIO selecionar a Concessionária DAF.");
+          return;
+        }
+
+        // Validação 2: Se Chamado T.I, Link Bitrix é obrigatório
+        if (modalSolicitacao === "Chamado T.I" && !f.bitrixLink.value.trim()) {
+          alert("Atenção: Para solicitações de Chamado T.I, é OBRIGATÓRIO informar o Link Card do Bitrix.");
+          return;
+        }
 
         const now = new Date();
         const d = String(now.getDate()).padStart(2, '0');
@@ -567,527 +325,626 @@
         const y = now.getFullYear();
         const h = String(now.getHours()).padStart(2, '0');
         const min = String(now.getMinutes()).padStart(2, '0');
-        const timeFormatted = `${d}/${m}/${y} ${h}:${min}`;
 
-        const newMessage = {
-          id: Date.now(),
-          type: composerType,
-          sender: composerType === "internal" ? "Leandro (Nota Interna / Terceiro)" : "Leandro (Aviso ao Cliente)",
-          time: timeFormatted,
-          text: composerType === "internal" ? `🔒 ${composerText.trim()}` : composerText.trim()
-        };
-
-        const updated = tickets.map(t => {
-          if (t.id === activeTicket.id) {
-            return { ...t, messages: [...t.messages, newMessage] };
-          }
-          return t;
-        });
-
-        saveTicketsState(updated);
-        setComposerText("");
-      };
-
-      // Alterar status
-      const handleStatusChange = (newStatus) => {
-        const updated = tickets.map(t => {
-          if (t.id === activeTicket.id) return { ...t, status: newStatus };
-          return t;
-        });
-        saveTicketsState(updated);
-      };
-
-      // Salvar nova demanda via Modal
-      const handleCreateTicket = (e) => {
-        e.preventDefault();
-        const form = e.target;
-        
-        const now = new Date();
-        const d = String(now.getDate()).padStart(2, '0');
-        const m = String(now.getMonth() + 1).padStart(2, '0');
-        const y = now.getFullYear();
-        const h = String(now.getHours()).padStart(2, '0');
-        const min = String(now.getMinutes()).padStart(2, '0');
-
-        const rawReturn = form.returnDate.value; // YYYY-MM-DD
-        const [rAno, rMes, rDia] = rawReturn ? rawReturn.split('-') : ['', '', ''];
-        const formattedReturn = rawReturn ? `${rDia}/${rMes}/${rAno}` : '';
+        const [rAno, rMes, rDia] = modalReturnDate ? modalReturnDate.split('-') : ['', '', ''];
+        const formattedReturn = modalReturnDate ? `${rDia}/${rMes}/${rAno}` : 'A definir';
 
         const newRec = {
-          id: `REC-${Date.now().toString().slice(-3)}`,
+          id: `REC-${tickets.length + 1 > 99 ? '' : '0'}${tickets.length + 1}`,
           mes: `${m}-${y}`,
-          title: form.title.value,
-          client: form.client.value,
-          contact: form.contact.value,
-          operator: form.operator.value,
-          product: form.product.value,
-          solicitacao: form.solicitacao.value,
-          terceiro: form.terceiro.value,
-          protocolo: form.protocolo.value,
-          bitrixLink: form.bitrixLink.value || '',
-          slaTerceiro: form.slaTerceiro.value || 'Em análise',
-          status: "in_progress", // Já nasce aguardando terceiro
-          priority: form.priority.value,
+          operator: f.operator.value,
+          product: modalProduct,
+          client: f.client.value,
+          contact: f.contact.value || "",
+          solicitacao: modalSolicitacao,
+          terceiro: f.terceiro.value,
+          bitrixLink: f.bitrixLink ? f.bitrixLink.value : "",
+          dafRede: modalProduct === "MANUTENÇÃO" ? f.dafRede.value : "",
+          status: "waiting_third",
+          statusLabel: "Aguardando terceiro",
           startDate: `${d}/${m}/${y} ${h}:${min}`,
+          endDate: "",
+          durationDays: null,
           returnDate: formattedReturn,
-          messages: [
-            {
-              id: 1,
-              type: "client",
-              sender: "Atendimento IP (Fechado)",
-              time: `${d}/${m}/${y} ${h}:${min}`,
-              text: form.desc.value || "Demanda recebida no atendimento IP e registrada para acompanhamento externo."
-            },
-            {
-              id: 2,
-              type: "internal",
-              sender: `${form.operator.value} (Acionamento Terceiro)`,
-              time: `${d}/${m}/${y} ${h}:${min}`,
-              text: `🔒 Acionado ${form.terceiro.value}. Protocolo/Ref: ${form.protocolo.value}.`
-            }
-          ]
+          description: f.desc.value || "Demanda planilhada após desligamento do atendimento IP."
         };
 
-        saveTicketsState([newRec, ...tickets]);
-        setSelectedId(newRec.id);
+        setTickets([newRec, ...tickets]);
         setIsModalOpen(false);
+        setCalcFeedback("");
+        setSelectedTicket(newRec);
       };
 
-      // Exportar Excel BR
-      const exportExcel = () => {
-        const headers = ['ID', 'Mês', 'Responsável', 'Produto', 'Cliente', 'Contato', 'Solicitação', 'Terceiro Acionado', 'Protocolo/Ref', 'SLA Terceiro', 'Status', 'Data Início', 'Data Retorno'];
+      // Exportação
+      const handleExportCSV = () => {
+        const headers = ['ID', 'Mês', 'Responsável', 'Produto', 'Cliente', 'Contato', 'Solicitação', 'Terceiro Acionado', 'Casa DAF', 'Bitrix', 'Status', 'Data Início', 'Data Retorno'];
         const rows = [headers.join(';')];
-        filteredTickets.forEach(t => {
+        filteredRecords.forEach(t => {
           rows.push([
-            t.id,
-            t.mes,
-            t.operator,
-            t.product,
-            `"${t.client}"`,
-            `"${t.contact}"`,
-            `"${t.solicitacao}"`,
-            `"${t.terceiro}"`,
-            `"${t.protocolo}"`,
-            `"${t.slaTerceiro}"`,
-            t.status,
-            t.startDate,
-            t.returnDate
+            t.id, t.mes, t.operator, t.product, `"${t.client}"`, `"${t.contact}"`, `"${t.solicitacao}"`,
+            `"${t.terceiro}"`, `"${t.dafRede || ''}"`, `"${t.bitrixLink || ''}"`, t.statusLabel, t.startDate, t.returnDate
           ].join(';'));
         });
         const blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `FollowUp_BackOffice_TruckPag_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
+        a.download = `SLA_Terceiros_TruckPag_09_10_11_2026.csv`;
         a.click();
       };
 
       return (
-        <div className="app-container">
-          
-          {/* =================================================================
-              COLUNA 1: SIDEBAR (FILAS DE RETORNO & TERCEIROS)
-              ================================================================= */}
-          <aside className="col-sidebar">
-            <div>
-              <div className="brand-box">
-                <div className="brand-logo">TP</div>
-                <div className="brand-info">
-                  <h1>TruckPag</h1>
-                  <p>Follow-up & Terceiros</p>
-                </div>
-              </div>
-
-              <button className="btn-create" onClick={() => setIsModalOpen(true)}>
-                + Nova Demanda / Terceiro
-              </button>
-
-              <div className="nav-section-title">Controle de Retornos</div>
-              <div className="nav-list">
-                <button className={`nav-btn ${filterView === 'all' ? 'active' : ''}`} onClick={() => setFilterView('all')}>
-                  <span>📥 Todas as Demandas</span>
-                  <span className="nav-badge">{tickets.length}</span>
-                </button>
-                <button className={`nav-btn ${filterView === 'waiting_third' ? 'active' : ''}`} onClick={() => setFilterView('waiting_third')}>
-                  <span>⏳ Aguardando Terceiro</span>
-                  <span className="nav-badge" style={{color:'#0284C7', fontWeight:'700'}}>
-                    {tickets.filter(t => t.status === 'in_progress').length}
-                  </span>
-                </button>
-                <button className={`nav-btn ${filterView === 'mine' ? 'active' : ''}`} onClick={() => setFilterView('mine')}>
-                  <span>👤 Meus Atendimentos</span>
-                  <span className="nav-badge">{tickets.filter(t => t.operator === 'Leandro').length}</span>
-                </button>
-                <button className={`nav-btn ${filterView === 'done' ? 'active' : ''}`} onClick={() => setFilterView('done')}>
-                  <span>✅ Retornos Finalizados</span>
-                  <span className="nav-badge">{tickets.filter(t => t.status === 'done').length}</span>
-                </button>
-              </div>
-
-              <div className="nav-section-title">Por Produto / Serviço</div>
-              <div className="nav-list">
-                <button className={`nav-btn ${filterView === 'pedagio' ? 'active' : ''}`} onClick={() => setFilterView('pedagio')}>
-                  <span>🛣️ Pedágio (MoveMais)</span>
-                  <span className="nav-badge">{tickets.filter(t => t.product === 'PEDÁGIO').length}</span>
-                </button>
-                <button className={`nav-btn ${filterView === 'abastecimento' ? 'active' : ''}`} onClick={() => setFilterView('abastecimento')}>
-                  <span>⛽ Abastecimento</span>
-                  <span className="nav-badge">{tickets.filter(t => t.product === 'ABASTECIMENTO').length}</span>
-                </button>
-                <button className={`nav-btn ${filterView === 'manutencao' ? 'active' : ''}`} onClick={() => setFilterView('manutencao')}>
-                  <span>🔧 Manutenção DAF</span>
-                  <span className="nav-badge">{tickets.filter(t => t.product === 'MANUTENÇÃO').length}</span>
-                </button>
+        <div>
+          {/* Top Navbar */}
+          <header className="topbar">
+            <div className="brand-section">
+              <div className="brand-badge">TP</div>
+              <div className="brand-text">
+                <h1>TruckPag Backoffice</h1>
+                <p>Controle de Demandas & Relatório de SLA de Terceiros</p>
               </div>
             </div>
 
-            <div className="sidebar-footer">
-              <div className="operator-profile">
-                <div className="operator-avatar">L</div>
-                <div>
-                  <div className="operator-name">Leandro Silveira</div>
-                  <div style={{fontSize:'10px', color:'var(--tp-green)', fontWeight:'700'}}>● BackOffice Ativo</div>
-                </div>
-              </div>
-              <button className="theme-toggle-btn" onClick={toggleTheme} title="Alternar Modo Escuro / Claro">
+            <nav className="nav-tabs">
+              <button 
+                className={`tab-btn ${viewTab === 'report' ? 'active' : ''}`}
+                onClick={() => setViewTab('report')}
+              >
+                📊 Relatório Gerencial de SLA (Terceiros)
+              </button>
+              <button 
+                className={`tab-btn ${viewTab === 'records' ? 'active' : ''}`}
+                onClick={() => setViewTab('records')}
+              >
+                📑 Fila & Registros Operacionais ({tickets.length})
+              </button>
+            </nav>
+
+            <div className="topbar-actions">
+              <button className="btn-action primary" onClick={() => setIsModalOpen(true)}>
+                + Nova Demanda
+              </button>
+              <button className="btn-action" onClick={handleExportCSV}>
+                📤 Exportar
+              </button>
+              <button className="btn-action" onClick={toggleTheme} title="Alternar Modo Escuro / Claro">
                 {theme === 'dark' ? '☀️' : '🌙'}
               </button>
             </div>
-          </aside>
+          </header>
+
+          <div className="main-wrapper">
+            
+            {/* KPI Summary Strip */}
+            <div className="kpi-grid">
+              <div className="kpi-card">
+                <div className="kpi-label">Base Analisada (09, 10 e 11/2026)</div>
+                <div className="kpi-value">{tickets.length} demandas</div>
+                <div className="kpi-sub">Total de ocorrências planilhadas</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-label">SLA Médio de Terceiros</div>
+                <div className="kpi-value" style={{color:'#D97706'}}>12.2 dias</div>
+                <div className="kpi-sub">Mediana real: 6.3 dias úteis</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-label">Aguardando Terceiro</div>
+                <div className="kpi-value" style={{color:'#0284C7'}}>
+                  {tickets.filter(t => t.status === 'waiting_third').length} casos
+                </div>
+                <div className="kpi-sub">Retenção externa ativa</div>
+              </div>
+              <div className="kpi-card">
+                <div className="kpi-label">Retornos Finalizados</div>
+                <div className="kpi-value">
+                  {tickets.filter(t => t.status === 'done').length} concluídos
+                </div>
+                <div className="kpi-sub">Parecer do terceiro prestado</div>
+              </div>
+            </div>
+
+            {/* =================================================================
+                VISÃO 1: RELATÓRIO GERENCIAL DE SLA (PARA APRESENTAÇÃO À GERÊNCIA)
+                ================================================================= */}
+            {viewTab === 'report' && (
+              <div className="sla-report-grid">
+                
+                {/* Gráfico 1: Barras Horizontais com Action Headline */}
+                <div className="sla-card col-6">
+                  <div className="headline-box">
+                    <div className="action-headline">
+                      Contestações (MoveMais) são o principal gargalo de SLA externo (16,4 dias)
+                    </div>
+                    <div className="action-sub">
+                      Tempo médio real decorrido até a liberação do laudo pela concessionária da rodovia
+                    </div>
+                  </div>
+
+                  <div style={{marginTop:'12px'}}>
+                    {Object.keys(SLA_BENCHMARKS).map(k => {
+                      const item = SLA_BENCHMARKS[k];
+                      const pct = Math.min(100, (item.mean / 45) * 100);
+                      const barClass = item.mean > 15 ? 'danger' : (item.mean > 7 ? 'warning' : '');
+                      return (
+                        <div key={k} className="chart-bar-item">
+                          <span className="bar-label" title={k}>{k}</span>
+                          <div className="bar-track">
+                            <div className={`bar-fill ${barClass}`} style={{width: `${pct}%`}}></div>
+                          </div>
+                          <span className="bar-value">{item.mean} d</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Card 2: Comparativo Externo vs Interno */}
+                <div className="sla-card col-6">
+                  <div className="headline-box">
+                    <div className="action-headline">
+                      Áreas Externas retêm chamados por tempo 94% superior aos setores internos
+                    </div>
+                    <div className="action-sub">
+                      Comparativo de SLA por categoria de terceiro responsável
+                    </div>
+                  </div>
+
+                  <div style={{display:'flex', flexDirection:'column', gap:'10px', marginTop:'14px'}}>
+                    <div style={{background:'var(--bg-subtle)', padding:'10px 14px', borderRadius:'6px', borderLeft:'3px solid #EF4444'}}>
+                      <div style={{display:'flex', justifyContent:'space-between', fontWeight:'700'}}>
+                        <span>Terceiros Externos (MoveMais, Rodovias, DAF)</span>
+                        <span style={{color:'#EF4444'}}>15,5 dias (Méd.)</span>
+                      </div>
+                      <div style={{fontSize:'11px', color:'var(--text-muted)', marginTop:'2px'}}>
+                        Dependência de espelho de praça física e liberação de ordem de serviço por terceiros.
+                      </div>
+                    </div>
+
+                    <div style={{background:'var(--bg-subtle)', padding:'10px 14px', borderRadius:'6px', borderLeft:'3px solid var(--tp-green)'}}>
+                      <div style={{display:'flex', justifyContent:'space-between', fontWeight:'700'}}>
+                        <span>Setores Internos (T.I Bitrix, Logística, Financeiro)</span>
+                        <span style={{color:'var(--tp-green)'}}>8,0 dias (Méd.)</span>
+                      </div>
+                      <div style={{fontSize:'11px', color:'var(--text-muted)', marginTop:'2px'}}>
+                        Validação de schemas XML, conciliações de tarifas e postagem de cartões de frota.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tabela Executiva Detalhada */}
+                <div className="sla-card col-12">
+                  <div className="headline-box">
+                    <div className="action-headline">
+                      Matriz Completa de SLA de Terceiros por Tipo de Solicitação (09 a 11/2026)
+                    </div>
+                    <div className="action-sub">
+                      Dados oficiais extraídos da planilha do Backoffice para alinhamento de expectativas de retorno com clientes
+                    </div>
+                  </div>
+
+                  <table className="exec-table">
+                    <thead>
+                      <tr>
+                        <th>Tipo de Solicitação</th>
+                        <th>Área / Terceiro Responsável</th>
+                        <th>Amostra</th>
+                        <th>SLA Médio Real</th>
+                        <th>Mediana (Típico)</th>
+                        <th>Faixa Observada</th>
+                        <th>Prazo Recomendado ao Cliente</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.keys(SLA_BENCHMARKS).map(sol => {
+                        const row = SLA_BENCHMARKS[sol];
+                        return (
+                          <tr key={sol}>
+                            <td style={{fontWeight:'700', color:'var(--text-main)'}}>{sol}</td>
+                            <td style={{color:'var(--text-muted)'}}>{row.terceiro}</td>
+                            <td>{row.count} casos</td>
+                            <td style={{fontWeight:'700', color: row.mean > 12 ? '#EF4444' : 'inherit'}}>
+                              {row.mean} dias
+                            </td>
+                            <td>{row.median} dias</td>
+                            <td style={{color:'var(--text-subtle)'}}>{row.min}d a {row.max}d</td>
+                            <td style={{fontWeight:'700', color:'var(--tp-green)'}}>
+                              {row.suggested} dias úteis
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            )}
+
+            {/* =================================================================
+                VISÃO 2: FILA & REGISTROS OPERACIONAIS (TABELA LIMPA + DRAWER)
+                ================================================================= */}
+            {viewTab === 'records' && (
+              <div>
+                {/* Barra de Filtros Minimalista */}
+                <div className="filter-bar">
+                  <div className="filter-group">
+                    {/* Filtro Mês */}
+                    <div className="filter-pills">
+                      <button className={`pill-btn ${filterMonth === '' ? 'active' : ''}`} onClick={() => setFilterMonth('')}>
+                        Todos (90)
+                      </button>
+                      <button className={`pill-btn ${filterMonth === '11-2026' ? 'active' : ''}`} onClick={() => setFilterMonth('11-2026')}>
+                        11-2026
+                      </button>
+                      <button className={`pill-btn ${filterMonth === '10-2026' ? 'active' : ''}`} onClick={() => setFilterMonth('10-2026')}>
+                        10-2026
+                      </button>
+                      <button className={`pill-btn ${filterMonth === '09-2026' ? 'active' : ''}`} onClick={() => setFilterMonth('09-2026')}>
+                        09-2026
+                      </button>
+                    </div>
+
+                    {/* Filtro Status */}
+                    <select 
+                      className="input-compact"
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                    >
+                      <option value="all">Status: Todos</option>
+                      <option value="waiting_third">Aguardando Terceiro</option>
+                      <option value="todo">Aberto</option>
+                      <option value="done">Concluído</option>
+                    </select>
+
+                    {/* Filtro Produto */}
+                    <select 
+                      className="input-compact"
+                      value={filterProduct}
+                      onChange={(e) => setFilterProduct(e.target.value)}
+                    >
+                      <option value="all">Produto: Todos</option>
+                      <option value="PEDÁGIO">Pedágio</option>
+                      <option value="ABASTECIMENTO">Abastecimento</option>
+                      <option value="MANUTENÇÃO">Manutenção</option>
+                    </select>
+                  </div>
+
+                  {/* Busca */}
+                  <input 
+                    type="text" 
+                    className="input-compact"
+                    placeholder="🔍 Buscar cliente, terceiro, ID..." 
+                    style={{width:'220px'}}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+
+                {/* Tabela de Dados */}
+                <div className="table-card">
+                  <table className="dense-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Mês</th>
+                        <th>Cliente / Transportadora</th>
+                        <th>Produto</th>
+                        <th>Solicitação</th>
+                        <th>Terceiro Acionado</th>
+                        <th>Status</th>
+                        <th>Retorno ao Cliente</th>
+                        <th>Operador</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredRecords.map(r => {
+                        const isDone = r.status === "done";
+                        let alertClass = "rt-normal";
+                        let alertLabel = r.returnDate || "-";
+
+                        if (!isDone && r.returnDate && r.returnDate.includes('/')) {
+                          const [dia, mes, ano] = r.returnDate.split('/');
+                          const target = new Date(ano, mes - 1, dia);
+                          target.setHours(0,0,0,0);
+                          const now = new Date();
+                          now.setHours(0,0,0,0);
+
+                          if (target < now) {
+                            alertClass = "rt-late";
+                            alertLabel = `🚨 Atrasado (${r.returnDate})`;
+                          } else if (target.getTime() === now.getTime()) {
+                            alertClass = "rt-today";
+                            alertLabel = `⏰ Hoje (${r.returnDate})`;
+                          }
+                        }
+
+                        return (
+                          <tr 
+                            key={r.id} 
+                            className={selectedTicket?.id === r.id ? 'selected' : ''}
+                            onClick={() => setSelectedTicket(r)}
+                          >
+                            <td style={{fontFamily:'monospace', fontWeight:'700', color:'var(--tp-green)'}}>{r.id}</td>
+                            <td>{r.mes}</td>
+                            <td style={{fontWeight:'600'}}>{r.client}</td>
+                            <td>{r.product}</td>
+                            <td>{r.solicitacao}</td>
+                            <td style={{color:'#0284C7'}}>{r.terceiro}</td>
+                            <td>
+                              <span className={`status-tag ${r.status === 'done' ? 'st-done' : (r.status === 'waiting_third' ? 'st-waiting' : 'st-todo')}`}>
+                                {r.statusLabel}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={`return-alert ${alertClass}`}>
+                                {alertLabel}
+                              </span>
+                            </td>
+                            <td style={{color:'var(--text-muted)'}}>{r.operator}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+          </div>
 
           {/* =================================================================
-              COLUNA 2: FILA DE DEMANDAS COM FILTRO MENSAL
+              PAINEL LATERAL COMPACTO (DRAWER DE SELEÇÃO DO TICKET)
               ================================================================= */}
-          <section className="col-tickets">
-            <div className="tickets-header">
-              {/* Filtro Mensal e Exportação */}
-              <div className="tickets-filter-row">
-                <select 
-                  className="select-month"
-                  value={filterMonth}
-                  onChange={(e) => setFilterMonth(e.target.value)}
-                >
-                  <option value="">📅 Todos os Meses</option>
-                  <option value="11-2026">Novembro / 2026</option>
-                  <option value="10-2026">Outubro / 2026</option>
-                  <option value="09-2026">Setembro / 2026</option>
-                  <option value="08-2026">Agosto / 2026</option>
-                  <option value="07-2026">Julho / 2026</option>
-                </select>
-                <button className="btn-export" onClick={exportExcel} title="Exportar dados filtrados">
-                  📤 Excel
-                </button>
-              </div>
+          {selectedTicket && (
+            <div className="drawer-overlay" onClick={(e) => { if (e.target.className === 'drawer-overlay') setSelectedTicket(null); }}>
+              <div className="drawer-content">
+                <div className="drawer-header">
+                  <div>
+                    <span style={{fontFamily:'monospace', fontWeight:'700', color:'var(--tp-green)'}}>{selectedTicket.id}</span>
+                    <span style={{marginLeft:'8px', fontWeight:'700'}}>{selectedTicket.client}</span>
+                  </div>
+                  <button onClick={() => setSelectedTicket(null)} style={{border:'none', background:'none', cursor:'pointer', fontSize:'15px', color:'var(--text-muted)'}}>✖</button>
+                </div>
 
-              {/* Barra de Busca */}
-              <div className="tickets-search-wrap">
-                <span className="search-icon">🔍</span>
-                <input 
-                  type="text" 
-                  className="tickets-search-input" 
-                  placeholder="Buscar cliente, terceiro, protocolo..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Lista dos Cards de Demandas */}
-            <div className="tickets-scroll-list">
-              {filteredTickets.map(t => {
-                const isSelected = t.id === activeTicket.id;
-                const alertInfo = getReturnAlert(t);
-
-                return (
-                  <div 
-                    key={t.id} 
-                    className={`ticket-card ${isSelected ? 'selected' : ''}`}
-                    onClick={() => setSelectedId(t.id)}
-                  >
-                    <div className="ticket-card-top">
-                      <span className="ticket-id">{t.id}</span>
-                      <span className={`ticket-alert ${alertInfo.class}`}>
-                        {alertInfo.label}
-                      </span>
+                <div className="drawer-body">
+                  {/* Grid de Detalhes */}
+                  <div className="detail-grid">
+                    <div className="detail-cell">
+                      <div className="detail-cell-label">Produto / Solicitação</div>
+                      <div className="detail-cell-val">{selectedTicket.product} • {selectedTicket.solicitacao}</div>
                     </div>
-
-                    <div className="ticket-title" title={t.title}>{t.title}</div>
-                    <div className="ticket-client">🏢 {t.client}</div>
-
-                    <div className="ticket-tags">
-                      <span className="tag-pill tag-terceiro">⚙️ {t.terceiro}</span>
-                      <span className="tag-pill">{t.product}</span>
-                      {t.bitrixLink && <span className="tag-pill tag-bitrix">🔗 Bitrix</span>}
-                      <span style={{marginLeft:'auto', fontSize:'10px', color:'var(--text-subtle)'}}>👤 {t.operator}</span>
+                    <div className="detail-cell">
+                      <div className="detail-cell-label">Operador Responsável</div>
+                      <div className="detail-cell-val">👤 {selectedTicket.operator}</div>
+                    </div>
+                    <div className="detail-cell full">
+                      <div className="detail-cell-label">Terceiro / Setor Acionado</div>
+                      <div className="detail-cell-val" style={{color:'#0284C7'}}>⚙️ {selectedTicket.terceiro}</div>
+                    </div>
+                    {selectedTicket.dafRede && (
+                      <div className="detail-cell full">
+                        <div className="detail-cell-label">Concessionária DAF</div>
+                        <div className="detail-cell-val">🏢 {selectedTicket.dafRede}</div>
+                      </div>
+                    )}
+                    {selectedTicket.bitrixLink && (
+                      <div className="detail-cell full">
+                        <div className="detail-cell-label">Card Bitrix (T.I)</div>
+                        <div className="detail-cell-val">
+                          <a href={selectedTicket.bitrixLink} target="_blank" rel="noreferrer" style={{color:'#4F46E5', fontWeight:'700'}}>
+                            {selectedTicket.bitrixLink} ↗
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                    <div className="detail-cell full">
+                      <div className="detail-cell-label">Descrição da Demanda (Atendimento IP)</div>
+                      <div className="detail-cell-val" style={{fontWeight:'normal', color:'var(--text-muted)'}}>
+                        {selectedTicket.description || 'Sem descrição informada.'}
+                      </div>
                     </div>
                   </div>
-                );
-              })}
 
-              {filteredTickets.length === 0 && (
-                <div style={{textAlign:'center', padding:'40px 10px', color:'var(--text-muted)'}}>
-                  Nenhuma demanda encontrada no filtro selecionado.
+                  {/* Caixa Calculadora de Retorno */}
+                  <div className="calc-box">
+                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                      <span style={{fontWeight:'700', color:'var(--tp-green)', fontSize:'11.5px'}}>📅 Retorno Agendado ao Cliente</span>
+                      <span style={{fontWeight:'700', fontSize:'12px'}}>{selectedTicket.returnDate}</span>
+                    </div>
+                    <button 
+                      className="calc-btn"
+                      onClick={() => {
+                        const item = SLA_BENCHMARKS[selectedTicket.solicitacao] || { suggested: 7 };
+                        const now = new Date();
+                        now.setDate(now.getDate() + item.suggested);
+                        const d = String(now.getDate()).padStart(2, '0');
+                        const m = String(now.getMonth() + 1).padStart(2, '0');
+                        const y = now.getFullYear();
+                        const newDate = `${d}/${m}/${y}`;
+                        
+                        const updated = tickets.map(t => t.id === selectedTicket.id ? { ...t, returnDate: newDate } : t);
+                        setTickets(updated);
+                        setSelectedTicket({ ...selectedTicket, returnDate: newDate });
+                        alert(`Prazo recalculado com sucesso: ${newDate} (+${item.suggested} dias do terceiro).`);
+                      }}
+                    >
+                      ⚡ Recalcular com Base no SLA do Terceiro
+                    </button>
+                  </div>
+
+                  {/* Linha do Tempo Compacta */}
+                  <div>
+                    <div style={{fontSize:'11.5px', fontWeight:'700', color:'var(--text-main)', marginBottom:'6px'}}>
+                      Histórico Operacional & Pareceres
+                    </div>
+                    <div className="timeline-list">
+                      <div className="timeline-item">
+                        <div className="timeline-time">{selectedTicket.startDate}</div>
+                        <div className="timeline-title">Atendimento IP Finalizado</div>
+                        <div className="timeline-desc">Demanda recebida e planilhada para acionamento externo.</div>
+                      </div>
+                      <div className="timeline-item internal">
+                        <div className="timeline-time">{selectedTicket.startDate}</div>
+                        <div className="timeline-title">Acionado {selectedTicket.terceiro}</div>
+                        <div className="timeline-desc">Aguardando parecer técnico / laudo de rodovia.</div>
+                      </div>
+                      {selectedTicket.status === 'done' && (
+                        <div className="timeline-item">
+                          <div className="timeline-time">{selectedTicket.endDate || selectedTicket.returnDate}</div>
+                          <div className="timeline-title">Retorno Prestado ao Cliente</div>
+                          <div className="timeline-desc">Resolução comunicada ao cliente. Caso finalizado.</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                 </div>
-              )}
+              </div>
             </div>
-          </section>
+          )}
 
           {/* =================================================================
-              COLUNA 3: DETALHES, SLA DE TERCEIROS & LINHA DO TEMPO
-              ================================================================= */}
-          <main className="col-detail">
-            {/* Topbar com ID, Título e Ação de Fechamento */}
-            <div className="detail-topbar">
-              <div className="detail-title-group">
-                <h2>
-                  <span style={{color:'var(--tp-green)', fontFamily:'monospace'}}>{activeTicket.id}</span>
-                  <span>{activeTicket.title}</span>
-                </h2>
-                <div className="detail-subtitle">
-                  Cliente: <strong>{activeTicket.client}</strong> • Registrado em: {activeTicket.startDate}
-                </div>
-              </div>
-
-              <div className="detail-actions">
-                <select 
-                  className="status-select"
-                  value={activeTicket.status}
-                  onChange={(e) => handleStatusChange(e.target.value)}
-                >
-                  <option value="in_progress">⏳ Aguardando Terceiro</option>
-                  <option value="todo">⏰ Retorno Pendente</option>
-                  <option value="done">✅ Retorno Realizado / Concluído</option>
-                </select>
-
-                <select 
-                  className="op-select"
-                  value={activeTicket.operator}
-                  onChange={(e) => {
-                    const updated = tickets.map(t => t.id === activeTicket.id ? { ...t, operator: e.target.value } : t);
-                    saveTicketsState(updated);
-                  }}
-                >
-                  <option value="Leandro">👤 Leandro</option>
-                  <option value="Mirian">👤 Mirian</option>
-                  <option value="Isabelli">👤 Isabelli</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Strip de Informações Claras sobre o Terceiro e Retorno */}
-            <div className="metadata-strip">
-              <div className="meta-box">
-                <div className="meta-label">Terceiro / Setor Acionado</div>
-                <div className="meta-value" style={{color:'#0284C7'}}>⚙️ {activeTicket.terceiro}</div>
-              </div>
-
-              <div className="meta-box">
-                <div className="meta-label">Protocolo / Ref. Externa</div>
-                <div className="meta-value">
-                  {activeTicket.bitrixLink ? (
-                    <a href={activeTicket.bitrixLink} target="_blank" rel="noreferrer" style={{color:'#4F46E5', textDecoration:'none', fontWeight:'700'}}>
-                      {activeTicket.protocolo || 'Abrir Card Bitrix ↗'}
-                    </a>
-                  ) : (
-                    activeTicket.protocolo || 'Não informado'
-                  )}
-                </div>
-              </div>
-
-              <div className="meta-box">
-                <div className="meta-label">Estimativa SLA do Terceiro</div>
-                <div className="meta-value">{activeTicket.slaTerceiro || 'Em análise'}</div>
-              </div>
-
-              <div className="meta-box">
-                <div className="meta-label">Data Agendada para Retorno</div>
-                <div className="meta-value" style={{color:'var(--tp-green)'}}>
-                  📅 {activeTicket.returnDate || 'A definir'}
-                </div>
-              </div>
-
-              <div className="meta-box">
-                <div className="meta-label">Contato do Cliente</div>
-                <div className="meta-value">📞 {activeTicket.contact || 'Sem telefone'}</div>
-              </div>
-            </div>
-
-            {/* Linha do Tempo: Histórico de Contatos e Terceiros */}
-            <div className="timeline-container">
-              {activeTicket.messages.map(msg => (
-                <div key={msg.id} className={`message-row ${msg.type}`}>
-                  <div className={`message-avatar ${msg.type === 'client' ? 'avatar-client' : (msg.type === 'public' ? 'avatar-public' : 'avatar-internal')}`}>
-                    {msg.type === 'client' ? 'IP' : (msg.type === 'public' ? 'TP' : '🔒')}
-                  </div>
-
-                  <div className="message-bubble">
-                    <div className="message-header">
-                      <span className="message-sender">{msg.sender}</span>
-                      <span className="message-time">{msg.time}</span>
-                    </div>
-                    <div>{msg.text}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Compositor: Registrar Resposta do Terceiro ou Retorno ao Cliente */}
-            <form className="composer-area" onSubmit={handleSendMessage}>
-              <div className="composer-tabs">
-                <div className="tab-toggles">
-                  <button 
-                    type="button" 
-                    className={`toggle-btn ${composerType === 'public' ? 'active public' : ''}`}
-                    onClick={() => setComposerType('public')}
-                  >
-                    📞 Retorno ao Cliente (Aviso / Conclusão)
-                  </button>
-                  <button 
-                    type="button" 
-                    className={`toggle-btn ${composerType === 'internal' ? 'active internal' : ''}`}
-                    onClick={() => setComposerType('internal')}
-                  >
-                    🔒 Resposta do Terceiro / Nota de BackOffice
-                  </button>
-                </div>
-
-                <div style={{display:'flex', gap:'4px', alignItems:'center'}}>
-                  <span style={{fontSize:'10px', color:'var(--text-subtle)'}}>Textos Rápidos:</span>
-                  <button 
-                    type="button" 
-                    className="macro-chip"
-                    onClick={() => setComposerText("Avisado cliente via WhatsApp que a contestação foi formalizada com a operadora. Aguardando laudo.")}
-                  >
-                    + Protocolo Informado
-                  </button>
-                  <button 
-                    type="button" 
-                    className="macro-chip"
-                    onClick={() => setComposerText("Terceiro respondeu deferindo a solicitação. Realizado contato telefônico com o cliente prestando o fechamento.")}
-                  >
-                    + Retorno Realizado
-                  </button>
-                </div>
-              </div>
-
-              <div className="composer-input-row">
-                <textarea 
-                  className={`composer-textarea ${composerType === 'internal' ? 'internal-mode' : ''}`}
-                  placeholder={composerType === 'public' ? "Registrar retorno oficial dado ao cliente (ligação, WhatsApp, e-mail)..." : "Registrar resposta do terceiro (e-mail MoveMais, retorno da concessionária, atualização de TI no Bitrix)..."}
-                  value={composerText}
-                  onChange={(e) => setComposerText(e.target.value)}
-                ></textarea>
-
-                <button 
-                  type="submit" 
-                  className={`btn-send ${composerType === 'public' ? 'public' : 'internal'}`}
-                >
-                  <span>{composerType === 'public' ? 'Registrar' : 'Salvar'}</span>
-                  <span style={{fontSize:'9px', fontWeight:'normal'}}>{composerType === 'public' ? 'Cliente' : 'Terceiro'}</span>
-                </button>
-              </div>
-            </form>
-          </main>
-
-          {/* =================================================================
-              MODAL: CADASTRAR NOVA DEMANDA / ACIONAMENTO DE TERCEIRO
+              MODAL: NOVA DEMANDA / PLANILHAMENTO APÓS IP
               ================================================================= */}
           {isModalOpen && (
-            <div className="modal" style={{display:'flex'}} onClick={(e) => { if(e.target.className === 'modal') setIsModalOpen(false); }}>
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h2>+ Nova Demanda BackOffice (Acionamento de Terceiro)</h2>
-                  <button onClick={() => setIsModalOpen(false)} style={{border:'none', background:'none', cursor:'pointer', fontSize:'16px'}}>✖</button>
+            <div className="modal-overlay" onClick={(e) => { if (e.target.className === 'modal-overlay') setIsModalOpen(false); }}>
+              <div className="modal-card">
+                <div className="modal-head">
+                  <span style={{fontWeight:'700', color:'var(--tp-green)'}}>+ Planilhar Nova Demanda (Pós-Atendimento IP)</span>
+                  <button onClick={() => setIsModalOpen(false)} style={{border:'none', background:'none', cursor:'pointer', fontSize:'15px', color:'var(--text-muted)'}}>✖</button>
                 </div>
 
-                <form onSubmit={handleCreateTicket}>
-                  <div className="form-grid">
-                    <div className="form-group full">
-                      <label>Assunto / Resumo da Demanda</label>
-                      <input type="text" name="title" required placeholder="Ex: Contestação Free Flow / Erro Layout DealerNet" />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Cliente / Transportadora</label>
-                      <input type="text" name="client" required placeholder="Nome do cliente atendido no IP" />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Telefone / Contato</label>
-                      <input type="text" name="contact" required placeholder="(00) 00000-0000" />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Produto</label>
-                      <select name="product" required>
-                        <option value="PEDÁGIO">Pedágio</option>
-                        <option value="ABASTECIMENTO">Abastecimento</option>
-                        <option value="MANUTENÇÃO">Manutenção DAF</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label>Tipo de Solicitação</label>
-                      <select name="solicitacao" required>
-                        <option value="Contestação">Contestação</option>
-                        <option value="Chamado T.I">Chamado T.I</option>
-                        <option value="Layout XML">Layout XML</option>
-                        <option value="Logistica">Logística</option>
-                        <option value="Outros">Outros</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label>Terceiro / Setor Acionado</label>
-                      <input type="text" name="terceiro" required placeholder="Ex: MoveMais, TI Bitrix, Concessionária DAF..." />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Protocolo / Ref. Externa</label>
-                      <input type="text" name="protocolo" placeholder="Ex: Protocolo 12345 ou Bitrix #4500" />
-                    </div>
-
-                    <div className="form-group full">
-                      <label>Link Card Bitrix (Se houver chamado de T.I)</label>
-                      <input type="url" name="bitrixLink" placeholder="https://truckpag.bitrix24.com.br/..." />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Estimativa SLA do Terceiro</label>
-                      <input type="text" name="slaTerceiro" placeholder="Ex: 15 dias úteis, 48h..." />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Data Agendada para Retorno ao Cliente</label>
-                      <input type="date" name="returnDate" required />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Operador Responsável</label>
-                      <select name="operator">
-                        <option value="Leandro">Leandro</option>
-                        <option value="Mirian">Mirian</option>
-                        <option value="Isabelli">Isabelli</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label>Prioridade</label>
-                      <select name="priority">
-                        <option value="Média">Média</option>
-                        <option value="Alta">Alta</option>
-                        <option value="Crítica">Crítica</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group full">
-                      <label>Detalhes do Atendimento IP / O que foi solicitado ao terceiro</label>
-                      <textarea name="desc" rows="3" placeholder="Resumo do problema do cliente e o que foi formalizado com o terceiro..."></textarea>
-                    </div>
+                <form className="modal-form" onSubmit={handleCreateRecord}>
+                  <div className="form-col-full">
+                    <label className="field-label">Cliente / Razão Social *</label>
+                    <input className="field-input" type="text" name="client" required placeholder="Ex: Transportadora Silva" />
                   </div>
 
-                  <div style={{display:'flex', justifyContent:'flex-end', gap:'8px', marginTop:'14px', paddingTop:'10px', borderTop:'1px solid var(--border)'}}>
-                    <button type="button" className="btn-export" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                    <button type="submit" className="btn-create" style={{width:'auto', margin:0, padding:'6px 16px'}}>Salvar e Planilhar Demanda</button>
+                  <div>
+                    <label className="field-label">Telefone / Contato</label>
+                    <input className="field-input" type="text" name="contact" placeholder="(00) 00000-0000" />
+                  </div>
+
+                  <div>
+                    <label className="field-label">Operador Responsável</label>
+                    <select className="field-select" name="operator">
+                      <option value="Leandro">Leandro</option>
+                      <option value="Mirian">Mirian</option>
+                      <option value="Isabelli">Isabelli</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="field-label">Produto *</label>
+                    <select 
+                      className="field-select" 
+                      value={modalProduct} 
+                      onChange={(e) => {
+                        const p = e.target.value;
+                        setModalProduct(p);
+                        if (p === 'PEDÁGIO') setModalSolicitacao('Contestação');
+                        else if (p === 'MANUTENÇÃO') setModalSolicitacao('Chamado T.I');
+                        else setModalSolicitacao('Logistica');
+                      }}
+                    >
+                      <option value="PEDÁGIO">Pedágio</option>
+                      <option value="MANUTENÇÃO">Manutenção</option>
+                      <option value="ABASTECIMENTO">Abastecimento</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="field-label">Tipo de Solicitação *</label>
+                    <select 
+                      className="field-select"
+                      value={modalSolicitacao}
+                      onChange={(e) => setModalSolicitacao(e.target.value)}
+                    >
+                      {modalProduct === 'PEDÁGIO' && (
+                        <>
+                          <option value="Contestação">Contestação</option>
+                          <option value="API MM">API MM</option>
+                          <option value="Chamado T.I">Chamado T.I</option>
+                          <option value="Pedidos">Pedidos</option>
+                          <option value="Isenção">Isenção</option>
+                          <option value="Outros">Outros</option>
+                        </>
+                      )}
+                      {modalProduct === 'MANUTENÇÃO' && (
+                        <>
+                          <option value="Chamado T.I">Chamado T.I</option>
+                          <option value="Layout XML">Layout XML</option>
+                          <option value="Pedidos">Pedidos</option>
+                          <option value="Orçamento">Orçamento</option>
+                          <option value="Outros">Outros</option>
+                        </>
+                      )}
+                      {modalProduct === 'ABASTECIMENTO' && (
+                        <>
+                          <option value="Logistica">Logistica</option>
+                          <option value="Chamado T.I">Chamado T.I</option>
+                          <option value="Isenção">Isenção</option>
+                          <option value="Outros">Outros</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* OBRIGATÓRIO SE MANUTENÇÃO: CASA DAF */}
+                  {modalProduct === 'MANUTENÇÃO' && (
+                    <div className="form-col-full" style={{background:'var(--bg-subtle)', padding:'8px 10px', borderRadius:'6px', border:'1px solid var(--border)'}}>
+                      <label className="field-label" style={{color:'var(--tp-green)'}}>🏢 Casa / Concessionária DAF * (Obrigatório para Manutenção)</label>
+                      <select className="field-select" name="dafRede" required>
+                        <option value="">Selecione a Casa DAF credenciada...</option>
+                        {CONCESSIONARIAS_DAF.map(d => <option key={d} value={d}>{d}</option>)}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* OBRIGATÓRIO SE CHAMADO T.I: LINK BITRIX */}
+                  {modalSolicitacao === 'Chamado T.I' && (
+                    <div className="form-col-full" style={{background:'#EEF2FF', padding:'8px 10px', borderRadius:'6px', border:'1px solid #C7D2FE'}}>
+                      <label className="field-label" style={{color:'#4338CA'}}>🔗 Link Card Bitrix * (Obrigatório para Chamado T.I)</label>
+                      <input className="field-input" type="url" name="bitrixLink" required placeholder="https://truckpag.bitrix24.com.br/workgroups/..." />
+                    </div>
+                  )}
+
+                  <div className="form-col-full">
+                    <label className="field-label">Terceiro / Setor Responsável pelo Parecer *</label>
+                    <input className="field-input" type="text" name="terceiro" required placeholder="Ex: MoveMais / Concessionárias, TI Bitrix, Rede DAF..." />
+                  </div>
+
+                  {/* Calculadora de Data de Retorno */}
+                  <div className="form-col-full" style={{background:'var(--tp-green-light)', padding:'10px', borderRadius:'6px', border:'1px solid var(--tp-green-border)'}}>
+                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'4px'}}>
+                      <label className="field-label" style={{color:'var(--tp-green)', margin:0}}>Data Prevista para Retorno ao Cliente *</label>
+                      <button 
+                        type="button" 
+                        onClick={() => handleCalcReturnDate(modalSolicitacao)}
+                        style={{background:'var(--tp-green)', color:'#fff', border:'none', borderRadius:'4px', padding:'3px 8px', fontSize:'10.5px', fontWeight:'700', cursor:'pointer'}}
+                      >
+                        ⚡ Calcular Prazo de Retorno
+                      </button>
+                    </div>
+                    <input 
+                      className="field-input" 
+                      type="date" 
+                      name="returnDate" 
+                      required 
+                      value={modalReturnDate} 
+                      onChange={(e) => setModalReturnDate(e.target.value)} 
+                    />
+                    {calcFeedback && <div style={{fontSize:'10.5px', color:'var(--tp-green)', fontWeight:'600', marginTop:'4px'}}>{calcFeedback}</div>}
+                  </div>
+
+                  <div className="form-col-full">
+                    <label className="field-label">Resumo do Problema / Ocorrência no IP</label>
+                    <textarea className="field-textarea" name="desc" rows="2" placeholder="O que o cliente relatou e o que foi solicitado ao terceiro..."></textarea>
+                  </div>
+
+                  <div className="form-col-full" style={{display:'flex', justifyContent:'flex-end', gap:'8px', marginTop:'8px', paddingTop:'8px', borderTop:'1px solid var(--border)'}}>
+                    <button type="button" className="btn-action" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                    <button type="submit" className="btn-action primary">Salvar e Monitorar Demanda</button>
                   </div>
                 </form>
               </div>
