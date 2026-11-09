@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TruckPag Backoffice • Gestão de Demandas & SLA</title>
-  <!-- Chart.js para Relatórios -->
+  <!-- Chart.js para Visualização de Dados -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /* ==========================================================================
-       VARIÁVEIS DE TEMA (CLARO & ESCURO TRUCKPAG)
+       DESIGN SYSTEM • PALETA CORPORATIVA TRUCKPAG
        ========================================================================== */
     :root {
       --tp-green-primary: #008744;
@@ -73,49 +73,50 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; transition: background-color 0.15s, border-color 0.15s, color 0.15s; }
     body { background-color: var(--bg); color: var(--text-main); font-size: 13px; line-height: 1.45; }
 
-    /* Layout com Barra Lateral (Sidebar) */
+    /* Layout com Sidebar */
     .app-layout { display: flex; min-height: 100vh; }
     
-    .sidebar { width: 230px; background: var(--surface); border-right: 1px solid var(--border); padding: 18px 14px; display: flex; flex-direction: column; justify-content: space-between; position: sticky; top: 0; height: 100vh; flex-shrink: 0; }
-    .sidebar-top { display: flex; flex-direction: column; gap: 20px; }
+    .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 18px 14px; display: flex; flex-direction: column; justify-content: space-between; position: sticky; top: 0; height: 100vh; flex-shrink: 0; }
+    .sidebar-top { display: flex; flex-direction: column; gap: 18px; }
     
     .brand { display: flex; align-items: center; gap: 10px; padding: 0 4px; }
-    .brand-logo { width: 34px; height: 34px; background: linear-gradient(135deg, var(--tp-green-primary), var(--tp-green-accent)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 16px; }
+    .brand-logo { width: 34px; height: 34px; background: linear-gradient(135deg, var(--tp-green-primary), var(--tp-green-accent)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 15px; }
     .brand-text h1 { font-size: 15px; color: var(--tp-green-primary); font-weight: 700; line-height: 1.2; }
     .brand-text p { color: var(--text-muted); font-size: 11px; }
 
     .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text-muted); text-decoration: none; cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; }
     .nav-item:hover { background: var(--surface-subtle); color: var(--text-main); }
     .nav-item.active { background: var(--tp-green-light); color: var(--tp-green-primary); font-weight: 700; }
 
     .btn-create { width: 100%; padding: 9px 12px; background: var(--tp-green-primary); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 1px 3px rgba(0, 135, 68, 0.2); }
     .btn-create:hover { background: var(--tp-green-hover); }
 
-    .sidebar-footer { border-top: 1px solid var(--border); padding-top: 14px; display: flex; justify-content: space-between; align-items: center; }
-    .theme-icon-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-subtle); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; color: var(--text-main); }
+    .sidebar-footer { border-top: 1px solid var(--border); padding-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .theme-icon-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-subtle); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; color: var(--text-main); }
     .theme-icon-btn:hover { border-color: var(--tp-green-accent); }
 
     /* Área Principal */
     .main-area { flex: 1; padding: 22px 28px; overflow-y: auto; }
 
-    /* KPIs Executivos Compactos */
+    /* KPIs Executivos */
     .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px; }
     .kpi-card { background: var(--surface); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); box-shadow: var(--card-shadow); }
     .kpi-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
     .kpi-num { font-size: 20px; font-weight: 800; color: var(--tp-green-primary); margin-top: 2px; }
 
-    /* Filtros Horizontais Despoluídos */
+    /* Barra de Filtros com Dropdown Cascata */
     .filters-bar { background: var(--surface); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
     .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .input-icon-wrap { position: relative; display: flex; align-items: center; }
     .input-icon-wrap select, .input-icon-wrap input { padding: 6px 10px 6px 26px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); outline: none; }
+    .input-icon-wrap select:disabled { opacity: 0.5; cursor: not-allowed; }
     .input-icon-wrap .icon { position: absolute; left: 8px; font-size: 11px; color: var(--text-muted); pointer-events: none; }
 
     button.btn-sec { padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: var(--surface); color: var(--text-main); cursor: pointer; }
     button.btn-sec:hover { border-color: var(--tp-green-accent); }
 
-    /* Quadro Kanban Horizontal e Despoluído */
+    /* Quadro Kanban */
     .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
     @media (max-width: 1000px) { .board { grid-template-columns: 1fr; } }
 
@@ -124,7 +125,7 @@
     .col-count { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); padding: 2px 7px; border-radius: 10px; font-size: 11px; font-weight: 700; }
     .cards-list { display: flex; flex-direction: column; gap: 8px; }
 
-    /* Card Limpo e Horizontal */
+    /* Card Kanban */
     .card { background: var(--surface); border-radius: 8px; padding: 11px 13px; box-shadow: var(--card-shadow); border: 1px solid var(--border); cursor: pointer; display: flex; flex-direction: column; gap: 6px; border-left: 3px solid var(--tp-green-primary); }
     .card:hover { transform: translateY(-1px); box-shadow: var(--card-hover-shadow); border-color: var(--border-focus); }
     
@@ -140,7 +141,6 @@
     .tag-bitrix { background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; font-weight: 700; }
     .tag-bitrix:hover { background: #E0E7FF; }
     
-    /* Timer Discreto */
     .card-timer { font-size: 10px; font-weight: 600; color: var(--text-subtle); display: inline-flex; align-items: center; gap: 3px; background: var(--surface-subtle); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); white-space: nowrap; }
 
     .card-middle-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
@@ -149,17 +149,20 @@
 
     .card-bottom-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 5px; margin-top: 2px; }
 
-    /* Dashboard & SLA */
-    .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
-    .chart-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; box-shadow: var(--card-shadow); }
-    .chart-box.col-8 { grid-column: span 8; }
-    .chart-box.col-4 { grid-column: span 4; }
-    .chart-box.col-12 { grid-column: span 12; }
-    @media (max-width: 900px) { .chart-box.col-8, .chart-box.col-4 { grid-column: span 12; } }
-    .chart-container { position: relative; height: 240px; width: 100%; }
+    /* Dashboard BI & Relatórios */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; }
+    .chart-card.col-6 { grid-column: span 6; }
+    .chart-card.col-12 { grid-column: span 12; }
+    @media (max-width: 900px) { .chart-card.col-6 { grid-column: span 12; } }
+
+    /* Cabeçalhos Analíticos com Conclusão Direta */
+    .chart-headline { font-size: 13px; font-weight: 700; color: var(--tp-green-primary); margin-bottom: 2px; line-height: 1.3; }
+    .chart-subheadline { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+    .chart-container { position: relative; height: 250px; width: 100%; flex: 1; }
 
     /* Tabela SLA */
-    .sla-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .sla-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
     .sla-table th { background: var(--surface-subtle); padding: 8px 12px; font-weight: 700; color: var(--tp-green-primary); border-bottom: 1px solid var(--border); text-align: left; }
     .sla-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
     .sla-pill { padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 11px; }
@@ -167,7 +170,7 @@
     .sla-mid { background: var(--badge-todo-bg); color: var(--badge-todo-text); }
     .sla-high { background: var(--badge-danger-bg); color: var(--badge-danger-text); }
 
-    /* Tabela Registros */
+    /* Tabela de Registros */
     .table-container { background: var(--surface); border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; box-shadow: var(--card-shadow); }
     table.data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     table.data-table thead tr { background: var(--surface-subtle); border-bottom: 1px solid var(--border); }
@@ -224,12 +227,12 @@
       </div>
 
       <div class="sidebar-footer">
-        <span style="font-size: 11px; color: var(--text-muted);">Tema</span>
-        <button class="theme-icon-btn" id="btnThemeToggle" onclick="toggleTheme()" title="Alternar Modo Escuro / Claro">🌙</button>
+        <span style="font-size: 11px; color: var(--text-muted);">Modo de Exibição</span>
+        <button class="theme-icon-btn" id="btnThemeToggle" onclick="toggleTheme()" title="Alternar Tema Claro / Escuro">🌙</button>
       </div>
     </aside>
 
-    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ÁREA PRINCIPAL -->
     <main class="main-area">
       
       <!-- Mini Indicadores (KPIs) -->
@@ -239,7 +242,7 @@
           <div class="kpi-num" id="kpiTotal">0</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-title">SLA Médio Real</div>
+          <div class="kpi-title">SLA Médio Histórico</div>
           <div class="kpi-num" style="color:var(--tp-green-primary);">12.2 d</div>
         </div>
         <div class="kpi-card">
@@ -256,22 +259,33 @@
         </div>
       </div>
 
-      <!-- Filtros Horizontais com Ícones -->
+      <!-- Barra de Filtros com Cascata Produto -> Categoria -->
       <div class="filters-bar">
         <div class="filter-items">
           <div class="input-icon-wrap">
             <span class="icon">🔍</span>
-            <input type="text" id="searchBox" placeholder="Buscar cliente, Bitrix..." onkeyup="filterData()" style="width: 190px;">
+            <input type="text" id="searchBox" placeholder="Buscar cliente, Bitrix..." onkeyup="filterData()" style="width: 170px;">
           </div>
+          
+          <!-- Filtro 1: Produto -->
           <div class="input-icon-wrap">
             <span class="icon">🏷️</span>
-            <select id="filterProduct" onchange="filterData()">
-              <option value="">Produto (Todos)</option>
+            <select id="filterProduct" onchange="onFilterProductChange()">
+              <option value="">Todos os Produtos</option>
               <option value="PEDÁGIO">Pedágio</option>
               <option value="MANUTENÇÃO">Manutenção</option>
               <option value="ABASTECIMENTO">Abastecimento</option>
             </select>
           </div>
+
+          <!-- Filtro 2 (Cascata): Categoria de Solicitação -->
+          <div class="input-icon-wrap">
+            <span class="icon">📂</span>
+            <select id="filterCategory" onchange="filterData()" disabled>
+              <option value="">Todas as Categorias</option>
+            </select>
+          </div>
+
           <div class="input-icon-wrap">
             <span class="icon">👤</span>
             <select id="filterOperator" onchange="filterData()">
@@ -281,6 +295,7 @@
               <option value="Isabelli">Isabelli</option>
             </select>
           </div>
+
           <div class="input-icon-wrap">
             <span class="icon">🏢</span>
             <select id="filterDaf" onchange="filterData()">
@@ -298,6 +313,7 @@
               <option value="DAF VIA TRUCKS">DAF VIA TRUCKS</option>
             </select>
           </div>
+
           <button class="btn-sec" onclick="resetFilters()">🔄 Limpar</button>
         </div>
 
@@ -309,7 +325,6 @@
       <!-- ABA 1: KANBAN -->
       <div id="viewKanban" class="view-pane">
         <div class="board">
-          <!-- Coluna 1 -->
           <div class="column">
             <div class="col-header">
               <span>📥 Aberto</span>
@@ -317,7 +332,6 @@
             </div>
             <div class="cards-list" id="col-todo"></div>
           </div>
-          <!-- Coluna 2 -->
           <div class="column">
             <div class="col-header">
               <span>⚙️ Em processo</span>
@@ -325,7 +339,6 @@
             </div>
             <div class="cards-list" id="col-in_progress"></div>
           </div>
-          <!-- Coluna 3 -->
           <div class="column">
             <div class="col-header">
               <span>✅ Concluído / Finalizado</span>
@@ -336,43 +349,84 @@
         </div>
       </div>
 
-      <!-- ABA 2: SLA & MÉTRICAS -->
+      <!-- ABA 2: SLA & MÉTRICAS (SEM GRÁFICOS DE PIZZA • TÍTULOS ANALÍTICOS DIRETOS) -->
       <div id="viewMetrics" class="view-pane" style="display:none;">
         <div class="dashboard-grid">
-          <div class="chart-box col-12">
-            <div style="margin-bottom: 10px; font-weight: 700; color: var(--tp-green-primary); font-size: 13px;">
-              ⏱️ Média de Finalização por Demanda (SLA Real Histórico)
+          
+          <!-- Gráfico 1: Barras Horizontais com Conclusão Direta -->
+          <div class="chart-card col-6">
+            <div class="chart-headline" id="titleChartProduct">
+              Pedágio concentra 70,5% da demanda operacional da central
             </div>
-            <table class="sla-table">
-              <thead>
-                <tr>
-                  <th>Demanda</th>
-                  <th>Média Real</th>
-                  <th>Mediana</th>
-                  <th>SLA Sugerido</th>
-                </tr>
-              </thead>
-              <tbody id="slaTableBody"></tbody>
-            </table>
+            <div class="chart-subheadline" id="subChartProduct">
+              Comparativo de volume absoluto por linha de negócio
+            </div>
+            <div class="chart-container">
+              <canvas id="chartProductShare"></canvas>
+            </div>
           </div>
 
-          <div class="chart-box col-8">
-            <div style="margin-bottom: 10px; font-weight: 700; color: var(--tp-green-primary); font-size: 13px;">
-              Média de Dias até Conclusão
+          <!-- Gráfico 2: Colunas Temporais com Conclusão Direta -->
+          <div class="chart-card col-6">
+            <div class="chart-headline" id="titleChartMonthly">
+              Setembro registrou o pico trimestral com salto de 20% vs Agosto
+            </div>
+            <div class="chart-subheadline">
+              Volume histórico mensal de chamados registrados (Julho a Novembro/2026)
+            </div>
+            <div class="chart-container">
+              <canvas id="chartMonthly"></canvas>
+            </div>
+          </div>
+
+          <!-- Gráfico 3: Matriz de SLA Horizontal com Conclusão Direta -->
+          <div class="chart-card col-6">
+            <div class="chart-headline">
+              Chamados MM e Contestações demandam os maiores ciclos de resolução (>15 dias)
+            </div>
+            <div class="chart-subheadline">
+              Tempo médio real em dias corridos entre a abertura e a conclusão
             </div>
             <div class="chart-container">
               <canvas id="chartSlaBars"></canvas>
             </div>
           </div>
 
-          <div class="chart-box col-4">
-            <div style="margin-bottom: 10px; font-weight: 700; color: var(--tp-green-primary); font-size: 13px;">
-              Distribuição por Produto
+          <!-- Gráfico 4: Oficinas DAF com Conclusão Direta -->
+          <div class="chart-card col-6">
+            <div class="chart-headline">
+              DAF Caminho concentra a maior frequência de acionamentos de Manutenção
+            </div>
+            <div class="chart-subheadline">
+              Redes e concessionárias com maior número de ocorrências de integração e layout
             </div>
             <div class="chart-container">
-              <canvas id="chartProductShare"></canvas>
+              <canvas id="chartDaf"></canvas>
             </div>
           </div>
+
+          <!-- Tabela Analítica de SLA -->
+          <div class="chart-card col-12">
+            <div class="chart-headline">
+              Mapeamento de Eficiência Operacional & Prazos Sugeridos de Atendimento
+            </div>
+            <div class="chart-subheadline">
+              Parâmetros calculados sobre o histórico de casos concluídos para alinhamento com clientes
+            </div>
+            <table class="sla-table">
+              <thead>
+                <tr>
+                  <th>Tipo de Solicitação</th>
+                  <th>Tempo Médio Real</th>
+                  <th>Mediana (Caso Típico)</th>
+                  <th>SLA Recomendado ao Cliente</th>
+                  <th>Status do Ciclo</th>
+                </tr>
+              </thead>
+              <tbody id="slaTableBody"></tbody>
+            </table>
+          </div>
+
         </div>
       </div>
 
@@ -446,7 +500,7 @@
             <select id="taskSolicitacao" required onchange="onSolicitacaoChange()"></select>
           </div>
 
-          <!-- CAMPO OBRIGATÓRIO CONDICIONAL BITRIX (CHAMADO T.I) -->
+          <!-- CAMPO OBRIGATÓRIO BITRIX (CHAMADO T.I) -->
           <div class="bitrix-row" id="boxBitrix">
             <div class="form-group full" style="margin-bottom:0;">
               <label style="color:#4338CA;">🔗 Link Card Bitrix (Obrigatório para Chamado T.I)</label>
@@ -513,7 +567,7 @@
 
   <script>
     // =========================================================================
-    // DATAS BR & TIMER EM ABERTO
+    // UTILITÁRIOS DE DATA BR & TIMER
     // =========================================================================
     function getNowBR() {
       const now = new Date();
@@ -546,11 +600,9 @@
       return new Date(brStr);
     }
 
-    // Calcula tempo decorrido para o reloginho
     function getElapsedTimeLabel(startDateStr, endDateStr, isDone) {
       const start = parseBRToDateObj(startDateStr);
       if (!start || isNaN(start.getTime())) return '';
-      
       const end = isDone && endDateStr ? parseBRToDateObj(endDateStr) : new Date();
       if (!end || isNaN(end.getTime())) return '';
 
@@ -559,21 +611,15 @@
       const diffHours = Math.floor(diffMinutes / 60);
       const diffDays = Math.floor(diffHours / 24);
 
-      if (diffDays > 0) {
-        const remHours = diffHours % 24;
-        return `⏱️ ${diffDays}d ${remHours}h`;
-      }
-      if (diffHours > 0) {
-        const remMins = diffMinutes % 60;
-        return `⏱️ ${diffHours}h ${remMins}m`;
-      }
+      if (diffDays > 0) return `⏱️ ${diffDays}d ${diffHours % 24}h`;
+      if (diffHours > 0) return `⏱️ ${diffHours}h ${diffMinutes % 60}m`;
       return `⏱️ ${diffMinutes}m`;
     }
 
     // =========================================================================
-    // DADOS E REGRAS
+    // ESTRUTURA DE PRODUTOS & SOLICITAÇÕES
     // =========================================================================
-    const SOLICITACOES = {
+    const SOLICITACOES_POR_PRODUTO = {
       'PEDÁGIO': ['Contestação', 'Chamado T.I', 'Chamado MM', 'API MM', 'Pedidos', 'Isenção', 'Transferência', 'Outros'],
       'ABASTECIMENTO': ['Logistica', 'Chamado T.I', 'Isenção', 'Outros'],
       'MANUTENÇÃO': ['Chamado T.I', 'Layout XML', 'Pedidos', 'Orçamento', 'Outros']
@@ -621,7 +667,7 @@
 
     let tasks = [];
     try {
-      const stored = localStorage.getItem('tp_backoffice_v8');
+      const stored = localStorage.getItem('tp_backoffice_v9');
       tasks = stored ? JSON.parse(stored) : REAL_DATA;
     } catch(e) {
       tasks = REAL_DATA;
@@ -630,7 +676,7 @@
     let charts = {};
 
     function saveTasks() {
-      try { localStorage.setItem('tp_backoffice_v8', JSON.stringify(tasks)); } catch(e){}
+      try { localStorage.setItem('tp_backoffice_v9', JSON.stringify(tasks)); } catch(e){}
       updateDashboard();
     }
 
@@ -670,6 +716,27 @@
     }
 
     // =========================================================================
+    // FILTRO EM CASCATA: PRODUTO -> CATEGORIA DE SOLICITAÇÃO
+    // =========================================================================
+    function onFilterProductChange() {
+      const prod = document.getElementById('filterProduct').value;
+      const catSelect = document.getElementById('filterCategory');
+
+      if (!prod) {
+        catSelect.innerHTML = '<option value="">Todas as Categorias</option>';
+        catSelect.disabled = true;
+      } else {
+        catSelect.disabled = false;
+        catSelect.innerHTML = '<option value="">Todas as Categorias (' + prod + ')</option>';
+        (SOLICITACOES_POR_PRODUTO[prod] || []).forEach(cat => {
+          catSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+        });
+      }
+
+      filterData();
+    }
+
+    // =========================================================================
     // FORMULÁRIO DINÂMICO & BITRIX
     // =========================================================================
     function onProductChange() {
@@ -678,7 +745,7 @@
       const boxOficina = document.getElementById('boxOficina');
       
       solSelect.innerHTML = '';
-      (SOLICITACOES[prod] || []).forEach(s => {
+      (SOLICITACOES_POR_PRODUTO[prod] || []).forEach(s => {
         solSelect.innerHTML += `<option value="${s}">${s}</option>`;
       });
 
@@ -696,7 +763,6 @@
       const boxBitrix = document.getElementById('boxBitrix');
       const bitrixInput = document.getElementById('taskBitrixLink');
 
-      // Se for Chamado T.I, torna obrigatório o Link do Bitrix
       if (sol === 'Chamado T.I') {
         boxBitrix.style.display = 'block';
         bitrixInput.required = true;
@@ -706,7 +772,7 @@
       }
 
       const b = SLA_BENCHMARKS[sol] || { mean: 7, suggested: 7 };
-      document.getElementById('slaHintText').innerHTML = `💡 Média histórica para <strong>${sol}</strong>: <strong>~${b.mean} dias</strong> (SLA sugerido: ${b.suggested} dias úteis)`;
+      document.getElementById('slaHintText').innerHTML = `💡 Média histórica: <strong>~${b.mean} dias</strong> (SLA sugerido: ${b.suggested} dias úteis)`;
     }
 
     function applySuggestedSlaDate() {
@@ -739,11 +805,13 @@
     function filterData() {
       const q = document.getElementById('searchBox').value.toLowerCase();
       const p = document.getElementById('filterProduct').value;
+      const c = document.getElementById('filterCategory').value;
       const o = document.getElementById('filterOperator').value;
       const d = document.getElementById('filterDaf').value;
 
       const filtered = tasks.filter(t => {
         if (p && t.product !== p) return false;
+        if (c && t.solicitacao !== c) return false;
         if (o && t.operator !== o) return false;
         if (d && t.oficinaRede !== d) return false;
         if (q) {
@@ -756,11 +824,16 @@
       renderKanban(filtered);
       renderKPIs(filtered);
       renderTable(filtered);
+      if (document.getElementById('viewMetrics').style.display === 'block') {
+        renderExecutiveCharts(filtered);
+      }
     }
 
     function resetFilters() {
       document.getElementById('searchBox').value = '';
       document.getElementById('filterProduct').value = '';
+      document.getElementById('filterCategory').innerHTML = '<option value="">Todas as Categorias</option>';
+      document.getElementById('filterCategory').disabled = true;
       document.getElementById('filterOperator').value = '';
       document.getElementById('filterDaf').value = '';
       filterData();
@@ -791,23 +864,20 @@
         el.onclick = () => openModal(t.id);
 
         el.innerHTML = `
-          <!-- Linha Superior: Tags Horizontais + Timer Discreto -->
           <div class="card-top-row">
             <div class="card-tags-group">
               <span class="tag-clean">${t.product}</span>
               <span class="tag-clean tag-solic">${t.solicitacao || 'Demanda'}</span>
               ${t.bitrixLink ? `<a href="${t.bitrixLink}" target="_blank" class="tag-clean tag-bitrix" onclick="event.stopPropagation()">🔗 Bitrix</a>` : ''}
             </div>
-            ${timerLabel ? `<span class="card-timer" title="Tempo decorrido">${timerLabel}</span>` : ''}
+            ${timerLabel ? `<span class="card-timer" title="Tempo em aberto">${timerLabel}</span>` : ''}
           </div>
 
-          <!-- Linha Central: Cliente e Casa DAF inline -->
           <div class="card-middle-row">
             <span class="card-client-name" title="${t.client}">${t.client}</span>
             ${t.oficinaRede ? `<span class="card-daf-tag">${t.oficinaRede}</span>` : ''}
           </div>
 
-          <!-- Linha Inferior Horizontal: Responsável e Retorno -->
           <div class="card-bottom-row">
             <span>👤 ${t.operator}</span>
             <span>📅 ${t.returnDate ? 'Retorno: ' + formatToBRDate(t.returnDate) : formatToBRDate(t.startDate)}</span>
@@ -838,7 +908,7 @@
             <td>${t.product}</td>
             <td>${t.solicitacao || '-'}</td>
             <td>${t.oficinaRede || '-'}</td>
-            <td>${t.bitrixLink ? `<a href="${t.bitrixLink}" target="_blank" onclick="event.stopPropagation()" style="color:#4F46E5; font-weight:700;">🔗 Acessar</a>` : '-'}</td>
+            <td>${t.bitrixLink ? `<a href="${t.bitrixLink}" target="_blank" onclick="event.stopPropagation()" style="color:#4F46E5; font-weight:700;">🔗 Bitrix</a>` : '-'}</td>
             <td style="font-weight:600;">${t.client}</td>
             <td><span class="tag-clean">${statusMap[t.status] || t.status}</span></td>
             <td>${formatToBRDate(t.returnDate) || '-'}</td>
@@ -848,7 +918,7 @@
     }
 
     // =========================================================================
-    // MODAL
+    // MODAL FORM
     // =========================================================================
     function openModal(id = null) {
       document.getElementById('taskForm').reset();
@@ -939,44 +1009,125 @@
     }
 
     // =========================================================================
-    // GRÁFICOS
+    // BUSINESS INTELLIGENCE • RELATÓRIOS EXECUTIVOS COM TÍTULOS DE CONCLUSÃO
+    // PROIBIDO GRÁFICOS DE PIZZA (USANDO APENAS BARRAS HORIZONTAIS OU COLUNAS)
     // =========================================================================
-    function renderExecutiveCharts() {
+    function renderExecutiveCharts(filteredTasks = null) {
+      const dataToUse = filteredTasks || tasks;
       const destroy = (id) => { if (charts[id]) charts[id].destroy(); };
       const isDark = document.body.classList.contains('dark-theme');
       const textColor = isDark ? '#94A3B8' : '#64748B';
       const gridColor = isDark ? '#243447' : '#F1F5F9';
+      const primaryGreen = isDark ? '#00A859' : '#008744';
 
-      const tbody = document.getElementById('slaTableBody');
-      tbody.innerHTML = '';
-      const chartLabels = [];
-      const chartDataDays = [];
+      const selectedProd = document.getElementById('filterProduct').value;
 
-      Object.keys(SLA_BENCHMARKS).forEach(sol => {
-        const item = SLA_BENCHMARKS[sol];
-        chartLabels.push(sol);
-        chartDataDays.push(item.mean);
-        const pillClass = item.mean <= 3 ? 'sla-good' : (item.mean <= 12 ? 'sla-mid' : 'sla-high');
+      // 1. Gráfico 1: Barras Horizontais com Conclusão Direta (Produto ou Categoria)
+      destroy('chartProductShare');
+      const titleProdElem = document.getElementById('titleChartProduct');
+      const subProdElem = document.getElementById('subChartProduct');
 
-        tbody.innerHTML += `
-          <tr>
-            <td style="font-weight:700; color:var(--tp-green-primary);">${sol}</td>
-            <td><span class="sla-pill ${pillClass}">${item.mean} dias</span></td>
-            <td>${item.median} dias</td>
-            <td style="font-weight:600;">${item.suggested} dias úteis</td>
-          </tr>
-        `;
+      let chart1Labels = [];
+      let chart1Values = [];
+
+      if (!selectedProd) {
+        // Visão Geral: Compara os 3 produtos em barras horizontais
+        const prodCounts = { 'PEDÁGIO': 0, 'MANUTENÇÃO': 0, 'ABASTECIMENTO': 0 };
+        dataToUse.forEach(t => { if (prodCounts[t.product] !== undefined) prodCounts[t.product]++; });
+        const total = Object.values(prodCounts).reduce((a, b) => a + b, 0);
+
+        chart1Labels = ['Pedágio', 'Manutenção', 'Abastecimento'];
+        chart1Values = [prodCounts['PEDÁGIO'], prodCounts['MANUTENÇÃO'], prodCounts['ABASTECIMENTO']];
+
+        const pedShare = total > 0 ? ((prodCounts['PEDÁGIO'] / total) * 100).toFixed(1) : '70.5';
+        titleProdElem.innerText = `Pedágio concentra ${pedShare}% da demanda operacional da central`;
+        subProdElem.innerText = `Comparativo de volume absoluto por linha de negócio (${total} ocorrências)`;
+      } else {
+        // Visão Detalhada: Compara categorias do Produto Selecionado
+        const catCounts = {};
+        (SOLICITACOES_POR_PRODUTO[selectedProd] || []).forEach(c => catCounts[c] = 0);
+        dataToUse.filter(t => t.product === selectedProd).forEach(t => {
+          catCounts[t.solicitacao] = (catCounts[t.solicitacao] || 0) + 1;
+        });
+
+        // Ordena por volume decrescente
+        const sortedCats = Object.entries(catCounts).sort((a, b) => b[1] - a[1]).filter(item => item[1] > 0);
+        chart1Labels = sortedCats.map(item => item[0]);
+        chart1Values = sortedCats.map(item => item[1]);
+
+        const topCat = sortedCats[0] || ['Outros', 0];
+        const subTotal = chart1Values.reduce((a, b) => a + b, 0);
+        const topPct = subTotal > 0 ? ((topCat[1] / subTotal) * 100).toFixed(1) : 0;
+
+        titleProdElem.innerText = `${topCat[0]} é o principal ofensor em ${selectedProd} (${topPct}% do volume)`;
+        subProdElem.innerText = `Detalhamento de categorias com maior incidência de chamados para ${selectedProd}`;
+      }
+
+      charts['chartProductShare'] = new Chart(document.getElementById('chartProductShare'), {
+        type: 'bar',
+        data: {
+          labels: chart1Labels,
+          datasets: [{
+            data: chart1Values,
+            backgroundColor: primaryGreen,
+            borderRadius: 4,
+            barThickness: 22
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, precision: 0 } },
+            y: { grid: { display: false }, ticks: { color: textColor } }
+          }
+        }
       });
 
+      // 2. Gráfico 2: Evolução Mensal em Colunas Verticais
+      destroy('chartMonthly');
+      const months = ['Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro'];
+      const monthlyVals = [9, 40, 48, 33, 9]; // Dados históricos oficiais
+
+      charts['chartMonthly'] = new Chart(document.getElementById('chartMonthly'), {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [{
+            label: 'Demandas',
+            data: monthlyVals,
+            backgroundColor: isDark ? '#0284C7' : '#0369A1',
+            borderRadius: 4,
+            barThickness: 28
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+            x: { grid: { display: false }, ticks: { color: textColor } }
+          }
+        }
+      });
+
+      // 3. Gráfico 3: Matriz de SLA em Barras Horizontais
       destroy('chartSlaBars');
+      const slaLabels = Object.keys(SLA_BENCHMARKS);
+      const slaValues = slaLabels.map(k => SLA_BENCHMARKS[k].mean);
+
       charts['chartSlaBars'] = new Chart(document.getElementById('chartSlaBars'), {
         type: 'bar',
         data: {
-          labels: chartLabels,
+          labels: slaLabels,
           datasets: [{
-            data: chartDataDays,
-            backgroundColor: isDark ? '#00A859' : '#008744',
-            borderRadius: 4
+            data: slaValues,
+            backgroundColor: '#F59E0B',
+            borderRadius: 4,
+            barThickness: 18
           }]
         },
         options: {
@@ -991,27 +1142,57 @@
         }
       });
 
-      destroy('chartProductShare');
-      charts['chartProductShare'] = new Chart(document.getElementById('chartProductShare'), {
-        type: 'doughnut',
+      // 4. Gráfico 4: Oficinas DAF em Barras Horizontais
+      destroy('chartDaf');
+      const dafLabels = ['DAF CAMINHO', 'DAF MACPONTA', 'DAF ALIS', 'DAF NOVA', 'DAF BARIGUI', 'DAF DU GREGORIO', 'DAF SOMAFERTIL'];
+      const dafValues = [7, 2, 2, 1, 1, 1, 1];
+
+      charts['chartDaf'] = new Chart(document.getElementById('chartDaf'), {
+        type: 'bar',
         data: {
-          labels: ['Pedágio', 'Manutenção', 'Abastecimento'],
+          labels: dafLabels,
           datasets: [{
-            data: [98, 22, 19],
-            backgroundColor: ['#008744', '#00A859', '#F59E0B'],
-            borderWidth: 2,
-            borderColor: isDark ? '#141E2E' : '#FFFFFF'
+            data: dafValues,
+            backgroundColor: primaryGreen,
+            borderRadius: 4,
+            barThickness: 18
           }]
         },
         options: {
+          indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '70%',
-          plugins: { legend: { position: 'bottom', labels: { color: textColor } } }
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 } },
+            y: { grid: { display: false }, ticks: { color: textColor } }
+          }
         }
+      });
+
+      // 5. Preenchimento da Tabela Analítica de SLA
+      const tbody = document.getElementById('slaTableBody');
+      tbody.innerHTML = '';
+      slaLabels.forEach(k => {
+        const item = SLA_BENCHMARKS[k];
+        const pillClass = item.mean <= 3 ? 'sla-good' : (item.mean <= 12 ? 'sla-mid' : 'sla-high');
+        const statusText = item.mean <= 3 ? 'Rápido' : (item.mean <= 12 ? 'Moderado' : 'Crítico / Terceiros');
+
+        tbody.innerHTML += `
+          <tr>
+            <td style="font-weight:700; color:var(--tp-green-primary);">${k}</td>
+            <td><strong>${item.mean} dias</strong></td>
+            <td>${item.median} dias</td>
+            <td style="font-weight:600;">${item.suggested} dias úteis</td>
+            <td><span class="sla-pill ${pillClass}">${statusText}</span></td>
+          </tr>
+        `;
       });
     }
 
+    // =========================================================================
+    // EXPORTAÇÃO CSV PADRÃO BRASIL
+    // =========================================================================
     function exportExcel() {
       const headers = ['ID', 'Responsável', 'Produto', 'Casa DAF', 'Bitrix', 'Cliente', 'Contato', 'Solicitação', 'Descrição', 'Status', 'Início (BR)', 'Retorno (BR)'];
       const rows = [headers.join(';')];
@@ -1034,7 +1215,7 @@
       const blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `Demandas_TruckPag_BR_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
+      a.download = `Demandas_TruckPag_BI_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
       a.click();
     }
 
@@ -1042,11 +1223,11 @@
       filterData();
     }
 
-    // Inicialização
+    // Inicialização do Painel
     initTheme();
     updateDashboard();
 
-    // Atualiza os timers a cada 60 segundos automaticamente
+    // Atualização dinâmica a cada 60s
     setInterval(() => {
       filterData();
     }, 60000);
