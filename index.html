@@ -7,7 +7,6 @@
   <style>
     /* ==========================================================================
        DESIGN SYSTEM • CORPORATIVO MINIMALISTA (TRUCKPAG ACCENT)
-       SEM POLUIÇÃO VISUAL • FOCO EM LEITURA RÁPIDA
        ========================================================================== */
     :root {
       --tp-green: #008744;
@@ -101,9 +100,7 @@
 
     .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
 
-    /* ==========================================================================
-       DEMANDAS EM ABERTO: 3 COLUNAS POR PRODUTO
-       ========================================================================== */
+    /* DEMANDAS EM ABERTO: 3 COLUNAS POR PRODUTO */
     .in-progress-section { margin-bottom: 22px; }
     .section-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .section-title-bar h2 { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
@@ -148,11 +145,7 @@
     .input-compact { padding: 5px 9px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
     .input-compact:focus { border-color: var(--border-focus); }
 
-    .filter-pills { display: flex; background: var(--bg-subtle); padding: 2px; border-radius: 6px; border: 1px solid var(--border); }
-    .pill-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; }
-    .pill-btn.active { background: var(--bg-surface); color: var(--tp-green); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-
-    /* TABELA DE REGISTROS (SEM COLUNA CONTATO • FUNDOS CLAROS POR STATUS) */
+    /* TABELA DE REGISTROS */
     .table-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
     table.dense-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     table.dense-table thead tr { background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
@@ -163,7 +156,6 @@
     table.dense-table tbody tr.row-status-process { background-color: var(--row-process-bg); }
     table.dense-table tbody tr.row-status-done { background-color: var(--row-done-bg); }
     table.dense-table tbody tr.row-status-cancel { background-color: var(--row-cancel-bg); }
-    
     table.dense-table tbody tr:hover { filter: brightness(0.97); }
     body.dark-theme table.dense-table tbody tr:hover { filter: brightness(1.15); }
 
@@ -195,7 +187,7 @@
     .exec-table th { background: var(--bg-subtle); padding: 8px 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border); }
     .exec-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
 
-    /* DRAWER LATERAL (CONTATO DESTACADO & ARQUIVAMENTO) */
+    /* DRAWER LATERAL */
     .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(1.5px); }
     .drawer-content { width: 450px; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.1); }
     .drawer-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
@@ -358,7 +350,7 @@
         <table class="dense-table">
           <thead>
             <tr>
-              <th id="thMonthOrDate">Mês</th>
+              <th>Data de Registro</th>
               <th>Cliente / Transportadora</th>
               <th>Produto</th>
               <th>Serviço</th>
@@ -651,10 +643,8 @@
   </div>
 
   <script>
-    // =========================================================================
-    // API GOOGLE APPS SCRIPT (SUA URL CONFIGURADA)
-    // =========================================================================
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbykNCvd5miV2XsiXyO_fTro62SnXK1fi95lhr7qh-N8wvtDSwTghpewZWTI8k-FNBrX/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1wsXSNLRwiKqSwj9BFQEO7RYgg6T-N5w_peFTzMiyLDH31NsASLM35bL/exec";
+    const STORAGE_KEY = "truckpag_demandas_persistent_v8";
 
     var DAF_CASA_MUNICIPALES = {
       "DAF ALIS": ["AGUA BOA/MT", "CUIABA/MT", "RONDONOPOLIS/MT", "SINOP/MT"],
@@ -685,7 +675,7 @@
       {"id": "REC-083", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Globopiso", "contact": "(48) 99610-0095", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 08:33", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       
-      // Histórico dos meses 10 e 09 (Alimenta a base dinâmica de cálculo de SLA)
+      // Histórico dos meses 10 e 09 (Para cálculo de SLA)
       {"id": "REC-081", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "29/10/2026 14:15", "endDate": "31/10/2026 14:15", "durationDays": 2.0},
       {"id": "REC-080", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Outros", "terceiro": "Financeiro", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7},
       {"id": "REC-079", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "27/10/2026 16:00", "endDate": "30/10/2026 16:00", "durationDays": 3.0},
@@ -696,10 +686,41 @@
       {"id": "REC-001", "mes": "09-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Menezes", "contact": "(65) 99259-7532", "solicitacao": "Logistica", "terceiro": "Cadastro", "status": "Concluído", "startDate": "31/08/2026 18:25", "endDate": "01/09/2026 11:43", "durationDays": 0.7}
     ];
 
-    var allTickets = [...RAW_INITIAL_RECORDS];
+    // =========================================================================
+    // PERSISTÊNCIA DUAL: LOCALSTORAGE + GOOGLE SHEETS
+    // =========================================================================
+    function getStoredTickets() {
+      try {
+        var saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          var parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch(e) {}
+      return RAW_INITIAL_RECORDS.slice();
+    }
+
+    function saveStoredTickets() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allTickets));
+      } catch(e) {}
+    }
+
+    var allTickets = getStoredTickets();
     var activeSelectedTicket = null;
 
-    // Sincronização em Nuvem via Google Sheets
+    // Normalizador de Mês para não sumir do filtro se a planilha converter datas
+    function normalizeMes(m) {
+      if (!m) return "11-2026";
+      var s = String(m);
+      if (s.indexOf("11") !== -1 && s.indexOf("2026") !== -1) {
+        return "11-2026";
+      }
+      return s;
+    }
+
     function syncFromGoogleSheets() {
       var ind = document.getElementById('syncStatusIndicator');
       if (ind) ind.innerText = "⏳ Conectando Planilha...";
@@ -708,23 +729,33 @@
         .then(function(res) { return res.json(); })
         .then(function(resp) {
           if (resp && resp.status === "success" && Array.isArray(resp.data) && resp.data.length > 0) {
-            // Mapeia as linhas trazidas da planilha
             var sheetMap = {};
             resp.data.forEach(function(row) {
-              if (row.id) sheetMap[row.id] = row;
+              var cleanId = row.id || row['id'] || row['ID'];
+              if (cleanId) {
+                row.mes = normalizeMes(row.mes);
+                sheetMap[cleanId] = row;
+              }
             });
 
-            // Mescla sem perder as novas
+            // Atualiza os existentes
             allTickets = allTickets.map(function(t) {
               return sheetMap[t.id] ? Object.assign({}, t, sheetMap[t.id]) : t;
             });
 
-            // Insere novas que vieram da planilha e não estavam aqui
+            // Adiciona novas que vieram da planilha
             resp.data.forEach(function(row) {
-              var exists = allTickets.some(function(t) { return t.id === row.id; });
-              if (!exists) allTickets.unshift(row);
+              var rowId = row.id || row['id'] || row['ID'];
+              if (rowId) {
+                var exists = allTickets.some(function(t) { return t.id === rowId; });
+                if (!exists) {
+                  row.mes = normalizeMes(row.mes);
+                  allTickets.unshift(row);
+                }
+              }
             });
 
+            saveStoredTickets();
             if (ind) {
               ind.innerText = "● Planilha Sincronizada";
               ind.classList.add('online');
@@ -738,8 +769,8 @@
           }
         })
         .catch(function(err) {
-          console.warn("Erro ao buscar da planilha:", err);
-          if (ind) ind.innerText = "● Modo Offline";
+          console.warn("Offline ou erro de leitura:", err);
+          if (ind) ind.innerText = "● Armazenamento Local";
         });
     }
 
@@ -762,12 +793,12 @@
         }
       })
       .catch(function(err) {
-        console.warn("Erro no envio:", err);
-        if (ind) ind.innerText = "● Gravado Localmente";
+        console.warn("Erro no envio à planilha:", err);
+        if (ind) ind.innerText = "● Salvo Localmente";
       });
     }
 
-    // Utilitários de Data
+    // Utilitários de Data BR
     function parseDateBR(str) {
       if (!str) return null;
       if (str.indexOf('/') !== -1) {
@@ -782,7 +813,7 @@
     function getElapsedTime(startDateStr) {
       var start = parseDateBR(startDateStr);
       if (!start || isNaN(start.getTime())) return '-';
-      var now = new Date(2026, 10, 10, 13, 14); // Cascavel, 10/11/2026
+      var now = new Date(2026, 10, 10, 13, 30);
       var diffMs = Math.max(0, now - start);
       var mins = Math.floor(diffMs / 60000);
       var hours = Math.floor(mins / 60);
@@ -796,7 +827,7 @@
       if (!returnDateStr || returnDateStr.indexOf('/') === -1) return { text: "Sem Prazo", "class": "" };
       var parts = returnDateStr.split('/');
       var target = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10), 23, 59);
-      var now = new Date(2026, 10, 10, 13, 14);
+      var now = new Date(2026, 10, 10, 13, 30);
       var diffMs = target - now;
 
       if (diffMs < 0) {
@@ -873,8 +904,10 @@
       var st = document.getElementById('filterStatusSelect') ? document.getElementById('filterStatusSelect').value : 'all';
       var search = document.getElementById('searchInput') ? (document.getElementById('searchInput').value || '').toLowerCase().trim() : '';
 
+      // Filtra de forma blindada o mês 11 na tela principal
       var baseFila = allTickets.filter(function(t) {
-        return t.mes === "11-2026";
+        var m = normalizeMes(t.mes);
+        return m === "11-2026";
       });
 
       var filtered = baseFila.filter(function(t) {
@@ -945,7 +978,7 @@
           '<td style="color:#0284C7; font-weight:600;">' + r.terceiro + '</td>' +
           '<td><span class="status-badge ' + badgeClass + '">' + r.status + '</span></td>' +
           '<td>' + slaCellHtml + '</td>' +
-          '<td style="color:var(--text-muted);">' + r.operator + '</td>';
+          '<td style="color:var(--text-muted);">👤 ' + r.operator + '</td>';
         tbody.appendChild(tr);
       });
     }
@@ -1074,13 +1107,13 @@
         return;
       }
       navigator.clipboard.writeText(activeSelectedTicket.contact).then(function() {
-        alert("Número copiado com sucesso.");
+        alert("Número copiado com sucesso: " + activeSelectedTicket.contact);
       });
     }
 
     function completeSelectedTicket() {
       if (!activeSelectedTicket) return;
-      var nowStr = "10/11/2026 13:14";
+      var nowStr = "10/11/2026 13:30";
       var start = parseDateBR(activeSelectedTicket.startDate);
       var end = parseDateBR(nowStr);
       var diffDays = start ? ((end - start) / (1000 * 60 * 60 * 24)).toFixed(1) : "1.0";
@@ -1097,8 +1130,9 @@
         return t;
       });
 
+      saveStoredTickets(); // Salva localmente na hora
       var updated = allTickets.find(function(x) { return x.id === activeSelectedTicket.id; });
-      saveToGoogleSheets("update", updated);
+      saveToGoogleSheets("update", updated); // Atualiza na planilha
       openDrawer(updated);
       renderAll();
     }
@@ -1175,9 +1209,11 @@
     function onModalServiceChange() {
       var serv = document.getElementById('modalServiceSelect').value;
       var bitrixGroup = document.getElementById('modalBitrixGroup');
+      var terceiroSel = document.getElementById('modalTerceiroSelect');
 
       if (serv === 'Chamado T.I') {
         bitrixGroup.style.display = 'block';
+        terceiroSel.value = 'T.I';
       } else {
         bitrixGroup.style.display = 'none';
       }
@@ -1217,7 +1253,7 @@
         return;
       }
 
-      var now = new Date(2026, 10, 10, 13, 14);
+      var now = new Date(2026, 10, 10, 13, 30);
       var d = String(now.getDate()).padStart(2, '0');
       var m = String(now.getMonth() + 1).padStart(2, '0');
       var y = now.getFullYear();
@@ -1248,8 +1284,13 @@
         description: f.desc.value
       };
 
+      // 1. Salva na lista ativa
       allTickets.unshift(newRec);
+      // 2. Grava no LocalStorage no mesmo instante (nunca mais perde no F5)
+      saveStoredTickets();
+      // 3. Grava no Google Sheets
       saveToGoogleSheets("create", newRec);
+
       document.getElementById('modalOverlay').style.display = 'none';
       renderAll();
       openDrawer(newRec);
@@ -1320,7 +1361,7 @@
       }
     } catch(e) {}
 
-    // Execução Inicial
+    // Inicialização
     renderAll();
     syncFromGoogleSheets();
   </script>
