@@ -101,7 +101,7 @@
 
     .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
 
-    /* FILTROS (POSICIONADO NO TOPO ACIMA DAS DEMANDAS) */
+    /* FILTROS (POSICIONADOS NO TOPO ACIMA DAS DEMANDAS) */
     .filter-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--card-shadow); }
     .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
     .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -148,24 +148,23 @@
     .timer-val.late { color: #DC2626; }
     .timer-val.today { color: #D97706; }
 
-    /* TABELA DE REGISTROS */
+    /* TABELA DE REGISTROS (APENAS FINALIZADOS) */
     .table-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
+    .table-card-header { padding: 10px 14px; background: var(--bg-subtle); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .table-card-header h3 { font-size: 12px; font-weight: 700; color: var(--text-main); }
+    
     table.dense-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     table.dense-table thead tr { background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
     table.dense-table th { padding: 9px 12px; font-weight: 700; color: var(--text-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.3px; }
     table.dense-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     table.dense-table tbody tr { cursor: pointer; transition: filter 0.1s; }
 
-    table.dense-table tbody tr.row-status-process { background-color: var(--row-process-bg); }
     table.dense-table tbody tr.row-status-done { background-color: var(--row-done-bg); }
-    table.dense-table tbody tr.row-status-cancel { background-color: var(--row-cancel-bg); }
     table.dense-table tbody tr:hover { filter: brightness(0.97); }
     body.dark-theme table.dense-table tbody tr:hover { filter: brightness(1.15); }
 
     .status-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
-    .st-process { background: var(--badge-process-bg); color: var(--badge-process-text); }
     .st-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
-    .st-cancel { background: var(--badge-cancel-bg); color: var(--badge-cancel-text); }
 
     .btn-row-delete { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; padding: 3px 8px; font-size: 10px; font-weight: 700; border-radius: 4px; cursor: pointer; }
     .btn-row-delete:hover { background: #FCA5A5; color: #7F1D1D; }
@@ -253,7 +252,7 @@
     </nav>
 
     <div class="topbar-actions">
-      <span class="sync-status" id="syncStatusIndicator">● Conectando Planilha...</span>
+      <span class="sync-status online" id="syncStatusIndicator">● Conectado</span>
       <button class="btn-action export-archived" onclick="exportArchivedCSV()" title="Exportar apenas demandas concluídas">
         Exportar Arquivadas
       </button>
@@ -271,13 +270,12 @@
     <!-- TELA 1: FILA OPERACIONAL E REGISTROS -->
     <div id="viewPaneRecords">
       
-      <!-- FILTROS GERAIS (POSICIONADO ACIMA DAS DEMANDAS EM ABERTO) -->
+      <!-- FILTROS GERAIS (NO TOPO ACIMA DAS DEMANDAS) -->
       <div class="filter-panel">
         <div class="filter-row">
           <div class="filter-items">
             <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Filtros:</span>
             
-            <!-- Filtro Mensal -->
             <select class="input-compact" id="filterMonthSelect" onchange="renderAll()">
               <option value="11-2026" selected>Mês: 11-2026 (Vigente)</option>
               <option value="10-2026">Mês: 10-2026</option>
@@ -309,13 +307,6 @@
               <option value="Outros">Outros</option>
             </select>
 
-            <select class="input-compact" id="filterStatusSelect" onchange="renderAll()">
-              <option value="all">Status: Todos</option>
-              <option value="Em andamento">Em andamento</option>
-              <option value="Concluído">Concluído</option>
-              <option value="Cancelado">Cancelado</option>
-            </select>
-
             <button type="button" class="btn-clear-filters" onclick="clearFilters()" title="Redefinir filtros para o padrão">
               Limpar Filtros
             </button>
@@ -325,7 +316,7 @@
         </div>
       </div>
 
-      <!-- DEMANDAS EM ABERTO -->
+      <!-- DEMANDAS EM ABERTO: 3 COLUNAS -->
       <section class="in-progress-section">
         <div class="section-title-bar">
           <h2>
@@ -333,7 +324,7 @@
             <span style="font-size:11px; color:var(--text-muted); font-weight:normal;" id="inProgressCountLabel"></span>
           </h2>
           <span style="font-size:10.5px; color:var(--text-subtle);">
-            Clique no card para detalhes, contato, arquivamento ou exclusão
+            Clique no card para abrir detalhes, telefone e opções
           </span>
         </div>
 
@@ -364,18 +355,22 @@
         </div>
       </section>
 
-      <!-- TABELA DE REGISTROS -->
+      <!-- TABELA DE REGISTROS FINALIZADOS -->
       <div class="table-card">
+        <div class="table-card-header">
+          <h3>Histórico de Demandas Finalizadas (Concluídas)</h3>
+          <span style="font-size:11px; color:var(--text-muted);" id="finalizedCountLabel">0 demandas finalizadas</span>
+        </div>
         <table class="dense-table">
           <thead>
             <tr>
               <th id="thMonthOrDate">Data de Registro</th>
+              <th>Data de Conclusão</th>
               <th>Cliente / Transportadora</th>
               <th>Produto</th>
               <th>Serviço</th>
               <th>Terceiro Acionado</th>
-              <th>Status</th>
-              <th>Tempo de Processo / SLA</th>
+              <th>SLA Final</th>
               <th>Agente</th>
               <th style="text-align:center;">Ações</th>
             </tr>
@@ -386,7 +381,7 @@
 
     </div>
 
-    <!-- TELA 2: RELATÓRIO GERENCIAL DE SLA (ATUALIZADO AUTOMATICAMENTE) -->
+    <!-- TELA 2: RELATÓRIO GERENCIAL DE SLA -->
     <div id="viewPaneReport" style="display:none;">
       <div class="sla-report-grid">
         
@@ -418,7 +413,7 @@
           <div id="chartBarsContainer"></div>
         </div>
 
-        <!-- CARD 3: COMPARATIVO EXTERNO VS INTERNO (SEM LEGENDAS) -->
+        <!-- CARD 3: COMPARATIVO EXTERNO VS INTERNO -->
         <div class="sla-card col-12">
           <div class="headline-box">
             <div class="action-headline">Apropriação de Prazos por Categoria de Responsável</div>
@@ -466,7 +461,7 @@
 
   </main>
 
-  <!-- DRAWER LATERAL (CONTATO, ARQUIVAMENTO E EXCLUSÃO) -->
+  <!-- DRAWER LATERAL -->
   <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
     <div class="drawer-content" onclick="event.stopPropagation()">
       <div class="drawer-header">
@@ -692,8 +687,8 @@
 
   <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1wsXSNLRwiKqSwj9BFQEO7RYgg6T-N5w_peFTzMiyLDH31NsASLM35bL/exec";
-    const STORAGE_KEY = "truckpag_demandas_persistent_v10";
-    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v10";
+    const STORAGE_KEY = "truckpag_demandas_persistent_v12";
+    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v12";
 
     var DAF_CASA_MUNICIPALES = {
       "DAF ALIS": ["AGUA BOA/MT", "CUIABA/MT", "RONDONOPOLIS/MT", "SINOP/MT"],
@@ -724,7 +719,7 @@
       {"id": "REC-083", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Globopiso", "contact": "(48) 99610-0095", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 08:33", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       
-      // Histórico dos meses 10 e 09 (Para cálculo dinâmico de SLA)
+      // Histórico Concluído (Outubro/Setembro)
       {"id": "REC-081", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "29/10/2026 14:15", "endDate": "31/10/2026 14:15", "durationDays": 2.0},
       {"id": "REC-080", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Outros", "terceiro": "Financeiro", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7},
       {"id": "REC-079", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "27/10/2026 16:00", "endDate": "30/10/2026 16:00", "durationDays": 3.0},
@@ -736,7 +731,7 @@
     ];
 
     // =========================================================================
-    // GERENCIAMENTO DA LISTA DE EXCLUSÃO (TOMBSTONES) & STORAGE
+    // LISTA DE EXCLUSÃO DEFINITIVA (TOMBSTONES) & STORAGE
     // =========================================================================
     function getDeletedIds() {
       try {
@@ -798,7 +793,6 @@
       return s;
     }
 
-    // Formata qualquer data ISO ou BR para exibição limpa
     function formatDateDisplay(d) {
       if (!d) return "-";
       var s = String(d).trim();
@@ -813,19 +807,24 @@
       return s;
     }
 
-    // Sincronização Inteligente (NUNCA ressuscita deletados)
+    // Sincronização Inteligente com timeout de 8 segundos (Não trava a tela)
     function syncFromGoogleSheets() {
       var ind = document.getElementById('syncStatusIndicator');
       if (ind) ind.innerText = "⏳ Conectando Planilha...";
 
-      fetch(GOOGLE_SCRIPT_URL)
-        .then(function(res) { return res.json(); })
+      var controller = new AbortController();
+      var timeoutId = setTimeout(function() { controller.abort(); }, 8000);
+
+      fetch(GOOGLE_SCRIPT_URL, { signal: controller.signal })
+        .then(function(res) {
+          clearTimeout(timeoutId);
+          return res.json();
+        })
         .then(function(resp) {
           if (resp && resp.status === "success" && Array.isArray(resp.data) && resp.data.length > 0) {
             var delList = getDeletedIds();
             var sheetMap = {};
 
-            // Ignora itens excluídos que ainda estejam na planilha
             var validRows = resp.data.filter(function(row) {
               return !isDeletedTicket(row, delList);
             });
@@ -853,7 +852,6 @@
               }
             });
 
-            // Filtro final estrito
             allTickets = allTickets.filter(function(t) {
               return !isDeletedTicket(t, delList);
             });
@@ -872,8 +870,12 @@
           }
         })
         .catch(function(err) {
-          console.warn("Offline ou erro de leitura:", err);
-          if (ind) ind.innerText = "● Armazenamento Local";
+          clearTimeout(timeoutId);
+          console.warn("Sincronização offline ou lenta:", err);
+          if (ind) {
+            ind.innerText = "● Armazenamento Local";
+            ind.classList.remove('online');
+          }
         });
     }
 
@@ -901,7 +903,6 @@
       });
     }
 
-    // Utilitários de Data BR
     function parseDateBR(str) {
       if (!str) return null;
       var s = String(str).trim();
@@ -920,7 +921,7 @@
     function getElapsedTime(startDateStr) {
       var start = parseDateBR(startDateStr);
       if (!start || isNaN(start.getTime())) return '-';
-      var now = new Date(2026, 10, 10, 15, 14);[cite: 1]
+      var now = new Date();
       var diffMs = Math.max(0, now - start);
       var mins = Math.floor(diffMs / 60000);
       var hours = Math.floor(mins / 60);
@@ -942,7 +943,7 @@
       }
       if (!target || isNaN(target.getTime())) return { text: "Sem Prazo", "class": "" };
 
-      var now = new Date(2026, 10, 10, 15, 14);[cite: 1]
+      var now = new Date();
       var diffMs = target - now;
 
       if (diffMs < 0) {
@@ -955,7 +956,6 @@
       return { text: "Faltam " + remDays + "d " + (remHours % 24) + "h", "class": "" };
     }
 
-    // Cálculos de SLA
     function calcCurrentSlaStats() {
       var completed = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
       var map = {};
@@ -1055,14 +1055,13 @@
     }
 
     // =========================================================================
-    // RENDERIZAÇÃO DA FILA
+    // RENDERIZAÇÃO: COLUNAS (EM ANDAMENTO) & TABELA (APENAS FINALIZADOS)
     // =========================================================================
     function renderAll() {
       var monthVal = document.getElementById('filterMonthSelect') ? document.getElementById('filterMonthSelect').value : '11-2026';
       var agent = document.getElementById('filterAgentSelect') ? document.getElementById('filterAgentSelect').value : '';
       var prod = document.getElementById('filterProductSelect') ? document.getElementById('filterProductSelect').value : '';
       var serv = document.getElementById('filterServiceSelect') ? document.getElementById('filterServiceSelect').value : '';
-      var st = document.getElementById('filterStatusSelect') ? document.getElementById('filterStatusSelect').value : 'all';
       var search = document.getElementById('searchInput') ? (document.getElementById('searchInput').value || '').toLowerCase().trim() : '';
 
       var th = document.getElementById('thMonthOrDate');
@@ -1074,7 +1073,6 @@
         if (agent && t.operator !== agent) return false;
         if (prod && t.product !== prod) return false;
         if (serv && t.solicitacao !== serv) return false;
-        if (st !== 'all' && t.status !== st) return false;
         if (search) {
           var s = (String(t.client || "") + " " + String(t.contact || "") + " " + String(t.solicitacao || "") + " " + String(t.terceiro || "") + " " + String(t.dafRede || "")).toLowerCase();
           if (s.indexOf(search) === -1) return false;
@@ -1082,6 +1080,7 @@
         return true;
       });
 
+      // 1. Demandas Em Aberto (Nas 3 Colunas Superiores)
       var inProg = filtered.filter(function(t) { return t.status === 'Em andamento'; });
       var lbl = document.getElementById('inProgressCountLabel');
       if (lbl) lbl.innerText = '(' + inProg.length + ' em andamento)';
@@ -1098,49 +1097,37 @@
       renderProductCardsColumn('colCardsPed', pedTickets, 'prod-pedagio');
       renderProductCardsColumn('colCardsManut', manutTickets, 'prod-manutencao');
 
+      // 2. Linha Horizontal de Registros: APENAS FINALIZADOS (CONCLUÍDOS)
+      var finalizedTickets = filtered.filter(function(t) { return t.status === 'Concluído'; });
+      var finalizedLbl = document.getElementById('finalizedCountLabel');
+      if (finalizedLbl) finalizedLbl.innerText = finalizedTickets.length + ' demandas finalizadas';
+
       var tbody = document.getElementById('recordsTableBody');
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      filtered.forEach(function(r) {
-        var isDone = (r.status === 'Concluído');
-        var isProcess = (r.status === 'Em andamento');
-        var rem = getRemainingTime(r.returnDate);
-        var elapsed = getElapsedTime(r.startDate);
+      if (finalizedTickets.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:18px; color:var(--text-subtle);">Nenhuma demanda finalizada para os filtros selecionados.</td></tr>';
+        return;
+      }
 
-        var rowStatusClass = 'row-status-cancel';
-        if (isProcess) rowStatusClass = 'row-status-process';
-        else if (isDone) rowStatusClass = 'row-status-done';
-
-        var badgeClass = isDone ? 'st-done' : (isProcess ? 'st-process' : 'st-cancel');
-        var slaCellHtml = '';
-
-        if (isProcess) {
-          slaCellHtml = 
-            '<div style="display:flex; gap:6px; align-items:center;">' +
-              '<span style="font-size:10px; color:var(--tp-green); font-weight:700;">' + elapsed + '</span>' +
-              '<span style="font-size:10px; font-weight:700;" class="' + rem.class + '">' + rem.text + '</span>' +
-            '</div>';
-        } else if (isDone) {
-          slaCellHtml = '<span style="font-size:11px; font-weight:700; color:var(--tp-green);">SLA: ' + (r.durationDays !== null ? r.durationDays + 'd' : '-') + '</span>';
-        } else {
-          slaCellHtml = '<span style="color:var(--text-subtle);">Cancelado</span>';
-        }
-
+      finalizedTickets.forEach(function(r) {
         var tr = document.createElement('tr');
-        tr.className = rowStatusClass;
+        tr.className = 'row-status-done';
         tr.onclick = function() { openDrawer(r); };
         
-        var displayDate = formatDateDisplay(r.startDate);
+        var displayStart = formatDateDisplay(r.startDate);
+        var displayEnd = formatDateDisplay(r.endDate || r.returnDate || r.startDate);
+        var slaText = r.durationDays !== null ? r.durationDays + 'd' : '-';
 
         tr.innerHTML = 
-          '<td style="font-family:monospace; font-weight:600;">' + (monthVal ? displayDate : r.mes) + '</td>' +
+          '<td style="font-family:monospace; font-weight:600;">' + (monthVal ? displayStart : r.mes) + '</td>' +
+          '<td style="font-family:monospace; color:var(--text-muted);">' + displayEnd + '</td>' +
           '<td style="font-weight:700; color:var(--text-main);">' + (r.client || '-') + '</td>' +
           '<td>' + (r.product || '-') + '</td>' +
           '<td>' + (r.solicitacao || '-') + '</td>' +
           '<td style="color:#0284C7; font-weight:600;">' + (r.terceiro || '-') + '</td>' +
-          '<td><span class="status-badge ' + badgeClass + '">' + r.status + '</span></td>' +
-          '<td>' + slaCellHtml + '</td>' +
+          '<td><span style="font-size:11px; font-weight:700; color:var(--tp-green);">✓ SLA: ' + slaText + '</span></td>' +
           '<td style="color:var(--text-muted);">' + (r.operator || '-') + '</td>' +
           '<td style="text-align:center;" onclick="event.stopPropagation()">' +
             '<button class="btn-row-delete" onclick="deleteTicketDirect(event, \'' + (r.id || '') + '\', \'' + (r.client || '') + '\')">Excluir</button>' +
@@ -1189,7 +1176,7 @@
     }
 
     // =========================================================================
-    // DRAWER LATERAL & CONTATOS (TOTALMENTE BLINDADO CONTRA ERROS)
+    // DRAWER LATERAL & CONTATOS (BLINDADO CONTRA ERROS DE TIPO)
     // =========================================================================
     function openDrawer(ticket) {
       if (!ticket) return;
@@ -1214,9 +1201,8 @@
         var descVal = document.getElementById('drawerDescVal');
         if (descVal) descVal.innerText = String(ticket.description || "Nenhum detalhe adicional informado.");
 
-        // Converte com segurança para String sem falhar com números
         var phoneDisplay = document.getElementById('drawerPhoneDisplay');
-        var rawPhone = String(ticket.contact || "").trim();
+        var rawPhone = ticket.contact !== undefined && ticket.contact !== null ? String(ticket.contact).trim() : "";
         if (rawPhone && rawPhone !== "null" && rawPhone !== "undefined") {
           if (phoneDisplay) phoneDisplay.innerText = rawPhone;
         } else {
@@ -1292,7 +1278,7 @@
         var overlay = document.getElementById('drawerOverlay');
         if (overlay) overlay.style.display = 'flex';
       } catch (err) {
-        console.error("Erro seguro no drawer:", err);
+        console.error("Erro no drawer:", err);
         var overlay = document.getElementById('drawerOverlay');
         if (overlay) overlay.style.display = 'flex';
       }
@@ -1319,9 +1305,16 @@
 
     function completeSelectedTicket() {
       if (!activeSelectedTicket) return;
-      var nowStr = "10/11/2026 15:14";[cite: 1]
+      var now = new Date();
+      var d = String(now.getDate()).padStart(2, '0');
+      var m = String(now.getMonth() + 1).padStart(2, '0');
+      var y = now.getFullYear();
+      var h = String(now.getHours()).padStart(2, '0');
+      var min = String(now.getMinutes()).padStart(2, '0');
+      var nowStr = d + '/' + m + '/' + y + ' ' + h + ':' + min;
+
       var start = parseDateBR(activeSelectedTicket.startDate);
-      var end = parseDateBR(nowStr);
+      var end = now;
       var diffDays = start ? ((end - start) / (1000 * 60 * 60 * 24)).toFixed(1) : "1.0";
 
       allTickets = allTickets.map(function(t) {
@@ -1330,7 +1323,7 @@
             status: "Concluído",
             endDate: nowStr,
             durationDays: parseFloat(diffDays),
-            returnDate: nowStr.split(' ')[0]
+            returnDate: d + '/' + m + '/' + y
           });
         }
         return t;
@@ -1343,7 +1336,6 @@
       renderAll();
     }
 
-    // EXCLUIR DEFINITIVAMENTE (COM BLOQUEIO PERMANENTE CONTRA RESSURREIÇÃO)
     function executeDelete(ticket) {
       if (!ticket) return;
 
@@ -1386,7 +1378,6 @@
       if (ticket) {
         executeDelete(ticket);
       } else {
-        // Fallback para apagar da lista pelo ID
         var delList = getDeletedIds();
         if (id) delList.push(String(id).trim());
         if (client) delList.push(String(client).trim().toLowerCase());
@@ -1484,7 +1475,7 @@
       var serv = document.getElementById('modalServiceSelect').value;
       var mean = currentStats[serv] && currentStats[serv].mean > 0 ? parseFloat(currentStats[serv].mean) : 5;
       
-      var now = new Date(2026, 10, 10);
+      var now = new Date();
       now.setDate(now.getDate() + Math.ceil(mean));
       
       var y = now.getFullYear();
@@ -1513,7 +1504,7 @@
         return;
       }
 
-      var now = new Date(2026, 10, 10, 15, 14);[cite: 1]
+      var now = new Date();
       var d = String(now.getDate()).padStart(2, '0');
       var m = String(now.getMonth() + 1).padStart(2, '0');
       var y = now.getFullYear();
@@ -1639,7 +1630,7 @@
       }
     } catch(e) {}
 
-    // Inicialização
+    // Inicialização direta e imediata (Zero atraso de tela)
     renderAll();
     syncFromGoogleSheets();
   </script>
