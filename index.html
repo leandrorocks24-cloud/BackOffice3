@@ -97,9 +97,7 @@
 
     .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
 
-    /* ==========================================================================
-       DEMANDAS EM ABERTO E FILTRO
-       ========================================================================== */
+    /* DEMANDAS EM ABERTO */
     .in-progress-section { margin-bottom: 22px; }
     .section-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .section-title-bar h2 { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
@@ -112,7 +110,7 @@
     .col-count-badge { font-size: 10.5px; padding: 2px 7px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-muted); font-weight: 700; }
     .column-cards-list { display: flex; flex-direction: column; gap: 8px; flex: 1; }
 
-    /* Cards Limpos sem Emojis Exagerados */
+    /* Cards */
     .progress-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 7px; padding: 11px 13px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--card-shadow); border-left: 3.5px solid transparent; }
     .progress-card:hover { transform: translateY(-1px); border-color: var(--border-focus); }
     .progress-card.prod-pedagio { border-left-color: #0284C7; }
@@ -133,7 +131,7 @@
     .timer-val.late { color: #DC2626; }
     .timer-val.today { color: #D97706; }
 
-    /* FILTROS (Fixo abaixo do topo) */
+    /* FILTROS */
     .filter-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--card-shadow); }
     .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
     .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -141,7 +139,7 @@
     .input-compact { padding: 5px 9px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
     .input-compact:focus { border-color: var(--border-focus); }
 
-    /* TABELA DE REGISTROS (MÊS VIGENTE APENAS) */
+    /* TABELA */
     .table-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
     table.dense-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     table.dense-table thead tr { background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
@@ -160,9 +158,7 @@
     .st-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
     .st-cancel { background: var(--badge-cancel-bg); color: var(--badge-cancel-text); }
 
-    /* ==========================================================================
-       RELATÓRIO GERENCIAL (ATUALIZADO AUTOMATICAMENTE)
-       ========================================================================== */
+    /* RELATÓRIO GERENCIAL */
     .sla-report-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
     .sla-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: var(--card-shadow); }
     .sla-card.col-12 { grid-column: span 12; }
@@ -185,9 +181,7 @@
     .exec-table th { background: var(--bg-subtle); padding: 8px 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border); }
     .exec-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
 
-    /* ==========================================================================
-       DRAWER LATERAL • HISTÓRICO & TELEFONE DE CONTATO
-       ========================================================================== */
+    /* DRAWER LATERAL */
     .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(1.5px); }
     .drawer-content { width: 450px; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.1); }
     .drawer-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
@@ -215,7 +209,7 @@
 
     .sla-final-highlight { background: var(--tp-green-light); border: 1px solid var(--tp-green-border); color: var(--tp-green); border-radius: 6px; padding: 8px 12px; font-size: 11.5px; font-weight: 700; text-align: center; }
 
-    /* Modal Nova Demanda */
+    /* Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 300; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
     .modal-card { width: 560px; max-width: 95%; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); overflow: hidden; }
     .modal-head { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
@@ -224,7 +218,6 @@
     .field-label { font-size: 10.5px; font-weight: 700; color: var(--text-main); margin-bottom: 3px; display: block; }
     .field-input, .field-select, .field-textarea { width: 100%; padding: 6px 8px; font-size: 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
 
-    /* Footer sutil com restauração de dados */
     .app-footer { margin-top: 24px; padding: 12px 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-subtle); }
     .btn-restore-link { background: none; border: none; color: var(--text-muted); cursor: pointer; text-decoration: underline; font-size: 11px; }
     .btn-restore-link:hover { color: #DC2626; }
@@ -282,7 +275,6 @@
         </div>
 
         <div class="product-columns-grid">
-          <!-- Coluna 1: Abastecimento -->
           <div class="product-column">
             <div class="product-column-head" style="color:#D97706;">
               Abastecimento
@@ -291,7 +283,6 @@
             <div class="column-cards-list" id="colCardsAbast"></div>
           </div>
 
-          <!-- Coluna 2: Pedágio -->
           <div class="product-column">
             <div class="product-column-head" style="color:#0284C7;">
               Pedágio
@@ -300,7 +291,6 @@
             <div class="column-cards-list" id="colCardsPed"></div>
           </div>
 
-          <!-- Coluna 3: Manutenção DAF -->
           <div class="product-column">
             <div class="product-column-head" style="color:var(--tp-green);">
               Manutenção
@@ -311,7 +301,7 @@
         </div>
       </section>
 
-      <!-- FILTROS GERAIS NA TELA DE REGISTROS (FIXO NO TOPO) -->
+      <!-- FILTROS GERAIS (FIXO NO TOPO) -->
       <div class="filter-panel">
         <div class="filter-row">
           <div class="filter-items">
@@ -352,7 +342,7 @@
         </div>
       </div>
 
-      <!-- TABELA DE REGISTROS DO MÊS 11 -->
+      <!-- TABELA DE REGISTROS -->
       <div class="table-card">
         <table class="dense-table">
           <thead>
@@ -373,12 +363,12 @@
 
       <footer class="app-footer">
         <span>Dados persistidos localmente no navegador via LocalStorage.</span>
-        <button class="btn-restore-link" onclick="restoreInitialData()">Restaurar Dados Originais da Planilha</button>
+        <button class="btn-restore-link" onclick="restoreInitialData()">Restaurar Dados Originais</button>
       </footer>
 
     </div>
 
-    <!-- TELA 2: RELATÓRIO GERENCIAL DE SLA (ATUALIZADO AUTOMATICAMENTE) -->
+    <!-- TELA 2: RELATÓRIO GERENCIAL DE SLA -->
     <div id="viewPaneReport" style="display:none;">
       <div class="sla-report-grid">
         
@@ -399,7 +389,7 @@
             <div style="background:var(--bg-subtle); padding:10px 14px; border-radius:6px; border-left:3px solid #EF4444;">
               <div style="display:flex; justify-content:space-between; font-weight:700;">
                 <span>Parceiros Externos (MoveMais, ConnectCar, Rede DAF)</span>
-                <span style="color:#EF4444;" id="slaExternoMedia">15,5 dias (Méd.)</span>
+                <span style="color:#EF4444;">15,5 dias (Méd.)</span>
               </div>
               <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
                 Dependência de laudos e espelhos de concessionárias externas.
@@ -408,7 +398,7 @@
             <div style="background:var(--bg-subtle); padding:10px 14px; border-radius:6px; border-left:3px solid var(--tp-green);">
               <div style="display:flex; justify-content:space-between; font-weight:700;">
                 <span>Setores Internos (T.I, Cadastro, Financeiro)</span>
-                <span style="color:var(--tp-green);" id="slaInternoMedia">7,8 dias (Méd.)</span>
+                <span style="color:var(--tp-green);">7,8 dias (Méd.)</span>
               </div>
               <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
                 Resoluções sistêmicas (XML, API) e operacionais da base.
@@ -442,9 +432,7 @@
 
   </main>
 
-  <!-- =================================================================
-      DRAWER LATERAL • CONTATO E ARQUIVAMENTO
-      ================================================================= -->
+  <!-- DRAWER LATERAL -->
   <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
     <div class="drawer-content" onclick="event.stopPropagation()">
       <div class="drawer-header">
@@ -457,7 +445,6 @@
 
       <div class="drawer-body">
         
-        <!-- CARTÃO DO TELEFONE -->
         <div class="contact-hero-card">
           <div class="contact-hero-title">
             <span>Telefone Informado (Retorno)</span>
@@ -503,7 +490,6 @@
           </div>
         </div>
 
-        <!-- BOTÃO DE ARQUIVAMENTO -->
         <button 
           class="btn-action primary" 
           id="btnCompleteTicket"
@@ -513,7 +499,6 @@
           Arquivar Demanda (Concluir & Registrar Retorno)
         </button>
 
-        <!-- BLOCO HISTÓRICO -->
         <div class="pareceres-box">
           <div class="pareceres-header">Histórico & Pareceres</div>
           
@@ -552,9 +537,7 @@
     </div>
   </div>
 
-  <!-- =================================================================
-      MODAL: NOVA DEMANDA
-      ================================================================= -->
+  <!-- MODAL -->
   <div class="modal-overlay" id="modalOverlay" onclick="closeModalDirect(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <div class="modal-head">
@@ -594,7 +577,6 @@
         <div>
           <label class="field-label">Serviço *</label>
           <select class="field-select" id="modalServiceSelect" name="solicitacao" onchange="onModalServiceChange()">
-            <!-- Dinâmico -->
           </select>
         </div>
 
@@ -663,10 +645,7 @@
   </div>
 
   <script>
-    // =========================================================================
-    // BASE INICIAL & PERSISTÊNCIA LOCALSTORAGE
-    // =========================================================================
-    var STORAGE_KEY = "tp_backoffice_records_v2";
+    var STORAGE_KEY = "truckpag_demandas_storage_v4";
 
     var DAF_CASA_MUNICIPALES = {
       "DAF ALIS": ["AGUA BOA/MT", "CUIABA/MT", "RONDONOPOLIS/MT", "SINOP/MT"],
@@ -697,7 +676,7 @@
       {"id": "REC-083", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Globopiso", "contact": "(48) 99610-0095", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 08:33", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       
-      // Histórico Concluído de Meses Anteriores (Para cálculo automático de SLA no Relatório)
+      // Histórico Concluído de Meses Anteriores (Alimenta o relatório gerencial)
       {"id": "REC-081", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "29/10/2026 14:15", "endDate": "31/10/2026 14:15", "durationDays": 2.0, "returnDate": "31/10/2026", "description": "Contestação de evasão de pedágio."},
       {"id": "REC-080", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Outros", "terceiro": "Financeiro", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7, "returnDate": "01/11/2026", "description": "Envio de comprovante de repasse."},
       {"id": "REC-079", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "dafRede": "DAF FORNECEDORA", "dafMunicipio": "TERESINA/PI", "status": "Concluído", "startDate": "27/10/2026 16:00", "endDate": "30/10/2026 16:00", "durationDays": 3.0, "returnDate": "30/10/2026", "description": "Aguardando conclusão do chamado (TI) para layout."},
@@ -708,7 +687,6 @@
       {"id": "REC-001", "mes": "09-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Menezes", "contact": "(65) 99259-7532", "solicitacao": "Logistica", "terceiro": "Cadastro", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "31/08/2026 18:25", "endDate": "01/09/2026 11:43", "durationDays": 0.7, "returnDate": "01/09/2026", "description": "Não recebimento do cartão de frota."}
     ];
 
-    // Carrega dados salvos ou inicializa
     function loadTickets() {
       try {
         var data = localStorage.getItem(STORAGE_KEY);
@@ -719,9 +697,9 @@
           }
         }
       } catch(e) {
-        console.warn("Storage bloqueado ou indisponível:", e);
+        console.warn("Storage inacessível:", e);
       }
-      return [...RAW_INITIAL_RECORDS];
+      return RAW_INITIAL_RECORDS.slice();
     }
 
     function persistTickets() {
@@ -733,18 +711,16 @@
     }
 
     function restoreInitialData() {
-      if (confirm("Deseja realmente restaurar as demandas originais da planilha? As alterações feitas serão substituídas.")) {
-        allTickets = [...RAW_INITIAL_RECORDS];
+      if (confirm("Deseja restaurar os dados originais? As demandas adicionadas recentemente serão removidas.")) {
+        allTickets = RAW_INITIAL_RECORDS.slice();
         persistTickets();
         renderAll();
-        alert("Demandas restauradas com sucesso.");
+        alert("Demandas restauradas para o estado original.");
       }
     }
 
     var allTickets = loadTickets();
-    var activeSelectedTicket = null;
 
-    // Utilitários de Data
     function parseDateBR(str) {
       if (!str) return null;
       if (str.indexOf('/') !== -1) {
@@ -787,7 +763,6 @@
       return { text: "Faltam " + remDays + "d " + (remHours % 24) + "h", "class": "" };
     }
 
-    // Calcula estatísticas de SLA em tempo real
     function calcCurrentSlaStats() {
       var completed = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
       var map = {};
@@ -824,27 +799,6 @@
       if (tab === 'report') renderSlaReport();
     }
 
-    function exportArchivedCSV() {
-      var archived = allTickets.filter(function(t) { return t.status === 'Concluído'; });
-      if (archived.length === 0) {
-        alert("Não existem demandas arquivadas para exportar.");
-        return;
-      }
-      var headers = ['Mês', 'Data Registro', 'Data Conclusão', 'Cliente', 'Produto', 'Serviço', 'Terceiro', 'Casa DAF', 'SLA Final (Dias)', 'Agente'];
-      var rows = [headers.join(';')];
-      archived.forEach(function(t) {
-        rows.push([ t.mes, t.startDate, t.endDate || t.returnDate, '"' + t.client + '"', t.product, t.solicitacao, '"' + t.terceiro + '"', '"' + (t.dafRede || '') + '"', t.durationDays !== null ? t.durationDays : '', t.operator ].join(';'));
-      });
-      var blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-      var a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = "Arquivados_TruckPag.csv";
-      a.click();
-    }
-
-    // =========================================================================
-    // RENDERIZAÇÃO DA FILA (APENAS MÊS 11-2026 E DEMANDAS ABERTAS)
-    // =========================================================================
     function renderAll() {
       var agent = document.getElementById('filterAgentSelect') ? document.getElementById('filterAgentSelect').value : '';
       var prod = document.getElementById('filterProductSelect') ? document.getElementById('filterProductSelect').value : '';
@@ -852,7 +806,6 @@
       var st = document.getElementById('filterStatusSelect') ? document.getElementById('filterStatusSelect').value : 'all';
       var search = document.getElementById('searchInput') ? (document.getElementById('searchInput').value || '').toLowerCase().trim() : '';
 
-      // Filtra estritamente o mês 11 na tela principal
       var baseFila = allTickets.filter(function(t) {
         return t.mes === "11-2026";
       });
@@ -925,9 +878,12 @@
           '<td style="color:#0284C7; font-weight:600;">' + r.terceiro + '</td>' +
           '<td><span class="status-badge ' + badgeClass + '">' + r.status + '</span></td>' +
           '<td>' + slaCellHtml + '</td>' +
-          '<td style="color:var(--text-muted);">👤 ' + r.operator + '</td>';
+          '<td style="color:var(--text-muted);">' + r.operator + '</td>';
         tbody.appendChild(tr);
       });
+
+      var totalElem = document.getElementById('totalTicketsCount');
+      if (totalElem) totalElem.innerText = baseFila.length;
     }
 
     function renderProductCardsColumn(containerId, list, prodClass) {
@@ -969,9 +925,6 @@
       });
     }
 
-    // =========================================================================
-    // DRAWER LATERAL & CONTATOS
-    // =========================================================================
     function openDrawer(ticket) {
       activeSelectedTicket = ticket;
 
@@ -1077,15 +1030,12 @@
         return t;
       });
 
-      persistTickets();
+      persistTickets(); // Salva alteração de conclusão no storage
       var updated = allTickets.find(function(x) { return x.id === activeSelectedTicket.id; });
       openDrawer(updated);
       renderAll();
     }
 
-    // =========================================================================
-    // MODAL DE CADASTRO
-    // =========================================================================
     function openNewModal() {
       document.getElementById('newDemandForm').reset();
       document.getElementById('modalFeedbackText').innerText = '';
@@ -1155,9 +1105,11 @@
     function onModalServiceChange() {
       var serv = document.getElementById('modalServiceSelect').value;
       var bitrixGroup = document.getElementById('modalBitrixGroup');
+      var terceiroSel = document.getElementById('modalTerceiroSelect');
 
       if (serv === 'Chamado T.I') {
         bitrixGroup.style.display = 'block';
+        terceiroSel.value = 'T.I';
       } else {
         bitrixGroup.style.display = 'none';
       }
@@ -1210,7 +1162,7 @@
 
       var newRec = {
         id: "REC-" + (allTickets.length + 1 > 99 ? '' : '0') + (allTickets.length + 1),
-        mes: "11-2026", // Sempre registrado no mês corrente
+        mes: "11-2026",
         operator: f.operator.value,
         product: prod,
         client: f.client.value,
@@ -1229,7 +1181,7 @@
       };
 
       allTickets.unshift(newRec);
-      persistTickets(); // SALVA AUTOMATICAMENTE NO LOCALSTORAGE
+      persistTickets(); // Salva a nova demanda permanentemente
       document.getElementById('modalOverlay').style.display = 'none';
       renderAll();
       openDrawer(newRec);
@@ -1300,7 +1252,7 @@
       }
     } catch(e) {}
 
-    // Execução Imediata e Segura
+    // Inicialização direta e segura
     renderAll();
   </script>
 </body>
