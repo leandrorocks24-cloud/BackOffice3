@@ -3,13 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TruckPag Backoffice • Fila de Demandas & SLA</title>
-  <!-- Apenas Chart.js para os gráficos, zero React/Babel -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>TruckPag Backoffice • Gestão de Demandas & SLA</title>
   <style>
-    /* ==========================================================================
-       DESIGN SYSTEM • CORPORATIVO MINIMALISTA
-       ========================================================================== */
     :root {
       --tp-green: #008744;
       --tp-green-accent: #00A859;
@@ -69,7 +64,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg-app); color: var(--text-main); font-size: 12.5px; line-height: 1.45; overflow-x: hidden; }
 
-    /* Topbar */
     .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); }
     .brand-section { display: flex; align-items: center; gap: 10px; }
     .brand-badge { width: 30px; height: 30px; background: linear-gradient(135deg, var(--tp-green), var(--tp-green-accent)); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px; }
@@ -87,10 +81,8 @@
     .btn-action.archive-all { background: #FEF3C7; color: #92400E; border-color: #FDE68A; font-weight: 700; }
     .btn-action.archive-all:hover { background: #FDE68A; }
 
-    /* Layout Principal */
     .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
 
-    /* BLOCOS EM ANDAMENTO */
     .in-progress-section { margin-bottom: 20px; }
     .section-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .section-title-bar h2 { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
@@ -114,7 +106,6 @@
     .btn-card-archive { background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-main); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
     .btn-card-archive:hover { background: #DCFCE7; color: #166534; border-color: #A7F3D0; }
 
-    /* FILTROS */
     .filter-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--card-shadow); }
     .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
     .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -126,7 +117,6 @@
     .pill-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; }
     .pill-btn.active { background: var(--bg-surface); color: var(--tp-green); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 
-    /* TABELA */
     .table-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
     table.dense-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     table.dense-table thead tr { background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
@@ -141,7 +131,6 @@
     .st-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
     .st-cancel { background: var(--badge-cancel-bg); color: var(--badge-cancel-text); }
 
-    /* RELATÓRIO SLA */
     .sla-report-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
     .sla-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: var(--card-shadow); }
     .sla-card.col-12 { grid-column: span 12; }
@@ -164,7 +153,6 @@
     .exec-table th { background: var(--bg-subtle); padding: 8px 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border); }
     .exec-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
 
-    /* DRAWER LATERAL */
     .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(1.5px); }
     .drawer-content { width: 450px; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.1); }
     .drawer-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
@@ -192,7 +180,6 @@
 
     .sla-final-highlight { background: var(--tp-green-light); border: 1px solid var(--tp-green-border); color: var(--tp-green); border-radius: 6px; padding: 8px 12px; font-size: 11.5px; font-weight: 700; text-align: center; }
 
-    /* Modal Nova Demanda */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 300; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
     .modal-card { width: 560px; max-width: 95%; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); overflow: hidden; }
     .modal-head { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
@@ -224,7 +211,6 @@
     </nav>
 
     <div class="topbar-actions">
-      <!-- BOTÃO PARA ARQUIVAR TODAS EM ABERTO -->
       <button class="btn-action archive-all" onclick="archiveAllOpenTickets()" title="Concluir e arquivar todas as demandas que estão atualmente em andamento">
         📁 Arquivar Todas em Aberto
       </button>
@@ -255,16 +241,13 @@
             Clique no card para ver histórico ou arquivar individualmente
           </span>
         </div>
-        <div class="cards-scroll-grid" id="inProgressCardsGrid">
-          <!-- Renderizado via JS -->
-        </div>
+        <div class="cards-scroll-grid" id="inProgressCardsGrid"></div>
       </section>
 
       <!-- FILTROS AVANÇADOS -->
       <div class="filter-panel">
         <div class="filter-row">
           <div class="filter-items">
-            <!-- Mês -->
             <div class="filter-pills">
               <button class="pill-btn active" data-month="" onclick="setMonthFilter('', this)">Todos</button>
               <button class="pill-btn" data-month="11-2026" onclick="setMonthFilter('11-2026', this)">11-2026 (Vigente)</button>
@@ -299,7 +282,6 @@
               <option value="Orçamento">Orçamento</option>
             </select>
 
-            <!-- Status (Em andamento, Concluído, Cancelado) -->
             <select class="input-compact" id="filterStatusSelect" onchange="renderAll()">
               <option value="all">⚡ Status: Todos</option>
               <option value="Em andamento">Em andamento</option>
@@ -328,9 +310,7 @@
               <th>Agente</th>
             </tr>
           </thead>
-          <tbody id="recordsTableBody">
-            <!-- Renderizado via JS -->
-          </tbody>
+          <tbody id="recordsTableBody"></tbody>
         </table>
       </div>
 
@@ -418,7 +398,7 @@
 
       <div class="drawer-body">
         
-        <!-- CARTÃO EM DESTAQUE ESPECIAL DO TELEFONE PARA RETORNO DO CONTATO/PARECER -->
+        <!-- CARTÃO DO TELEFONE PARA RETORNO DO CONTATO/PARECER -->
         <div class="contact-hero-card">
           <div class="contact-hero-title">
             <span>📞 Telefone Informado para Devolução / Parecer</span>
@@ -566,7 +546,6 @@
           </select>
         </div>
 
-        <!-- TERCEIRO / SETOR: SELEÇÃO PADRONIZADA COM AS 5 OPÇÕES EXATAS -->
         <div class="form-col-full">
           <label class="field-label">Terceiro / Setor Responsável pelo Parecer *</label>
           <select class="field-select" name="terceiro" id="modalTerceiroSelect" required>
@@ -578,7 +557,7 @@
           </select>
         </div>
 
-        <!-- CASCATA DAF: CASA DAF + MUNICÍPIO DAQUELA CASA -->
+        <!-- CASCATA DAF -->
         <div class="form-col-full" id="modalDafGroup" style="display:none; background:var(--tp-green-light); padding:10px; border-radius:6px; border:1px solid var(--tp-green-border);">
           <div style="font-weight:700; color:var(--tp-green); font-size:11px; margin-bottom:6px;">
             🏢 Concessionária DAF & Município * (Obrigatório para Manutenção)
@@ -599,7 +578,7 @@
           </div>
         </div>
 
-        <!-- REGRA OBRIGATÓRIA: SE CHAMADO T.I, OBRIGAR LINK BITRIX -->
+        <!-- BITRIX -->
         <div class="form-col-full" id="modalBitrixGroup" style="display:none; background:#EEF2FF; padding:8px 10px; border-radius:6px; border:1px solid #C7D2FE;">
           <label class="field-label" style="color:#4338CA;">🔗 Link Card Bitrix * (Obrigatório para Chamado T.I)</label>
           <input class="field-input" type="url" id="modalBitrixInput" name="bitrixLink" placeholder="https://truckpag.bitrix24.com.br/workgroups/..." />
@@ -634,21 +613,20 @@
     </div>
   </div>
 
-  <!-- JAVASCRIPT NATIVO (100% VANILLA • SEM TELA BRANCA) -->
   <script>
     // =========================================================================
-    // DADOS INICIAIS
+    // DADOS HISTÓRICOS & CONFIGURAÇÕES
     // =========================================================================
     const SLA_BENCHMARKS = {
-      'Contestação': { terceiro: 'MoveMais', mean: 16.4, median: 14.1, suggested: 16, count: 24, min: 2.0, max: 46.7 },
-      'API MM': { terceiro: 'MoveMais', mean: 9.1, median: 12.7, suggested: 10, count: 3, min: 1.7, max: 12.9 },
-      'Chamado T.I': { terceiro: 'T.I', mean: 8.0, median: 0.8, suggested: 8, count: 9, min: 0.0, max: 52.0 },
-      'Outros': { terceiro: 'Financeiro', mean: 6.5, median: 4.5, suggested: 7, count: 16, min: 1.1, max: 22.9 },
-      'Pedidos': { terceiro: 'Cadastro', mean: 2.5, median: 2.8, suggested: 3, count: 4, min: 0.0, max: 4.4 },
-      'Logistica': { terceiro: 'Cadastro', mean: 0.7, median: 0.7, suggested: 1, count: 1, min: 0.7, max: 0.7 },
-      'Isenção': { terceiro: 'MoveMais', mean: 41.9, median: 41.9, suggested: 30, count: 1, min: 41.9, max: 41.9 },
-      'Layout XML': { terceiro: 'T.I', mean: 8.5, median: 5.0, suggested: 8, count: 5, min: 0.0, max: 8.1 },
-      'Orçamento': { terceiro: 'Financeiro', mean: 3.5, median: 3.0, suggested: 4, count: 2, min: 1.9, max: 4.4 }
+      'Contestação': { "terceiro": 'MoveMais', "mean": 16.4, "median": 14.1, "suggested": 16, "count": 24, "min": 2.0, "max": 46.7 },
+      'API MM': { "terceiro": 'MoveMais', "mean": 9.1, "median": 12.7, "suggested": 10, "count": 3, "min": 1.7, "max": 12.9 },
+      'Chamado T.I': { "terceiro": 'T.I', "mean": 8.0, "median": 0.8, "suggested": 8, "count": 9, "min": 0.0, "max": 52.0 },
+      'Outros': { "terceiro": 'Financeiro', "mean": 6.5, "median": 4.5, "suggested": 7, "count": 16, "min": 1.1, "max": 22.9 },
+      'Pedidos': { "terceiro": 'Cadastro', "mean": 2.5, "median": 2.8, "suggested": 3, "count": 4, "min": 0.0, "max": 4.4 },
+      'Logistica': { "terceiro": 'Cadastro', "mean": 0.7, "median": 0.7, "suggested": 1, "count": 1, "min": 0.7, "max": 0.7 },
+      'Isenção': { "terceiro": 'MoveMais', "mean": 41.9, "median": 41.9, "suggested": 30, "count": 1, "min": 41.9, "max": 41.9 },
+      'Layout XML': { "terceiro": 'T.I', "mean": 8.5, "median": 5.0, "suggested": 8, "count": 5, "min": 0.0, "max": 8.1 },
+      'Orçamento': { "terceiro": 'Financeiro', "mean": 3.5, "median": 3.0, "suggested": 4, "count": 2, "min": 1.9, "max": 4.4 }
     };
 
     const DAF_CASA_MUNICIPALES = {
@@ -669,7 +647,6 @@
       "DAF VITORIA": ["FEIRA DE SANTANA/BA", "SIMOES FILHO/BA", "VIANA/ES", "VITORIA DA CONQUISTA/BA"]
     };
 
-    // Base de 90 Registros com ordenação (11-2026 no topo)
     const RAW_RECORDS = [
       {"id": "REC-090", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "KNBEI LUCAS", "contact": "(55) 99118-1528", "solicitacao": "Outros", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:28", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Atualização de preço no sistema"},
       {"id": "REC-089", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Rapido Igrejinha", "contact": "(51) 98112-9045", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:02", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Contestação de passagem de pedágio."},
@@ -680,16 +657,17 @@
       {"id": "REC-084", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Andrei, TRANSPORTES WOLSCHICK", "contact": "(45) 9999-2586", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 11:05", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Passagem duplicada em rodovia pedagiada."},
       {"id": "REC-083", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Globopiso", "contact": "(48) 99610-0095", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 08:33", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
-      
-      // Outubro
       {"id": "REC-081", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "29/10/2026 14:15", "endDate": "", "durationDays": null, "returnDate": "14/11/2026", "description": "Contestação de evasão de pedágio."},
-      {"id": "REC-080", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "", "solicitacao": "Outros", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7, "returnDate": "01/11/2026", "description": "Envio de comprovante de repasse."},
+      {"id": "REC-080", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Outros", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7, "returnDate": "01/11/2026", "description": "Envio de comprovante de repasse."},
       {"id": "REC-079", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4079/", "dafRede": "DAF FORNECEDORA", "dafMunicipio": "TERESINA/PI", "status": "Em andamento", "startDate": "27/10/2026 16:00", "endDate": "", "durationDays": null, "returnDate": "12/11/2026", "description": "Aguardando conclusão do chamado (TI) para layout."},
+      {"id": "REC-078", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "KIELING MULTIMODAL", "contact": "(51) 98442-2309", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "26/10/2026 09:30", "endDate": "31/10/2026 16:45", "durationDays": 5.3, "returnDate": "31/10/2026", "description": "Contestação de cancela que não abriu."},
+      {"id": "REC-077", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Carvalima", "contact": "(65) 99912-3001", "solicitacao": "Outros", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "24/10/2026 11:00", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Verificação de contrato ativo."},
+      {"id": "REC-076", "mes": "10-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Savar", "contact": "(51) 99234-8800", "solicitacao": "Contestação", "terceiro": "ConnectCar", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Cancelado", "startDate": "23/10/2026 14:00", "endDate": "30/10/2026 06:40", "durationDays": 6.7, "returnDate": "30/10/2026", "description": "Cliente desistiu da contestação."},
+      {"id": "REC-075", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Profitto", "contact": "(44) 99876-1234", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "21/10/2026 08:00", "endDate": "30/10/2026 08:00", "durationDays": 9.0, "returnDate": "30/10/2026", "description": "Passagem em duplicidade."},
       {"id": "REC-052", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF NOVA Maceio", "contact": "(81) 99867-2785", "solicitacao": "Outros", "terceiro": "T.I", "bitrixLink": "", "dafRede": "DAF NOVA", "dafMunicipio": "MACEIO/AL", "status": "Concluído", "startDate": "07/10/2026 13:57", "endDate": "15/10/2026 17:23", "durationDays": 8.1, "returnDate": "15/10/2026", "description": "Chamado criação de Layout da xml, cliente lançou a nota deu certo."},
-      
-      // Setembro
       {"id": "REC-040", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "lima transportes", "contact": "(85) 99171-4943", "solicitacao": "Outros", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "DAF CAMINHO", "dafMunicipio": "SAO JOSE DO RIO PRETO/SP", "status": "Concluído", "startDate": "16/09/2026 08:30", "endDate": "09/10/2026 06:00", "durationDays": 22.9, "returnDate": "09/10/2026", "description": "Aguardando lançamento da nfs no sistema."},
       {"id": "REC-037", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF Barigui São jose dos Pinhais", "contact": "(41) 3098-8056", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4037/", "dafRede": "DAF BARIGUI", "dafMunicipio": "SAO JOSE DOS PINHAIS/PR", "status": "Concluído", "startDate": "12/09/2026 11:42", "endDate": "12/09/2026 12:33", "durationDays": 0.0, "returnDate": "12/09/2026", "description": "Layout XML - 55 (41) 3098-8056."},
+      {"id": "REC-035", "mes": "09-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Zé pneus", "contact": "(54) 99602-0450", "solicitacao": "API MM", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "12/09/2026 08:35", "endDate": "14/09/2026 00:51", "durationDays": 1.7, "returnDate": "14/09/2026", "description": "Ausência de TAG."},
       {"id": "REC-004", "mes": "09-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "MOINHO CONSOLATA", "contact": "(45) 99970-2362", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "02/09/2026 08:10", "endDate": "19/10/2026 00:00", "durationDays": 46.7, "returnDate": "19/10/2026", "description": "Passagens com registro fora da tag, e-mail em aberto com a move mais."},
       {"id": "REC-001", "mes": "09-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Menezes", "contact": "(65) 99259-7532", "solicitacao": "Logistica", "terceiro": "Cadastro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "31/08/2026 18:25", "endDate": "01/09/2026 11:43", "durationDays": 0.7, "returnDate": "01/09/2026", "description": "Não recebimento do cartão de frota."}
     ];
@@ -698,127 +676,116 @@
     let activeFilterMonth = "";
     let activeSelectedTicket = null;
 
-    // =========================================================================
-    // UTILITÁRIOS (DATAS BR & TIMERS)
-    // =========================================================================
     function parseDateBR(str) {
       if (!str) return null;
-      if (str.includes('/')) {
+      if (str.indexOf('/') !== -1) {
         const parts = str.split(' ');
         const dmy = parts[0].split('/');
         const hm = parts[1] ? parts[1].split(':') : [0, 0];
-        return new Date(dmy[2], dmy[1] - 1, dmy[0], hm[0], hm[1]);
+        return new Date(parseInt(dmy[2]), parseInt(dmy[1]) - 1, parseInt(dmy[0]), parseInt(hm[0]), parseInt(hm[1]));
       }
       return new Date(str);
     }
 
     function getElapsedTime(startDateStr) {
       const start = parseDateBR(startDateStr);
-      if (!start) return '-';
-      const now = new Date(2026, 10, 10, 8, 15); // Data e hora atual: 10/11/2026 08:15
+      if (!start || isNaN(start.getTime())) return '-';
+      const now = new Date(2026, 10, 10, 8, 30);
       const diffMs = Math.max(0, now - start);
       const mins = Math.floor(diffMs / 60000);
       const hours = Math.floor(mins / 60);
       const days = Math.floor(hours / 24);
-      if (days > 0) return `${days}d ${hours % 24}h`;
-      if (hours > 0) return `${hours}h ${mins % 60}m`;
-      return `${mins}m`;
+      if (days > 0) return days + 'd ' + (hours % 24) + 'h';
+      if (hours > 0) return hours + 'h ' + (mins % 60) + 'm';
+      return mins + 'm';
     }
 
     function getRemainingTime(returnDateStr) {
-      if (!returnDateStr) return { text: "Sem Prazo", class: "" };
-      const [dia, mes, ano] = returnDateStr.split('/');
-      const target = new Date(ano, mes - 1, dia, 23, 59);
-      const now = new Date(2026, 10, 10, 8, 15);
+      if (!returnDateStr || returnDateStr.indexOf('/') === -1) return { text: "Sem Prazo", "class": "" };
+      const parts = returnDateStr.split('/');
+      if (parts.length < 3) return { text: "Sem Prazo", "class": "" };
+      const target = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]), 23, 59);
+      const now = new Date(2026, 10, 10, 8, 30);
       const diffMs = target - now;
 
       if (diffMs < 0) {
         const lateDays = Math.ceil(Math.abs(diffMs) / (1000 * 60 * 60 * 24));
-        return { text: `🚨 Atrasado há ${lateDays}d`, class: "late" };
+        return { text: "🚨 Atrasado há " + lateDays + "d", "class": "late" };
       }
       const remHours = Math.floor(diffMs / (1000 * 60 * 60));
       const remDays = Math.floor(remHours / 24);
-      if (remDays === 0) return { text: `⏰ Vence Hoje`, class: "today" };
-      return { text: `Faltam ${remDays}d ${remHours % 24}h`, class: "" };
+      if (remDays === 0) return { text: "⏰ Vence Hoje", "class": "today" };
+      return { text: "Faltam " + remDays + "d " + (remHours % 24) + "h", "class": "" };
     }
 
-    // =========================================================================
-    // NAVEGAÇÃO & FILTROS
-    // =========================================================================
+    // Navegação
     function switchMainTab(tab) {
-      document.getElementById('viewPaneRecords').style.display = tab === 'records' ? 'block' : 'none';
-      document.getElementById('viewPaneReport').style.display = tab === 'report' ? 'block' : 'none';
-
-      document.getElementById('btnTabRecords').className = `tab-btn ${tab === 'records' ? 'active' : ''}`;
-      document.getElementById('btnTabReport').className = `tab-btn ${tab === 'report' ? 'active' : ''}`;
-
+      document.getElementById('viewPaneRecords').style.display = (tab === 'records' ? 'block' : 'none');
+      document.getElementById('viewPaneReport').style.display = (tab === 'report' ? 'block' : 'none');
+      document.getElementById('btnTabRecords').className = 'tab-btn ' + (tab === 'records' ? 'active' : '');
+      document.getElementById('btnTabReport').className = 'tab-btn ' + (tab === 'report' ? 'active' : '');
       if (tab === 'report') renderSlaReport();
     }
 
     function setMonthFilter(month, btn) {
       activeFilterMonth = month;
-      document.querySelectorAll('.filter-pills .pill-btn').forEach(b => b.classList.remove('active'));
+      const pills = document.querySelectorAll('.filter-pills .pill-btn');
+      for (let i = 0; i < pills.length; i++) pills[i].classList.remove('active');
       if (btn) btn.classList.add('active');
 
       const th = document.getElementById('thMonthOrDate');
       if (th) th.innerText = activeFilterMonth ? 'Data de Registro' : 'Mês';
-
       renderAll();
     }
 
-    // =========================================================================
-    // ARQUIVAMENTO & STATUS
-    // =========================================================================
     function archiveAllOpenTickets() {
-      const inProcessCount = allTickets.filter(t => t.status === 'Em andamento').length;
-      if (inProcessCount === 0) {
+      const inProcess = allTickets.filter(function(t) { return t.status === 'Em andamento'; });
+      if (inProcess.length === 0) {
         alert("Não existem demandas 'Em andamento' para arquivar.");
         return;
       }
-      if (!confirm(`Deseja realmente arquivar todas as ${inProcessCount} demandas em andamento?\nTodas receberão o status 'Concluído' com o registro de retorno da data de hoje.`)) return;
+      if (!confirm("Deseja realmente arquivar todas as " + inProcess.length + " demandas em andamento?\nTodas receberão o status 'Concluído' com a data de retorno de hoje.")) return;
 
-      const nowStr = "10/11/2026 08:15";
+      const nowStr = "10/11/2026 08:30";
       const nowEnd = parseDateBR(nowStr);
 
-      allTickets = allTickets.map(t => {
+      allTickets = allTickets.map(function(t) {
         if (t.status === 'Em andamento') {
           const start = parseDateBR(t.startDate);
-          const diffDays = start ? ((nowEnd - start) / (1000 * 60 * 60 * 24)).toFixed(1) : 1.0;
-          return {
-            ...t,
+          const diffDays = start ? ((nowEnd - start) / (1000 * 60 * 60 * 24)).toFixed(1) : "1.0";
+          return Object.assign({}, t, {
             status: "Concluído",
             endDate: nowStr,
             durationDays: parseFloat(diffDays),
             returnDate: nowStr.split(' ')[0]
-          };
+          });
         }
         return t;
       });
 
       renderAll();
-      alert(`Sucesso! ${inProcessCount} demandas foram arquivadas e concluídas.`);
+      alert("Sucesso! " + inProcess.length + " demandas foram arquivadas.");
     }
 
     function archiveSingleTicketFromCard(e, ticketId) {
       e.stopPropagation();
-      const ticket = allTickets.find(t => t.id === ticketId);
+      const ticket = allTickets.find(function(t) { return t.id === ticketId; });
       if (!ticket) return;
-      if (!confirm(`Deseja arquivar e concluir a demanda de ${ticket.client}?`)) return;
+      if (!confirm("Deseja arquivar e concluir a demanda de " + ticket.client + "?")) return;
 
-      const nowStr = "10/11/2026 08:15";
+      const nowStr = "10/11/2026 08:30";
       const start = parseDateBR(ticket.startDate);
       const nowEnd = parseDateBR(nowStr);
-      const diffDays = start ? ((nowEnd - start) / (1000 * 60 * 60 * 24)).toFixed(1) : 1.0;
+      const diffDays = start ? ((nowEnd - start) / (1000 * 60 * 60 * 24)).toFixed(1) : "1.0";
 
-      allTickets = allTickets.map(t => {
+      allTickets = allTickets.map(function(t) {
         if (t.id === ticketId) {
-          return {
-            ...t,
+          return Object.assign({}, t, {
             status: "Concluído",
             endDate: nowStr,
             durationDays: parseFloat(diffDays),
             returnDate: nowStr.split(' ')[0]
-          };
+          });
         }
         return t;
       });
@@ -828,41 +795,39 @@
 
     function completeSelectedTicket() {
       if (!activeSelectedTicket) return;
-      
-      const nowStr = "10/11/2026 08:15";
+      const nowStr = "10/11/2026 08:30";
       const start = parseDateBR(activeSelectedTicket.startDate);
       const end = parseDateBR(nowStr);
-      const diffDays = start ? ((end - start) / (1000 * 60 * 60 * 24)).toFixed(1) : 1.0;
+      const diffDays = start ? ((end - start) / (1000 * 60 * 60 * 24)).toFixed(1) : "1.0";
 
-      allTickets = allTickets.map(t => {
+      allTickets = allTickets.map(function(t) {
         if (t.id === activeSelectedTicket.id) {
-          return {
-            ...t,
+          return Object.assign({}, t, {
             status: "Concluído",
             endDate: nowStr,
             durationDays: parseFloat(diffDays),
             returnDate: nowStr.split(' ')[0]
-          };
+          });
         }
         return t;
       });
 
-      const updated = allTickets.find(x => x.id === activeSelectedTicket.id);
+      const updated = allTickets.find(function(x) { return x.id === activeSelectedTicket.id; });
       openDrawer(updated);
       renderAll();
     }
 
     // =========================================================================
-    // RENDERIZAÇÃO DA TELA INICIAL (KANBAN/TABELA)
+    // RENDERIZAÇÃO PRINCIPAL
     // =========================================================================
     function renderAll() {
       const agent = document.getElementById('filterAgentSelect').value;
       const prod = document.getElementById('filterProductSelect').value;
       const serv = document.getElementById('filterServiceSelect').value;
       const st = document.getElementById('filterStatusSelect').value;
-      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+      const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
 
-      const filtered = allTickets.filter(t => {
+      const filtered = allTickets.filter(function(t) {
         if (activeFilterMonth && t.mes !== activeFilterMonth) return false;
         if (agent && t.operator !== agent) return false;
         if (prod && t.product !== prod) return false;
@@ -870,51 +835,50 @@
         if (st !== 'all' && t.status !== st) return false;
         if (search) {
           const m = (t.client + " " + t.contact + " " + t.solicitacao + " " + t.terceiro + " " + (t.dafRede || "") + " " + (t.description || "")).toLowerCase();
-          if (!m.includes(search)) return false;
+          if (m.indexOf(search) === -1) return false;
         }
         return true;
       });
 
       // Blocos Em Andamento
-      const inProg = filtered.filter(t => t.status === 'Em andamento');
-      document.getElementById('inProgressCountLabel').innerText = `(${inProg.length} em processo com terceiros)`;
+      const inProg = filtered.filter(function(t) { return t.status === 'Em andamento'; });
+      document.getElementById('inProgressCountLabel').innerText = '(' + inProg.length + ' em processo com terceiros)';
 
       const grid = document.getElementById('inProgressCardsGrid');
       grid.innerHTML = '';
 
       if (inProg.length === 0) {
-        grid.innerHTML = `<div style="grid-column:span 3; padding:20px; text-align:center; background:var(--bg-surface); border:1px solid var(--border); border-radius:8px; color:var(--text-muted);">Nenhuma demanda em andamento no filtro selecionado.</div>`;
+        grid.innerHTML = '<div style="grid-column:span 3; padding:20px; text-align:center; background:var(--bg-surface); border:1px solid var(--border); border-radius:8px; color:var(--text-muted);">Nenhuma demanda em andamento no filtro selecionado.</div>';
       } else {
-        inProg.forEach(t => {
+        inProg.forEach(function(t) {
           const rem = getRemainingTime(t.returnDate);
           const elapsed = getElapsedTime(t.startDate);
 
           const card = document.createElement('div');
           card.className = 'progress-card';
-          card.onclick = () => openDrawer(t);
-          card.innerHTML = `
-            <div class="progress-card-top">
-              <span class="card-client" title="${t.client}">${t.client}</span>
-              <span class="card-product-tag">${t.product}</span>
-            </div>
-            <div style="font-size:11.5px; color:var(--text-muted);">
-              <strong>${t.solicitacao}</strong> • <span>⚙️ ${t.terceiro}</span>
-            </div>
-            <div class="timers-box">
-              <div class="timer-item">
-                <span class="timer-label">⏰ Próximo Retorno</span>
-                <span class="timer-val ${rem.class}">${rem.text}</span>
-              </div>
-              <div class="timer-item">
-                <span class="timer-label">⏱️ Total em Processo</span>
-                <span class="timer-val" style="color:var(--tp-green);">${elapsed}</span>
-              </div>
-            </div>
-            <div class="card-footer-row">
-              <span style="font-family:monospace; font-weight:700; color:var(--text-main);">📞 ${t.contact || 'S/ Tel'}</span>
-              <button class="btn-card-archive" onclick="archiveSingleTicketFromCard(event, '${t.id}')">📁 Arquivar</button>
-            </div>
-          `;
+          card.onclick = function() { openDrawer(t); };
+          card.innerHTML = 
+            '<div class="progress-card-top">' +
+              '<span class="card-client" title="' + t.client + '">' + t.client + '</span>' +
+              '<span class="card-product-tag">' + t.product + '</span>' +
+            '</div>' +
+            '<div style="font-size:11.5px; color:var(--text-muted);">' +
+              '<strong>' + t.solicitacao + '</strong> • <span>⚙️ ' + t.terceiro + '</span>' +
+            '</div>' +
+            '<div class="timers-box">' +
+              '<div class="timer-item">' +
+                '<span class="timer-label">⏰ Próximo Retorno</span>' +
+                '<span class="timer-val ' + rem.class + '">' + rem.text + '</span>' +
+              '</div>' +
+              '<div class="timer-item">' +
+                '<span class="timer-label">⏱️ Total em Processo</span>' +
+                '<span class="timer-val" style="color:var(--tp-green);">' + elapsed + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="card-footer-row">' +
+              '<span style="font-family:monospace; font-weight:700; color:var(--text-main);">📞 ' + (t.contact || 'S/ Tel') + '</span>' +
+              '<button class="btn-card-archive" onclick="archiveSingleTicketFromCard(event, \'' + t.id + '\')">📁 Arquivar</button>' +
+            '</div>';
           grid.appendChild(card);
         });
       }
@@ -923,9 +887,9 @@
       const tbody = document.getElementById('recordsTableBody');
       tbody.innerHTML = '';
 
-      filtered.forEach(r => {
-        const isDone = r.status === 'Concluído';
-        const isProcess = r.status === 'Em andamento';
+      filtered.forEach(function(r) {
+        const isDone = (r.status === 'Concluído');
+        const isProcess = (r.status === 'Em andamento');
         const rem = getRemainingTime(r.returnDate);
         const elapsed = getElapsedTime(r.startDate);
 
@@ -933,33 +897,31 @@
         let slaCellHtml = '';
 
         if (isProcess) {
-          slaCellHtml = `
-            <div style="display:flex; gap:6px; align-items:center;">
-              <span style="font-size:10px; color:var(--tp-green); font-weight:700;">⏱️ ${elapsed}</span>
-              <span style="font-size:10px; font-weight:700;" class="${rem.class}">${rem.text}</span>
-            </div>
-          `;
+          slaCellHtml = 
+            '<div style="display:flex; gap:6px; align-items:center;">' +
+              '<span style="font-size:10px; color:var(--tp-green); font-weight:700;">⏱️ ' + elapsed + '</span>' +
+              '<span style="font-size:10px; font-weight:700;" class="' + rem.class + '">' + rem.text + '</span>' +
+            '</div>';
         } else if (isDone) {
-          slaCellHtml = `<span style="font-size:11px; font-weight:700; color:var(--tp-green);">✓ SLA Final: ${r.durationDays !== null ? r.durationDays + 'd' : '-'}</span>`;
+          slaCellHtml = '<span style="font-size:11px; font-weight:700; color:var(--tp-green);">✓ SLA Final: ' + (r.durationDays !== null ? r.durationDays + 'd' : '-') + '</span>';
         } else {
-          slaCellHtml = `<span style="color:var(--text-subtle);">Cancelado</span>`;
+          slaCellHtml = '<span style="color:var(--text-subtle);">Cancelado</span>';
         }
 
         const tr = document.createElement('tr');
-        tr.onclick = () => openDrawer(r);
-        tr.innerHTML = `
-          <td style="font-family:${activeFilterMonth ? 'monospace' : 'inherit'}; font-weight:600;">
-            ${activeFilterMonth ? r.startDate : r.mes}
-          </td>
-          <td style="font-weight:700; color:var(--text-main);">${r.client}</td>
-          <td style="font-family:monospace; font-weight:600; color:var(--tp-green);">${r.contact || '-'}</td>
-          <td>${r.product}</td>
-          <td>${r.solicitacao}</td>
-          <td style="color:#0284C7; font-weight:600;">${r.terceiro}</td>
-          <td><span class="status-badge ${badgeClass}">${r.status}</span></td>
-          <td>${slaCellHtml}</td>
-          <td style="color:var(--text-muted);">👤 ${r.operator}</td>
-        `;
+        tr.onclick = function() { openDrawer(r); };
+        tr.innerHTML = 
+          '<td style="font-family:' + (activeFilterMonth ? 'monospace' : 'inherit') + '; font-weight:600;">' +
+            (activeFilterMonth ? r.startDate : r.mes) +
+          '</td>' +
+          '<td style="font-weight:700; color:var(--text-main);">' + r.client + '</td>' +
+          '<td style="font-family:monospace; font-weight:600; color:var(--tp-green);">' + (r.contact || '-') + '</td>' +
+          '<td>' + r.product + '</td>' +
+          '<td>' + r.solicitacao + '</td>' +
+          '<td style="color:#0284C7; font-weight:600;">' + r.terceiro + '</td>' +
+          '<td><span class="status-badge ' + badgeClass + '">' + r.status + '</span></td>' +
+          '<td>' + slaCellHtml + '</td>' +
+          '<td style="color:var(--text-muted);">👤 ' + r.operator + '</td>';
         tbody.appendChild(tr);
       });
 
@@ -967,16 +929,16 @@
     }
 
     // =========================================================================
-    // DRAWER LATERAL & CONTATO DESTACADO
+    // DRAWER LATERAL & CONTATOS
     // =========================================================================
     function openDrawer(ticket) {
       activeSelectedTicket = ticket;
 
       document.getElementById('drawerClientTitle').innerText = ticket.client;
-      document.getElementById('drawerSubtitle').innerText = `${ticket.product} • ${ticket.solicitacao}`;
+      document.getElementById('drawerSubtitle').innerText = ticket.product + ' • ' + ticket.solicitacao;
       document.getElementById('drawerStatusVal').innerText = ticket.status;
-      document.getElementById('drawerAgentVal').innerText = `👤 ${ticket.operator}`;
-      document.getElementById('drawerThirdVal').innerText = `⚙️ ${ticket.terceiro}`;
+      document.getElementById('drawerAgentVal').innerText = '👤 ' + ticket.operator;
+      document.getElementById('drawerThirdVal').innerText = '⚙️ ' + ticket.terceiro;
       document.getElementById('drawerDescVal').innerText = ticket.description || "Nenhum detalhe adicional relatado no atendimento IP.";
 
       const phoneDisplay = document.getElementById('drawerPhoneDisplay');
@@ -988,9 +950,9 @@
         phoneDisplay.innerText = rawPhone;
         const cleanDigits = rawPhone.replace(/\D/g, '');
         whatsappBtn.style.display = 'inline-flex';
-        whatsappBtn.href = `https://wa.me/55${cleanDigits}`;
+        whatsappBtn.href = 'https://wa.me/55' + cleanDigits;
         callBtn.style.display = 'inline-flex';
-        callBtn.href = `tel:${cleanDigits}`;
+        callBtn.href = 'tel:' + cleanDigits;
       } else {
         phoneDisplay.innerText = "Nenhum telefone informado";
         whatsappBtn.style.display = 'none';
@@ -1000,8 +962,8 @@
       const dafCell = document.getElementById('drawerDafCell');
       if (ticket.dafRede) {
         dafCell.style.display = 'block';
-        const muniText = ticket.dafMunicipio ? ` (${ticket.dafMunicipio})` : '';
-        document.getElementById('drawerDafVal').innerText = `🏢 ${ticket.dafRede}${muniText}`;
+        const muniText = ticket.dafMunicipio ? ' (' + ticket.dafMunicipio + ')' : '';
+        document.getElementById('drawerDafVal').innerText = '🏢 ' + ticket.dafRede + muniText;
       } else {
         dafCell.style.display = 'none';
       }
@@ -1015,11 +977,11 @@
       }
 
       const btnComp = document.getElementById('btnCompleteTicket');
-      btnComp.style.display = ticket.status === 'Em andamento' ? 'block' : 'none';
+      btnComp.style.display = (ticket.status === 'Em andamento' ? 'block' : 'none');
 
       document.getElementById('step1Time').innerText = ticket.startDate;
       document.getElementById('step2Time').innerText = ticket.startDate;
-      document.getElementById('step2Title').innerText = `Acionado ${ticket.terceiro}`;
+      document.getElementById('step2Title').innerText = 'Acionado ' + ticket.terceiro;
       document.getElementById('step2Desc').innerText = ticket.product === 'PEDÁGIO' ? 'Aguardando parecer técnico / laudo de rodovia.' : 'Aguardando validação técnica e retorno do terceiro.';
 
       const step3 = document.getElementById('step3Container');
@@ -1029,9 +991,8 @@
       if (ticket.status === 'Concluído') {
         step3.style.display = 'block';
         document.getElementById('step3Time').innerText = ticket.endDate || ticket.returnDate;
-        
         slaHighlight.style.display = 'block';
-        slaHighlight.innerText = `SLA do atendimento deste card: ${ticket.durationDays !== null ? ticket.durationDays : '3.7'} dias corridos.`;
+        slaHighlight.innerText = 'SLA do atendimento deste card: ' + (ticket.durationDays !== null ? ticket.durationDays : '3.7') + ' dias corridos.';
         clocksBox.style.display = 'none';
       } else {
         step3.style.display = 'none';
@@ -1040,34 +1001,43 @@
 
         const rem = getRemainingTime(ticket.returnDate);
         const elapsed = getElapsedTime(ticket.startDate);
-        document.getElementById('drawerClockRem').innerText = `⏰ Próximo Retorno: ${rem.text}`;
-        document.getElementById('drawerClockElapsed').innerText = `⏱️ Total em processo: ${elapsed}`;
+        document.getElementById('drawerClockRem').innerText = '⏰ ' + rem.text;
+        document.getElementById('drawerClockElapsed').innerText = '⏱️ Total em processo: ' + elapsed;
       }
 
       document.getElementById('drawerOverlay').style.display = 'flex';
     }
 
-    function closeDrawer(e) { if (e.target.id === 'drawerOverlay') closeDrawerDirect(); }
-    function closeDrawerDirect() { document.getElementById('drawerOverlay').style.display = 'none'; activeSelectedTicket = null; }
+    function closeDrawer(e) {
+      if (e.target.id === 'drawerOverlay') closeDrawerDirect();
+    }
+
+    function closeDrawerDirect() {
+      document.getElementById('drawerOverlay').style.display = 'none';
+      activeSelectedTicket = null;
+    }
 
     function copyDrawerPhone() {
-      if (!activeSelectedTicket || !activeSelectedTicket.contact) return alert("Sem telefone para copiar.");
-      navigator.clipboard.writeText(activeSelectedTicket.contact).then(() => {
-        alert(`Número copiado: ${activeSelectedTicket.contact}`);
+      if (!activeSelectedTicket || !activeSelectedTicket.contact) {
+        alert("Sem telefone para copiar.");
+        return;
+      }
+      navigator.clipboard.writeText(activeSelectedTicket.contact).then(function() {
+        alert("Número copiado: " + activeSelectedTicket.contact);
       });
     }
 
     // =========================================================================
-    // MODAL DE NOVA DEMANDA
+    // MODAL
     // =========================================================================
     function openNewModal() {
       document.getElementById('newDemandForm').reset();
       document.getElementById('modalFeedbackText').innerText = '';
       
       const dafSel = document.getElementById('modalDafSelect');
-      dafSel.innerHTML = '<option value="">Selecione a Casa DAF credenciada...</option>';
-      Object.keys(DAF_CASA_MUNICIPALES).forEach(casa => {
-        dafSel.innerHTML += `<option value="${casa}">${casa}</option>`;
+      dafSel.innerHTML = '<option value="">Selecione a Casa DAF...</option>';
+      Object.keys(DAF_CASA_MUNICIPALES).forEach(function(casa) {
+        dafSel.innerHTML += '<option value="' + casa + '">' + casa + '</option>';
       });
 
       onModalProductChange();
@@ -1075,7 +1045,9 @@
     }
 
     function closeModalDirect(e) {
-      if (!e || e.target.id === 'modalOverlay') document.getElementById('modalOverlay').style.display = 'none';
+      if (!e || e.target.id === 'modalOverlay') {
+        document.getElementById('modalOverlay').style.display = 'none';
+      }
     }
 
     function onModalProductChange() {
@@ -1085,36 +1057,34 @@
       const terceiroSel = document.getElementById('modalTerceiroSelect');
 
       if (prod === 'PEDÁGIO') {
-        servSel.innerHTML = `
-          <option value="Contestação">Contestação</option>
-          <option value="API MM">API MM</option>
-          <option value="Chamado T.I">Chamado T.I</option>
-          <option value="Pedidos">Pedidos</option>
-          <option value="Isenção">Isenção</option>
-          <option value="Outros">Outros</option>
-        `;
+        servSel.innerHTML = 
+          '<option value="Contestação">Contestação</option>' +
+          '<option value="API MM">API MM</option>' +
+          '<option value="Chamado T.I">Chamado T.I</option>' +
+          '<option value="Pedidos">Pedidos</option>' +
+          '<option value="Isenção">Isenção</option>' +
+          '<option value="Outros">Outros</option>';
         dafGroup.style.display = 'none';
         terceiroSel.value = 'MoveMais';
       } else if (prod === 'MANUTENÇÃO') {
-        servSel.innerHTML = `
-          <option value="Chamado T.I">Chamado T.I</option>
-          <option value="Layout XML">Layout XML</option>
-          <option value="Pedidos">Pedidos</option>
-          <option value="Orçamento">Orçamento</option>
-          <option value="Outros">Outros</option>
-        `;
+        servSel.innerHTML = 
+          '<option value="Chamado T.I">Chamado T.I</option>' +
+          '<option value="Layout XML">Layout XML</option>' +
+          '<option value="Pedidos">Pedidos</option>' +
+          '<option value="Orçamento">Orçamento</option>' +
+          '<option value="Outros">Outros</option>';
         dafGroup.style.display = 'block';
         terceiroSel.value = 'Financeiro';
       } else {
-        servSel.innerHTML = `
-          <option value="Logistica">Logistica</option>
-          <option value="Chamado T.I">Chamado T.I</option>
-          <option value="Isenção">Isenção</option>
-          <option value="Outros">Outros</option>
-        `;
+        servSel.innerHTML = 
+          '<option value="Logistica">Logistica</option>' +
+          '<option value="Chamado T.I">Chamado T.I</option>' +
+          '<option value="Isenção">Isenção</option>' +
+          '<option value="Outros">Outros</option>';
         dafGroup.style.display = 'none';
         terceiroSel.value = 'Cadastro';
       }
+
       onModalServiceChange();
     }
 
@@ -1122,9 +1092,10 @@
       const casa = document.getElementById('modalDafSelect').value;
       const muniSel = document.getElementById('modalDafMunicipioSelect');
       muniSel.innerHTML = '<option value="">Selecione o Município...</option>';
+
       if (casa && DAF_CASA_MUNICIPALES[casa]) {
-        DAF_CASA_MUNICIPALES[casa].forEach(muni => {
-          muniSel.innerHTML += `<option value="${muni}">${muni}</option>`;
+        DAF_CASA_MUNICIPALES[casa].forEach(function(muni) {
+          muniSel.innerHTML += '<option value="' + muni + '">' + muni + '</option>';
         });
       }
     }
@@ -1148,12 +1119,13 @@
       
       const now = new Date(2026, 10, 10);
       now.setDate(now.getDate() + item.suggested);
+      
       const y = now.getFullYear();
       const m = String(now.getMonth() + 1).padStart(2, '0');
       const d = String(now.getDate()).padStart(2, '0');
 
-      document.getElementById('modalReturnDateInput').value = `${y}-${m}-${d}`;
-      document.getElementById('modalFeedbackText').innerText = `⚡ Retorno calculado para ${d}/${m}/${y} (+${item.suggested} dias úteis via ${item.terceiro}).`;
+      document.getElementById('modalReturnDateInput').value = y + '-' + m + '-' + d;
+      document.getElementById('modalFeedbackText').innerText = '⚡ Retorno calculado para ' + d + '/' + m + '/' + y + ' (+' + item.suggested + ' dias úteis via ' + item.terceiro + ').';
     }
 
     function handleSaveDemandForm(e) {
@@ -1163,14 +1135,22 @@
       const serv = document.getElementById('modalServiceSelect').value;
 
       if (prod === 'MANUTENÇÃO') {
-        if (!f.dafRede.value) return alert("Atenção: Para o produto Manutenção, é OBRIGATÓRIO selecionar a Casa DAF.");
-        if (!f.dafMunicipio.value) return alert("Atenção: É OBRIGATÓRIO selecionar o Município da Casa DAF.");
-      }
-      if (serv === 'Chamado T.I' && !f.bitrixLink.value.trim()) {
-        return alert("Atenção: Para solicitações de Chamado T.I, é OBRIGATÓRIO inserir o Link Card do Bitrix.");
+        if (!f.dafRede.value) {
+          alert("Atenção: Para o produto Manutenção, é OBRIGATÓRIO selecionar a Casa DAF.");
+          return;
+        }
+        if (!f.dafMunicipio.value) {
+          alert("Atenção: É OBRIGATÓRIO selecionar o Município da Casa DAF.");
+          return;
+        }
       }
 
-      const now = new Date(2026, 10, 10, 8, 15);
+      if (serv === 'Chamado T.I' && !f.bitrixLink.value.trim()) {
+        alert("Atenção: Para solicitações de Chamado T.I, é OBRIGATÓRIO inserir o Link Card do Bitrix.");
+        return;
+      }
+
+      const now = new Date(2026, 10, 10, 8, 30);
       const d = String(now.getDate()).padStart(2, '0');
       const m = String(now.getMonth() + 1).padStart(2, '0');
       const y = now.getFullYear();
@@ -1178,12 +1158,12 @@
       const min = String(now.getMinutes()).padStart(2, '0');
 
       const rawReturn = f.returnDate.value;
-      const [rAno, rMes, rDia] = rawReturn ? rawReturn.split('-') : ['', '', ''];
-      const formattedReturn = rawReturn ? `${rDia}/${rMes}/${rAno}` : 'A definir';
+      const parts = rawReturn ? rawReturn.split('-') : [];
+      const formattedReturn = parts.length === 3 ? (parts[2] + '/' + parts[1] + '/' + parts[0]) : 'A definir';
 
       const newRec = {
-        id: `REC-${allTickets.length + 1 > 99 ? '' : '0'}${allTickets.length + 1}`,
-        mes: `${m}-${y}`,
+        id: "REC-" + (allTickets.length + 1 > 99 ? '' : '0') + (allTickets.length + 1),
+        mes: m + '-' + y,
         operator: f.operator.value,
         product: prod,
         client: f.client.value,
@@ -1194,7 +1174,7 @@
         dafRede: prod === 'MANUTENÇÃO' ? f.dafRede.value : "",
         dafMunicipio: prod === 'MANUTENÇÃO' ? f.dafMunicipio.value : "",
         status: "Em andamento",
-        startDate: `${d}/${m}/${y} ${h}:${min}`,
+        startDate: d + '/' + m + '/' + y + ' ' + h + ':' + min,
         endDate: "",
         durationDays: null,
         returnDate: formattedReturn,
@@ -1208,43 +1188,41 @@
     }
 
     // =========================================================================
-    // RELATÓRIO GERENCIAL DE SLA
+    // RELATÓRIO DE SLA
     // =========================================================================
     function renderSlaReport() {
       const container = document.getElementById('chartBarsContainer');
       container.innerHTML = '';
 
-      Object.keys(SLA_BENCHMARKS).forEach(k => {
+      Object.keys(SLA_BENCHMARKS).forEach(function(k) {
         const item = SLA_BENCHMARKS[k];
         const pct = Math.min(100, (item.mean / 45) * 100);
         const barClass = item.mean > 15 ? 'danger' : (item.mean > 7 ? 'warning' : '');
 
         const row = document.createElement('div');
         row.className = 'chart-bar-item';
-        row.innerHTML = `
-          <span class="bar-label" title="${k}">${k}</span>
-          <div class="bar-track">
-            <div class="bar-fill ${barClass}" style="width: ${pct}%"></div>
-          </div>
-          <span class="bar-value">${item.mean} d</span>
-        `;
+        row.innerHTML = 
+          '<span class="bar-label" title="' + k + '">' + k + '</span>' +
+          '<div class="bar-track">' +
+            '<div class="bar-fill ' + barClass + '" style="width: ' + pct + '%;"></div>' +
+          '</div>' +
+          '<span class="bar-value">' + item.mean + ' d</span>';
         container.appendChild(row);
       });
 
       const tbody = document.getElementById('execTableBody');
       tbody.innerHTML = '';
-      Object.keys(SLA_BENCHMARKS).forEach(sol => {
+      Object.keys(SLA_BENCHMARKS).forEach(function(sol) {
         const r = SLA_BENCHMARKS[sol];
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td style="font-weight:700;">${sol}</td>
-          <td style="color:var(--text-muted);">${r.terceiro}</td>
-          <td>${r.count} chamados</td>
-          <td style="font-weight:700; color:${r.mean > 12 ? '#EF4444' : 'inherit'}">${r.mean} dias</td>
-          <td>${r.median} dias</td>
-          <td style="color:var(--text-subtle);">${r.min}d a ${r.max}d</td>
-          <td style="font-weight:700; color:var(--tp-green);">${r.suggested} dias úteis</td>
-        `;
+        tr.innerHTML = 
+          '<td style="font-weight:700;">' + sol + '</td>' +
+          '<td style="color:var(--text-muted);">' + r.terceiro + '</td>' +
+          '<td>' + r.count + ' chamados</td>' +
+          '<td style="font-weight:700; color:' + (r.mean > 12 ? '#EF4444' : 'inherit') + ';">' + r.mean + ' dias</td>' +
+          '<td>' + r.median + ' dias</td>' +
+          '<td style="color:var(--text-subtle);">' + r.min + 'd a ' + r.max + 'd</td>' +
+          '<td style="font-weight:700; color:var(--tp-green);">' + r.suggested + ' dias úteis</td>';
         tbody.appendChild(tr);
       });
     }
@@ -1256,16 +1234,17 @@
       document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
     }
 
-    const savedTheme = localStorage.getItem('tp_theme_clean') || 'light';
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark-theme');
-      document.getElementById('themeIcon').innerText = '☀️';
-    } else {
-      document.getElementById('themeIcon').innerText = '🌙';
-    }
-
-    // Init
-    renderAll();
+    // Inicialização segura com DOM pronto
+    window.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('tp_theme_clean') || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.getElementById('themeIcon').innerText = '☀️';
+      } else {
+        document.getElementById('themeIcon').innerText = '🌙';
+      }
+      renderAll();
+    });
   </script>
 </body>
 </html>
