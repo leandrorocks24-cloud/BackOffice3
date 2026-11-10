@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TruckPag Backoffice • Gestão de Demandas & SLA</title>
+  <title>TruckPag Backoffice • Fila de Demandas & SLA de Terceiros</title>
   <style>
+    /* ==========================================================================
+       DESIGN SYSTEM • CORPORATIVO MINIMALISTA (TRUCKPAG ACCENT)
+       ========================================================================== */
     :root {
       --tp-green: #008744;
       --tp-green-accent: #00A859;
@@ -20,6 +23,11 @@
       --text-main: #0F172A;
       --text-muted: #64748B;
       --text-subtle: #94A3B8;
+
+      /* Cores de Fundo Claras para a Tabela por Status */
+      --row-process-bg: #F0F9FF;
+      --row-done-bg: #F0FDF4;
+      --row-cancel-bg: #F8FAFC;
 
       --badge-process-bg: #E0F2FE;
       --badge-process-text: #0369A1;
@@ -49,6 +57,11 @@
       --text-muted: #94A3B8;
       --text-subtle: #64748B;
 
+      /* Cores de Fundo Escuras para a Tabela por Status */
+      --row-process-bg: #0C2136;
+      --row-done-bg: #0A2618;
+      --row-cancel-bg: #151C26;
+
       --badge-process-bg: #0C4A6E;
       --badge-process-text: #BAE6FD;
       --badge-done-bg: #064E3B;
@@ -64,6 +77,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg-app); color: var(--text-main); font-size: 12.5px; line-height: 1.45; overflow-x: hidden; }
 
+    /* Topbar */
     .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); }
     .brand-section { display: flex; align-items: center; gap: 10px; }
     .brand-badge { width: 30px; height: 30px; background: linear-gradient(135deg, var(--tp-green), var(--tp-green-accent)); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px; }
@@ -78,34 +92,59 @@
     .btn-action { padding: 6px 12px; font-size: 11.5px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .btn-action.primary { background: var(--tp-green); color: #fff; border: none; font-weight: 700; }
     .btn-action.primary:hover { opacity: 0.92; }
-    .btn-action.archive-all { background: #FEF3C7; color: #92400E; border-color: #FDE68A; font-weight: 700; }
-    .btn-action.archive-all:hover { background: #FDE68A; }
+    .btn-action.export-archived { background: var(--bg-subtle); color: var(--text-main); font-weight: 700; }
+    .btn-action.export-archived:hover { border-color: var(--tp-green); color: var(--tp-green); }
 
+    /* Layout Principal */
     .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
 
-    .in-progress-section { margin-bottom: 20px; }
-    .section-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    /* ==========================================================================
+       DEMANDAS EM ABERTO: 3 COLUNAS POR PRODUTO (ABASTECIMENTO / PEDÁGIO / MANUTENÇÃO)
+       ========================================================================== */
+    .in-progress-section { margin-bottom: 22px; }
+    .section-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .section-title-bar h2 { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
-    
-    .cards-scroll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 10px; }
-    .progress-card { background: var(--bg-surface); border: 1px solid var(--border); border-left: 3px solid #0284C7; border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--card-shadow); }
-    .progress-card:hover { transform: translateY(-1px); border-color: var(--border-focus); }
-    
-    .progress-card-top { display: flex; justify-content: space-between; align-items: center; }
-    .card-client { font-weight: 700; font-size: 12.5px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-    .card-product-tag { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--bg-subtle); color: var(--text-muted); border: 1px solid var(--border); }
 
-    .timers-box { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg-subtle); border-radius: 6px; padding: 6px 8px; margin-top: 4px; border: 1px solid var(--border); }
+    .product-columns-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 950px) { .product-columns-grid { grid-template-columns: 1fr; } }
+
+    .product-column { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 240px; }
+    
+    .product-column-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border); font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; }
+    .col-count-badge { font-size: 10.5px; padding: 2px 7px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-muted); font-weight: 700; }
+
+    .column-cards-list { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+
+    /* Cards com Tons Limpos por Produto */
+    .progress-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 7px; padding: 11px 13px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--card-shadow); border-left: 3.5px solid transparent; }
+    .progress-card:hover { transform: translateY(-1px); border-color: var(--border-focus); }
+
+    /* Tom específico Pedágio */
+    .progress-card.prod-pedagio { border-left-color: #0284C7; }
+    .progress-card.prod-pedagio .card-tag { background: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD; }
+
+    /* Tom específico Abastecimento */
+    .progress-card.prod-abastecimento { border-left-color: #D97706; }
+    .progress-card.prod-abastecimento .card-tag { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+
+    /* Tom específico Manutenção */
+    .progress-card.prod-manutencao { border-left-color: #008744; }
+    .progress-card.prod-manutencao .card-tag { background: #DCFCE7; color: #166534; border: 1px solid #A7F3D0; }
+
+    .card-top-row { display: flex; justify-content: space-between; align-items: center; }
+    .card-client { font-weight: 700; font-size: 12.5px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+    .card-tag { font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; }
+
+    .timers-box { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg-subtle); border-radius: 6px; padding: 6px 8px; margin-top: 2px; border: 1px solid var(--border); }
     .timer-item { display: flex; flex-direction: column; }
-    .timer-label { font-size: 9.5px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; }
+    .timer-label { font-size: 9px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; }
     .timer-val { font-size: 11px; font-weight: 700; color: var(--text-main); margin-top: 1px; }
     .timer-val.late { color: #DC2626; }
     .timer-val.today { color: #D97706; }
 
-    .card-footer-row { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; color: var(--text-subtle); margin-top: 2px; }
-    .btn-card-archive { background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-main); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
-    .btn-card-archive:hover { background: #DCFCE7; color: #166534; border-color: #A7F3D0; }
-
+    /* ==========================================================================
+       BARRA DE FILTROS AVANÇADOS
+       ========================================================================== */
     .filter-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--card-shadow); }
     .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
     .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -117,20 +156,32 @@
     .pill-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; }
     .pill-btn.active { background: var(--bg-surface); color: var(--tp-green); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 
+    /* ==========================================================================
+       TABELA DE REGISTROS (SEM CONTATO • FUNDOS CLAROS POR STATUS)
+       ========================================================================== */
     .table-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
     table.dense-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     table.dense-table thead tr { background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
     table.dense-table th { padding: 9px 12px; font-weight: 700; color: var(--text-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.3px; }
     table.dense-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     table.dense-table tbody tr { cursor: pointer; transition: background 0.1s; }
-    table.dense-table tbody tr:hover { background: var(--bg-subtle); }
-    table.dense-table tbody tr.selected { background: var(--tp-green-light); }
+
+    /* Fundos Claros Definidos por Status na Tabela */
+    table.dense-table tbody tr.row-status-process { background-color: var(--row-process-bg); }
+    table.dense-table tbody tr.row-status-done { background-color: var(--row-done-bg); }
+    table.dense-table tbody tr.row-status-cancel { background-color: var(--row-cancel-bg); }
+    
+    table.dense-table tbody tr:hover { filter: brightness(0.97); }
+    body.dark-theme table.dense-table tbody tr:hover { filter: brightness(1.1); }
 
     .status-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
     .st-process { background: var(--badge-process-bg); color: var(--badge-process-text); }
     .st-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
     .st-cancel { background: var(--badge-cancel-bg); color: var(--badge-cancel-text); }
 
+    /* ==========================================================================
+       RELATÓRIO GERENCIAL DE SLA (PARA APRESENTAÇÃO À GERÊNCIA)
+       ========================================================================== */
     .sla-report-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
     .sla-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: var(--card-shadow); }
     .sla-card.col-12 { grid-column: span 12; }
@@ -153,16 +204,20 @@
     .exec-table th { background: var(--bg-subtle); padding: 8px 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border); }
     .exec-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
 
+    /* ==========================================================================
+       DRAWER LATERAL • HISTÓRICO & TELEFONE DE CONTATO APENAS AQUI
+       ========================================================================== */
     .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(1.5px); }
     .drawer-content { width: 450px; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.1); }
     .drawer-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
     .drawer-body { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
 
+    /* Cartão de Contato: Exibição Limpa + Apenas Botão Copiar */
     .contact-hero-card { background: var(--tp-green-light); border: 1.5px solid var(--tp-green-border); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
     .contact-hero-title { font-size: 10.5px; font-weight: 800; color: var(--tp-green); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
     .contact-hero-phone { font-size: 17px; font-weight: 800; color: var(--text-main); font-family: monospace; }
-    .contact-hero-actions { display: flex; gap: 6px; margin-top: 4px; }
-    .btn-contact-action { padding: 4px 9px; font-size: 11px; font-weight: 700; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+    .contact-hero-actions { display: flex; gap: 6px; margin-top: 2px; }
+    .btn-contact-action { padding: 5px 10px; font-size: 11px; font-weight: 700; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
     .btn-contact-action:hover { border-color: var(--tp-green); color: var(--tp-green); }
 
     .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11.5px; }
@@ -180,6 +235,7 @@
 
     .sla-final-highlight { background: var(--tp-green-light); border: 1px solid var(--tp-green-border); color: var(--tp-green); border-radius: 6px; padding: 8px 12px; font-size: 11.5px; font-weight: 700; text-align: center; }
 
+    /* Modal Nova Demanda */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 300; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
     .modal-card { width: 560px; max-width: 95%; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); overflow: hidden; }
     .modal-head { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
@@ -211,8 +267,9 @@
     </nav>
 
     <div class="topbar-actions">
-      <button class="btn-action archive-all" onclick="archiveAllOpenTickets()" title="Concluir e arquivar todas as demandas que estão atualmente em andamento">
-        📁 Arquivar Todas em Aberto
+      <!-- EXPORTAÇÃO EXCLUSIVA DE DEMANDAS ARQUIVADAS -->
+      <button class="btn-action export-archived" onclick="exportArchivedCSV()" title="Exportar apenas as demandas arquivadas e concluídas com os SLAs">
+        📤 Exportar Arquivadas
       </button>
       <button class="btn-action primary" onclick="openNewModal()">
         + Nova Demanda
@@ -226,28 +283,57 @@
   <main class="main-wrapper">
     
     <!-- =================================================================
-        TELA 1: FILA & REGISTROS OPERACIONAIS
+        TELA 1: FILA & REGISTROS OPERACIONAIS (TELA PRINCIPAL)
         ================================================================= -->
     <div id="viewPaneRecords">
       
-      <!-- BLOCOS EM ANDAMENTO -->
+      <!-- DEMANDAS EM ABERTO: 3 COLUNAS POR PRODUTO -->
       <section class="in-progress-section">
         <div class="section-title-bar">
           <h2>
-            <span>⚡ Demandas Em Andamento</span>
+            <span>⚡ Demandas Em Aberto por Produto</span>
             <span style="font-size:11px; color:var(--text-muted); font-weight:normal;" id="inProgressCountLabel"></span>
           </h2>
           <span style="font-size:10.5px; color:var(--text-subtle);">
-            Clique no card para ver histórico ou arquivar individualmente
+            Clique no card para abrir os detalhes, telefone e opção de arquivar
           </span>
         </div>
-        <div class="cards-scroll-grid" id="inProgressCardsGrid"></div>
+
+        <div class="product-columns-grid">
+          <!-- Coluna 1: Abastecimento -->
+          <div class="product-column">
+            <div class="product-column-head" style="color:#D97706;">
+              <span>⛽ Abastecimento</span>
+              <span class="col-count-badge" id="countColAbast">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsAbast"></div>
+          </div>
+
+          <!-- Coluna 2: Pedágio -->
+          <div class="product-column">
+            <div class="product-column-head" style="color:#0284C7;">
+              <span>🛣️ Pedágio</span>
+              <span class="col-count-badge" id="countColPed">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsPed"></div>
+          </div>
+
+          <!-- Coluna 3: Manutenção DAF -->
+          <div class="product-column">
+            <div class="product-column-head" style="color:var(--tp-green);">
+              <span>🔧 Manutenção DAF</span>
+              <span class="col-count-badge" id="countColManut">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsManut"></div>
+          </div>
+        </div>
       </section>
 
       <!-- FILTROS AVANÇADOS -->
       <div class="filter-panel">
         <div class="filter-row">
           <div class="filter-items">
+            <!-- Mês -->
             <div class="filter-pills">
               <button class="pill-btn active" data-month="" onclick="setMonthFilter('', this)">Todos</button>
               <button class="pill-btn" data-month="11-2026" onclick="setMonthFilter('11-2026', this)">11-2026 (Vigente)</button>
@@ -282,6 +368,7 @@
               <option value="Orçamento">Orçamento</option>
             </select>
 
+            <!-- Status: 3 únicos status solicitados -->
             <select class="input-compact" id="filterStatusSelect" onchange="renderAll()">
               <option value="all">⚡ Status: Todos</option>
               <option value="Em andamento">Em andamento</option>
@@ -290,18 +377,17 @@
             </select>
           </div>
 
-          <input type="text" class="input-compact" id="searchInput" placeholder="🔍 Buscar cliente, DAF, telefone..." style="width:230px;" onkeyup="renderAll()" />
+          <input type="text" class="input-compact" id="searchInput" placeholder="🔍 Buscar cliente, DAF, protocolo..." style="width:230px;" onkeyup="renderAll()" />
         </div>
       </div>
 
-      <!-- TABELA DE REGISTROS -->
+      <!-- TABELA DE REGISTROS (SEM COLUNA DE CONTATO • FUNDOS CLAROS POR STATUS) -->
       <div class="table-card">
         <table class="dense-table">
           <thead>
             <tr>
               <th id="thMonthOrDate">Mês</th>
               <th>Cliente / Transportadora</th>
-              <th>Telefone / Contato</th>
               <th>Produto</th>
               <th>Serviço</th>
               <th>Terceiro Acionado</th>
@@ -317,7 +403,7 @@
     </div>
 
     <!-- =================================================================
-        TELA 2: RELATÓRIO GERENCIAL DE SLA
+        TELA 2: RELATÓRIO GERENCIAL DE SLA (PARA APRESENTAÇÃO À GERÊNCIA)
         ================================================================= -->
     <div id="viewPaneReport" style="display:none;">
       <div class="sla-report-grid">
@@ -384,7 +470,7 @@
   </main>
 
   <!-- =================================================================
-      DRAWER LATERAL • HISTÓRICO & CARTÃO DE CONTATO
+      DRAWER LATERAL • CONTATO EXCLUSIVO & OPÇÃO DE ARQUIVAR DEMANDA
       ================================================================= -->
   <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
     <div class="drawer-content" onclick="event.stopPropagation()">
@@ -398,7 +484,7 @@
 
       <div class="drawer-body">
         
-        <!-- CARTÃO DO TELEFONE PARA RETORNO DO CONTATO/PARECER -->
+        <!-- CARTÃO DO TELEFONE PARA RETORNO DO CONTATO/PARECER (EXIBIDO APENAS AO ABRIR O CARD) -->
         <div class="contact-hero-card">
           <div class="contact-hero-title">
             <span>📞 Telefone Informado para Devolução / Parecer</span>
@@ -408,8 +494,6 @@
           </div>
           <div class="contact-hero-actions">
             <button class="btn-contact-action" onclick="copyDrawerPhone()">📋 Copiar Número</button>
-            <a class="btn-contact-action" id="drawerWhatsappBtn" href="#" target="_blank" rel="noreferrer">💬 Abrir WhatsApp</a>
-            <a class="btn-contact-action" id="drawerCallBtn" href="#">📞 Ligar</a>
           </div>
         </div>
 
@@ -446,7 +530,7 @@
           </div>
         </div>
 
-        <!-- BOTÃO PARA ARQUIVAR INDIVIDUALMENTE -->
+        <!-- OPÇÃO DE ARQUIVAR SOMENTE AO ABRIR O CARD -->
         <button 
           class="btn-action primary" 
           id="btnCompleteTicket"
@@ -456,7 +540,7 @@
           📁 Arquivar Demanda (Concluir & Registrar Retorno)
         </button>
 
-        <!-- BLOCO HISTÓRICO OPERACIONAL -->
+        <!-- BLOCO HISTÓRICO OPERACIONAL & PARECERES -->
         <div class="pareceres-box">
           <div class="pareceres-header">Histórico Operacional & Pareceres</div>
           
@@ -613,10 +697,8 @@
     </div>
   </div>
 
+  <!-- JAVASCRIPT NATIVO (VANILLA JS • EXECUÇÃO DIRETA) -->
   <script>
-    // =========================================================================
-    // DADOS HISTÓRICOS & CONFIGURAÇÕES
-    // =========================================================================
     const SLA_BENCHMARKS = {
       'Contestação': { "terceiro": 'MoveMais', "mean": 16.4, "median": 14.1, "suggested": 16, "count": 24, "min": 2.0, "max": 46.7 },
       'API MM': { "terceiro": 'MoveMais', "mean": 9.1, "median": 12.7, "suggested": 10, "count": 3, "min": 1.7, "max": 12.9 },
@@ -657,6 +739,8 @@
       {"id": "REC-084", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Andrei, TRANSPORTES WOLSCHICK", "contact": "(45) 9999-2586", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 11:05", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Passagem duplicada em rodovia pedagiada."},
       {"id": "REC-083", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Globopiso", "contact": "(48) 99610-0095", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 08:33", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
+      
+      // Outubro
       {"id": "REC-081", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "29/10/2026 14:15", "endDate": "", "durationDays": null, "returnDate": "14/11/2026", "description": "Contestação de evasão de pedágio."},
       {"id": "REC-080", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Outros", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7, "returnDate": "01/11/2026", "description": "Envio de comprovante de repasse."},
       {"id": "REC-079", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4079/", "dafRede": "DAF FORNECEDORA", "dafMunicipio": "TERESINA/PI", "status": "Em andamento", "startDate": "27/10/2026 16:00", "endDate": "", "durationDays": null, "returnDate": "12/11/2026", "description": "Aguardando conclusão do chamado (TI) para layout."},
@@ -665,6 +749,8 @@
       {"id": "REC-076", "mes": "10-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Savar", "contact": "(51) 99234-8800", "solicitacao": "Contestação", "terceiro": "ConnectCar", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Cancelado", "startDate": "23/10/2026 14:00", "endDate": "30/10/2026 06:40", "durationDays": 6.7, "returnDate": "30/10/2026", "description": "Cliente desistiu da contestação."},
       {"id": "REC-075", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Profitto", "contact": "(44) 99876-1234", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "21/10/2026 08:00", "endDate": "30/10/2026 08:00", "durationDays": 9.0, "returnDate": "30/10/2026", "description": "Passagem em duplicidade."},
       {"id": "REC-052", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF NOVA Maceio", "contact": "(81) 99867-2785", "solicitacao": "Outros", "terceiro": "T.I", "bitrixLink": "", "dafRede": "DAF NOVA", "dafMunicipio": "MACEIO/AL", "status": "Concluído", "startDate": "07/10/2026 13:57", "endDate": "15/10/2026 17:23", "durationDays": 8.1, "returnDate": "15/10/2026", "description": "Chamado criação de Layout da xml, cliente lançou a nota deu certo."},
+
+      // Setembro
       {"id": "REC-040", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "lima transportes", "contact": "(85) 99171-4943", "solicitacao": "Outros", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "DAF CAMINHO", "dafMunicipio": "SAO JOSE DO RIO PRETO/SP", "status": "Concluído", "startDate": "16/09/2026 08:30", "endDate": "09/10/2026 06:00", "durationDays": 22.9, "returnDate": "09/10/2026", "description": "Aguardando lançamento da nfs no sistema."},
       {"id": "REC-037", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF Barigui São jose dos Pinhais", "contact": "(41) 3098-8056", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4037/", "dafRede": "DAF BARIGUI", "dafMunicipio": "SAO JOSE DOS PINHAIS/PR", "status": "Concluído", "startDate": "12/09/2026 11:42", "endDate": "12/09/2026 12:33", "durationDays": 0.0, "returnDate": "12/09/2026", "description": "Layout XML - 55 (41) 3098-8056."},
       {"id": "REC-035", "mes": "09-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Zé pneus", "contact": "(54) 99602-0450", "solicitacao": "API MM", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "12/09/2026 08:35", "endDate": "14/09/2026 00:51", "durationDays": 1.7, "returnDate": "14/09/2026", "description": "Ausência de TAG."},
@@ -718,7 +804,6 @@
       return { text: "Faltam " + remDays + "d " + (remHours % 24) + "h", "class": "" };
     }
 
-    // Navegação
     function switchMainTab(tab) {
       document.getElementById('viewPaneRecords').style.display = (tab === 'records' ? 'block' : 'none');
       document.getElementById('viewPaneReport').style.display = (tab === 'report' ? 'block' : 'none');
@@ -738,61 +823,44 @@
       renderAll();
     }
 
-    function archiveAllOpenTickets() {
-      const inProcess = allTickets.filter(function(t) { return t.status === 'Em andamento'; });
-      if (inProcess.length === 0) {
-        alert("Não existem demandas 'Em andamento' para arquivar.");
+    // =========================================================================
+    // EXPORTAÇÃO EXCLUSIVA DE DEMANDAS ARQUIVADAS
+    // =========================================================================
+    function exportArchivedCSV() {
+      const archived = allTickets.filter(function(t) { return t.status === 'Concluído'; });
+      if (archived.length === 0) {
+        alert("Não existem demandas arquivadas/concluídas para exportar.");
         return;
       }
-      if (!confirm("Deseja realmente arquivar todas as " + inProcess.length + " demandas em andamento?\nTodas receberão o status 'Concluído' com a data de retorno de hoje.")) return;
 
-      const nowStr = "10/11/2026 08:30";
-      const nowEnd = parseDateBR(nowStr);
+      const headers = ['Mês', 'Data Registro', 'Data Retorno/Conclusão', 'Cliente', 'Telefone', 'Produto', 'Serviço', 'Terceiro', 'Casa DAF', 'Município DAF', 'SLA Dias Corridos', 'Agente'];
+      const rows = [headers.join(';')];
 
-      allTickets = allTickets.map(function(t) {
-        if (t.status === 'Em andamento') {
-          const start = parseDateBR(t.startDate);
-          const diffDays = start ? ((nowEnd - start) / (1000 * 60 * 60 * 24)).toFixed(1) : "1.0";
-          return Object.assign({}, t, {
-            status: "Concluído",
-            endDate: nowStr,
-            durationDays: parseFloat(diffDays),
-            returnDate: nowStr.split(' ')[0]
-          });
-        }
-        return t;
+      archived.forEach(function(t) {
+        rows.push([
+          t.mes,
+          t.startDate,
+          t.endDate || t.returnDate,
+          '"' + t.client + '"',
+          '"' + (t.contact || '') + '"',
+          t.product,
+          t.solicitacao,
+          '"' + t.terceiro + '"',
+          '"' + (t.dafRede || '') + '"',
+          '"' + (t.dafMunicipio || '') + '"',
+          t.durationDays !== null ? t.durationDays : '',
+          t.operator
+        ].join(';'));
       });
 
-      renderAll();
-      alert("Sucesso! " + inProcess.length + " demandas foram arquivadas.");
+      const blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Demandas_Arquivadas_TruckPag_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`;
+      a.click();
     }
 
-    function archiveSingleTicketFromCard(e, ticketId) {
-      e.stopPropagation();
-      const ticket = allTickets.find(function(t) { return t.id === ticketId; });
-      if (!ticket) return;
-      if (!confirm("Deseja arquivar e concluir a demanda de " + ticket.client + "?")) return;
-
-      const nowStr = "10/11/2026 08:30";
-      const start = parseDateBR(ticket.startDate);
-      const nowEnd = parseDateBR(nowStr);
-      const diffDays = start ? ((nowEnd - start) / (1000 * 60 * 60 * 24)).toFixed(1) : "1.0";
-
-      allTickets = allTickets.map(function(t) {
-        if (t.id === ticketId) {
-          return Object.assign({}, t, {
-            status: "Concluído",
-            endDate: nowStr,
-            durationDays: parseFloat(diffDays),
-            returnDate: nowStr.split(' ')[0]
-          });
-        }
-        return t;
-      });
-
-      renderAll();
-    }
-
+    // Concluir/Arquivar Demanda selecionada dentro do Drawer
     function completeSelectedTicket() {
       if (!activeSelectedTicket) return;
       const nowStr = "10/11/2026 08:30";
@@ -818,7 +886,7 @@
     }
 
     // =========================================================================
-    // RENDERIZAÇÃO PRINCIPAL
+    // RENDERIZAÇÃO DA TELA INICIAL
     // =========================================================================
     function renderAll() {
       const agent = document.getElementById('filterAgentSelect').value;
@@ -840,50 +908,24 @@
         return true;
       });
 
-      // Blocos Em Andamento
+      // Demandas Em Andamento
       const inProg = filtered.filter(function(t) { return t.status === 'Em andamento'; });
       document.getElementById('inProgressCountLabel').innerText = '(' + inProg.length + ' em processo com terceiros)';
 
-      const grid = document.getElementById('inProgressCardsGrid');
-      grid.innerHTML = '';
+      // Separar por Produto (Abastecimento, Pedágio, Manutenção)
+      const abastTickets = inProg.filter(function(t) { return t.product === 'ABASTECIMENTO'; });
+      const pedTickets = inProg.filter(function(t) { return t.product === 'PEDÁGIO'; });
+      const manutTickets = inProg.filter(function(t) { return t.product === 'MANUTENÇÃO'; });
 
-      if (inProg.length === 0) {
-        grid.innerHTML = '<div style="grid-column:span 3; padding:20px; text-align:center; background:var(--bg-surface); border:1px solid var(--border); border-radius:8px; color:var(--text-muted);">Nenhuma demanda em andamento no filtro selecionado.</div>';
-      } else {
-        inProg.forEach(function(t) {
-          const rem = getRemainingTime(t.returnDate);
-          const elapsed = getElapsedTime(t.startDate);
+      document.getElementById('countColAbast').innerText = abastTickets.length;
+      document.getElementById('countColPed').innerText = pedTickets.length;
+      document.getElementById('countColManut').innerText = manutTickets.length;
 
-          const card = document.createElement('div');
-          card.className = 'progress-card';
-          card.onclick = function() { openDrawer(t); };
-          card.innerHTML = 
-            '<div class="progress-card-top">' +
-              '<span class="card-client" title="' + t.client + '">' + t.client + '</span>' +
-              '<span class="card-product-tag">' + t.product + '</span>' +
-            '</div>' +
-            '<div style="font-size:11.5px; color:var(--text-muted);">' +
-              '<strong>' + t.solicitacao + '</strong> • <span>⚙️ ' + t.terceiro + '</span>' +
-            '</div>' +
-            '<div class="timers-box">' +
-              '<div class="timer-item">' +
-                '<span class="timer-label">⏰ Próximo Retorno</span>' +
-                '<span class="timer-val ' + rem.class + '">' + rem.text + '</span>' +
-              '</div>' +
-              '<div class="timer-item">' +
-                '<span class="timer-label">⏱️ Total em Processo</span>' +
-                '<span class="timer-val" style="color:var(--tp-green);">' + elapsed + '</span>' +
-              '</div>' +
-            '</div>' +
-            '<div class="card-footer-row">' +
-              '<span style="font-family:monospace; font-weight:700; color:var(--text-main);">📞 ' + (t.contact || 'S/ Tel') + '</span>' +
-              '<button class="btn-card-archive" onclick="archiveSingleTicketFromCard(event, \'' + t.id + '\')">📁 Arquivar</button>' +
-            '</div>';
-          grid.appendChild(card);
-        });
-      }
+      renderProductCardsColumn('colCardsAbast', abastTickets, 'prod-abastecimento');
+      renderProductCardsColumn('colCardsPed', pedTickets, 'prod-pedagio');
+      renderProductCardsColumn('colCardsManut', manutTickets, 'prod-manutencao');
 
-      // Tabela de Registros
+      // Tabela de Registros com fundos coloridos por status e SEM coluna de contato
       const tbody = document.getElementById('recordsTableBody');
       tbody.innerHTML = '';
 
@@ -892,6 +934,11 @@
         const isProcess = (r.status === 'Em andamento');
         const rem = getRemainingTime(r.returnDate);
         const elapsed = getElapsedTime(r.startDate);
+
+        // Classe de fundo da linha inteira
+        let rowStatusClass = 'row-status-cancel';
+        if (isProcess) rowStatusClass = 'row-status-process';
+        else if (isDone) rowStatusClass = 'row-status-done';
 
         const badgeClass = isDone ? 'st-done' : (isProcess ? 'st-process' : 'st-cancel');
         let slaCellHtml = '';
@@ -909,17 +956,17 @@
         }
 
         const tr = document.createElement('tr');
+        tr.className = rowStatusClass;
         tr.onclick = function() { openDrawer(r); };
         tr.innerHTML = 
           '<td style="font-family:' + (activeFilterMonth ? 'monospace' : 'inherit') + '; font-weight:600;">' +
             (activeFilterMonth ? r.startDate : r.mes) +
           '</td>' +
           '<td style="font-weight:700; color:var(--text-main);">' + r.client + '</td>' +
-          '<td style="font-family:monospace; font-weight:600; color:var(--tp-green);">' + (r.contact || '-') + '</td>' +
           '<td>' + r.product + '</td>' +
           '<td>' + r.solicitacao + '</td>' +
           '<td style="color:#0284C7; font-weight:600;">' + r.terceiro + '</td>' +
-          '<td><span class="status-badge ' + badgeClass + '">' + r.status + '</span></td>' +
+          '<td><span class="status-badge " + badgeClass + "">' + r.status + '</span></td>' +
           '<td>' + slaCellHtml + '</td>' +
           '<td style="color:var(--text-muted);">👤 ' + r.operator + '</td>';
         tbody.appendChild(tr);
@@ -928,8 +975,51 @@
       document.getElementById('totalTicketsCount').innerText = allTickets.length;
     }
 
+    // Renderizar cartões em cada coluna de produto
+    function renderProductCardsColumn(containerId, list, prodClass) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      if (list.length === 0) {
+        container.innerHTML = '<div style="padding:16px 8px; text-align:center; color:var(--text-subtle); font-size:11px;">Sem demandas ativas</div>';
+        return;
+      }
+
+      list.forEach(function(t) {
+        const rem = getRemainingTime(t.returnDate);
+        const elapsed = getElapsedTime(t.startDate);
+
+        const card = document.createElement('div');
+        card.className = 'progress-card ' + prodClass;
+        card.onclick = function() { openDrawer(t); };
+        card.innerHTML = 
+          '<div class="card-top-row">' +
+            '<span class="card-client" title="' + t.client + '">' + t.client + '</span>' +
+            '<span class="card-tag">' + t.product + '</span>' +
+          '</div>' +
+          '<div style="font-size:11.5px; color:var(--text-muted);">' +
+            '<strong>' + t.solicitacao + '</strong> • <span>⚙️ ' + t.terceiro + '</span>' +
+          '</div>' +
+          '<div class="timers-box">' +
+            '<div class="timer-item">' +
+              '<span class="timer-label">⏰ Próximo Retorno</span>' +
+              '<span class="timer-val ' + rem.class + '">' + rem.text + '</span>' +
+            '</div>' +
+            '<div class="timer-item">' +
+              '<span class="timer-label">⏱️ Total em Processo</span>' +
+              '<span class="timer-val" style="color:var(--tp-green);">' + elapsed + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--text-subtle); margin-top:2px;">' +
+            '<span>👤 ' + t.operator + '</span>' +
+            '<span>Início: ' + t.startDate.split(' ')[0] + '</span>' +
+          '</div>';
+        container.appendChild(card);
+      });
+    }
+
     // =========================================================================
-    // DRAWER LATERAL & CONTATOS
+    // DRAWER LATERAL & CONTATO DESTACADO
     // =========================================================================
     function openDrawer(ticket) {
       activeSelectedTicket = ticket;
@@ -942,21 +1032,11 @@
       document.getElementById('drawerDescVal').innerText = ticket.description || "Nenhum detalhe adicional relatado no atendimento IP.";
 
       const phoneDisplay = document.getElementById('drawerPhoneDisplay');
-      const whatsappBtn = document.getElementById('drawerWhatsappBtn');
-      const callBtn = document.getElementById('drawerCallBtn');
-
       const rawPhone = ticket.contact ? ticket.contact.trim() : "";
       if (rawPhone) {
         phoneDisplay.innerText = rawPhone;
-        const cleanDigits = rawPhone.replace(/\D/g, '');
-        whatsappBtn.style.display = 'inline-flex';
-        whatsappBtn.href = 'https://wa.me/55' + cleanDigits;
-        callBtn.style.display = 'inline-flex';
-        callBtn.href = 'tel:' + cleanDigits;
       } else {
-        phoneDisplay.innerText = "Nenhum telefone informado";
-        whatsappBtn.style.display = 'none';
-        callBtn.style.display = 'none';
+        phoneDisplay.innerText = "Nenhum telefone informado no IP";
       }
 
       const dafCell = document.getElementById('drawerDafCell');
@@ -1019,16 +1099,16 @@
 
     function copyDrawerPhone() {
       if (!activeSelectedTicket || !activeSelectedTicket.contact) {
-        alert("Sem telefone para copiar.");
+        alert("Sem telefone informado.");
         return;
       }
       navigator.clipboard.writeText(activeSelectedTicket.contact).then(function() {
-        alert("Número copiado: " + activeSelectedTicket.contact);
+        alert("Número copiado com sucesso: " + activeSelectedTicket.contact);
       });
     }
 
     // =========================================================================
-    // MODAL
+    // MODAL NOVA DEMANDA
     // =========================================================================
     function openNewModal() {
       document.getElementById('newDemandForm').reset();
@@ -1188,7 +1268,7 @@
     }
 
     // =========================================================================
-    // RELATÓRIO DE SLA
+    // RELATÓRIO GERENCIAL DE SLA
     // =========================================================================
     function renderSlaReport() {
       const container = document.getElementById('chartBarsContainer');
@@ -1227,22 +1307,21 @@
       });
     }
 
-    // Tema
     function toggleTheme() {
       const isDark = document.body.classList.toggle('dark-theme');
       localStorage.setItem('tp_theme_clean', isDark ? 'dark' : 'light');
       document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
     }
 
-    // Inicialização segura com DOM pronto
+    const savedTheme = localStorage.getItem('tp_theme_clean') || 'light';
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+      document.getElementById('themeIcon').innerText = '☀️';
+    } else {
+      document.getElementById('themeIcon').innerText = '🌙';
+    }
+
     window.addEventListener('DOMContentLoaded', function() {
-      const savedTheme = localStorage.getItem('tp_theme_clean') || 'light';
-      if (savedTheme === 'dark') {
-        document.body.classList.add('dark-theme');
-        document.getElementById('themeIcon').innerText = '☀️';
-      } else {
-        document.getElementById('themeIcon').innerText = '🌙';
-      }
       renderAll();
     });
   </script>
