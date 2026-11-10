@@ -101,7 +101,7 @@
 
     .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
 
-    /* FILTROS (POSICIONADOS NO TOPO ACIMA DAS DEMANDAS) */
+    /* FILTROS (POSICIONADOS ACIMA DAS DEMANDAS) */
     .filter-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--card-shadow); }
     .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
     .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -162,9 +162,6 @@
     table.dense-table tbody tr.row-status-done { background-color: var(--row-done-bg); }
     table.dense-table tbody tr:hover { filter: brightness(0.97); }
     body.dark-theme table.dense-table tbody tr:hover { filter: brightness(1.15); }
-
-    .status-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
-    .st-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
 
     .btn-row-delete { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; padding: 3px 8px; font-size: 10px; font-weight: 700; border-radius: 4px; cursor: pointer; }
     .btn-row-delete:hover { background: #FCA5A5; color: #7F1D1D; }
@@ -687,8 +684,8 @@
 
   <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1wsXSNLRwiKqSwj9BFQEO7RYgg6T-N5w_peFTzMiyLDH31NsASLM35bL/exec";
-    const STORAGE_KEY = "truckpag_demandas_persistent_v12";
-    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v12";
+    const STORAGE_KEY = "truckpag_demandas_persistent_v14";
+    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v14";
 
     var DAF_CASA_MUNICIPALES = {
       "DAF ALIS": ["AGUA BOA/MT", "CUIABA/MT", "RONDONOPOLIS/MT", "SINOP/MT"],
@@ -719,7 +716,7 @@
       {"id": "REC-083", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Globopiso", "contact": "(48) 99610-0095", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 08:33", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       
-      // Histórico Concluído (Outubro/Setembro)
+      // Histórico dos meses 10 e 09 (Para cálculo de SLA)
       {"id": "REC-081", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "29/10/2026 14:15", "endDate": "31/10/2026 14:15", "durationDays": 2.0},
       {"id": "REC-080", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Outros", "terceiro": "Financeiro", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7},
       {"id": "REC-079", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "27/10/2026 16:00", "endDate": "30/10/2026 16:00", "durationDays": 3.0},
@@ -752,11 +749,8 @@
 
     function isDeletedTicket(ticket, delList) {
       if (!ticket || !delList || delList.length === 0) return false;
-      var tid = String(ticket.id || ticket['id'] || ticket['ID'] || "").trim();
-      if (tid && delList.indexOf(tid) !== -1) return true;
-      var cli = String(ticket.client || ticket['Cliente'] || "").trim().toLowerCase();
-      if (cli && delList.indexOf(cli) !== -1) return true;
-      return false;
+      var tid = String(ticket.id || ticket['id'] || ticket['ID'] || ticket['Código'] || "").trim();
+      return tid ? (delList.indexOf(tid) !== -1) : false;
     }
 
     function getStoredTickets() {
@@ -786,11 +780,11 @@
 
     function normalizeMes(m) {
       if (!m) return "11-2026";
-      var s = String(m);
-      if (s.indexOf("11") !== -1 && s.indexOf("2026") !== -1) return "11-2026";
-      if (s.indexOf("10") !== -1 && s.indexOf("2026") !== -1) return "10-2026";
-      if (s.indexOf("09") !== -1 && s.indexOf("2026") !== -1) return "09-2026";
-      return s;
+      var s = String(m).trim().toLowerCase();
+      if (s.indexOf("11") !== -1 || s.indexOf("nov") !== -1) return "11-2026";
+      if (s.indexOf("10") !== -1 || s.indexOf("out") !== -1) return "10-2026";
+      if (s.indexOf("09") !== -1 || s.indexOf("9") !== -1 || s.indexOf("set") !== -1) return "09-2026";
+      return "11-2026";
     }
 
     function formatDateDisplay(d) {
@@ -807,10 +801,62 @@
       return s;
     }
 
-    // Sincronização Inteligente com timeout de 8 segundos (Não trava a tela)
+    // Mapeador flexível para compatibilizar dados da planilha (Inglês ou Português)
+    function mapSheetRowToTicket(row) {
+      var tid = String(row.id || row['ID'] || row['Código'] || row['id'] || "").trim();
+      var client = String(row.client || row['Cliente'] || row['cliente'] || "").trim();
+      
+      var prodRaw = String(row.product || row['Produto'] || row['produto'] || "").trim().toUpperCase();
+      var prod = "PEDÁGIO";
+      if (prodRaw.indexOf("ABAST") !== -1) prod = "ABASTECIMENTO";
+      else if (prodRaw.indexOf("MANUT") !== -1) prod = "MANUTENÇÃO";
+      else if (prodRaw.indexOf("PED") !== -1) prod = "PEDÁGIO";
+      else if (prodRaw) prod = prodRaw;
+
+      var stRaw = String(row.status || row['Status'] || row['status'] || "").trim().toLowerCase();
+      var st = "Em andamento";
+      if (stRaw.indexOf("concl") !== -1) st = "Concluído";
+      else if (stRaw.indexOf("canc") !== -1) st = "Cancelado";
+      else st = "Em andamento";
+
+      var sol = String(row.solicitacao || row['Solicitação'] || row['solicitacao'] || "Outros").trim();
+      var terceiro = String(row.terceiro || row['Terceiro'] || row['terceiro'] || "Financeiro").trim();
+      var op = String(row.operator || row['Responsável'] || row['responsavel'] || "Leandro").trim();
+      var contact = String(row.contact || row['Contato'] || row['contato'] || "").trim();
+      var bitrix = String(row.bitrixLink || row['Bitrix'] || row['bitrix'] || "").trim();
+      var dafRede = String(row.dafRede || row['Casa DAF'] || row['dafRede'] || "").trim();
+      var dafMuni = String(row.dafMunicipio || row['Município'] || row['dafMunicipio'] || "").trim();
+      var desc = String(row.description || row['Descrição'] || row['descricao'] || "").trim();
+      var start = String(row.startDate || row['Data de início'] || row['Data de inicio'] || row['startDate'] || "").trim();
+      var end = String(row.endDate || row['Data de término'] || row['Data de termino'] || row['endDate'] || "").trim();
+      var ret = String(row.returnDate || row['Data de Retorno'] || row['returnDate'] || "").trim();
+      var dur = (row.durationDays !== undefined && row.durationDays !== null && row.durationDays !== "") ? parseFloat(row.durationDays) : null;
+      var mes = normalizeMes(row.mes || row['Mês'] || row['Mes'] || start);
+
+      return {
+        id: tid,
+        mes: mes,
+        operator: op,
+        product: prod,
+        client: client,
+        contact: contact,
+        solicitacao: sol,
+        terceiro: terceiro,
+        bitrixLink: bitrix,
+        dafRede: dafRede,
+        dafMunicipio: dafMuni,
+        status: st,
+        startDate: start,
+        endDate: end,
+        durationDays: isNaN(dur) ? null : dur,
+        returnDate: ret,
+        description: desc
+      };
+    }
+
     function syncFromGoogleSheets() {
       var ind = document.getElementById('syncStatusIndicator');
-      if (ind) ind.innerText = "⏳ Conectando Planilha...";
+      if (ind) ind.innerText = "⏳ Conectando...";
 
       var controller = new AbortController();
       var timeoutId = setTimeout(function() { controller.abort(); }, 8000);
@@ -825,16 +871,12 @@
             var delList = getDeletedIds();
             var sheetMap = {};
 
-            var validRows = resp.data.filter(function(row) {
-              return !isDeletedTicket(row, delList);
+            var validRows = resp.data.map(mapSheetRowToTicket).filter(function(t) {
+              return t.id && !isDeletedTicket(t, delList);
             });
 
             validRows.forEach(function(row) {
-              var cleanId = String(row.id || row['id'] || row['ID'] || "").trim();
-              if (cleanId) {
-                row.mes = normalizeMes(row.mes);
-                sheetMap[cleanId] = row;
-              }
+              sheetMap[row.id] = row;
             });
 
             allTickets = allTickets.map(function(t) {
@@ -842,13 +884,9 @@
             });
 
             validRows.forEach(function(row) {
-              var rowId = String(row.id || row['id'] || row['ID'] || "").trim();
-              if (rowId) {
-                var exists = allTickets.some(function(t) { return String(t.id).trim() === rowId; });
-                if (!exists) {
-                  row.mes = normalizeMes(row.mes);
-                  allTickets.unshift(row);
-                }
+              var exists = allTickets.some(function(t) { return String(t.id).trim() === String(row.id).trim(); });
+              if (!exists) {
+                allTickets.unshift(row);
               }
             });
 
@@ -858,20 +896,20 @@
 
             saveStoredTickets();
             if (ind) {
-              ind.innerText = "● Planilha Sincronizada";
+              ind.innerText = "● Conectado";
               ind.classList.add('online');
             }
             renderAll();
           } else {
             if (ind) {
-              ind.innerText = "● Planilha Conectada";
+              ind.innerText = "● Conectado";
               ind.classList.add('online');
             }
           }
         })
         .catch(function(err) {
           clearTimeout(timeoutId);
-          console.warn("Sincronização offline ou lenta:", err);
+          console.warn("Offline ou resposta lenta:", err);
           if (ind) {
             ind.innerText = "● Armazenamento Local";
             ind.classList.remove('online');
@@ -893,12 +931,12 @@
       })
       .then(function() {
         if (ind) {
-          ind.innerText = "● Planilha Sincronizada";
+          ind.innerText = "● Conectado";
           ind.classList.add('online');
         }
       })
       .catch(function(err) {
-        console.warn("Erro no envio à planilha:", err);
+        console.warn("Erro no envio:", err);
         if (ind) ind.innerText = "● Salvo Localmente";
       });
     }
@@ -1031,7 +1069,6 @@
       if (document.getElementById('filterAgentSelect')) document.getElementById('filterAgentSelect').value = '';
       if (document.getElementById('filterProductSelect')) document.getElementById('filterProductSelect').value = '';
       if (document.getElementById('filterServiceSelect')) document.getElementById('filterServiceSelect').value = '';
-      if (document.getElementById('filterStatusSelect')) document.getElementById('filterStatusSelect').value = 'all';
       if (document.getElementById('searchInput')) document.getElementById('searchInput').value = '';
       renderAll();
     }
@@ -1336,19 +1373,20 @@
       renderAll();
     }
 
+    // Exclusão definitiva baseada unicamente no ID único
     function executeDelete(ticket) {
       if (!ticket) return;
+      var targetId = String(ticket.id || "").trim();
+      if (!targetId) return;
 
       var delList = getDeletedIds();
-      var tid = String(ticket.id || "").trim();
-      var tcli = String(ticket.client || "").trim().toLowerCase();
-
-      if (tid && delList.indexOf(tid) === -1) delList.push(tid);
-      if (tcli && delList.indexOf(tcli) === -1) delList.push(tcli);
-      saveDeletedIds(delList);
+      if (delList.indexOf(targetId) === -1) {
+        delList.push(targetId);
+        saveDeletedIds(delList);
+      }
 
       allTickets = allTickets.filter(function(t) {
-        return !isDeletedTicket(t, delList);
+        return String(t.id).trim() !== targetId;
       });
 
       saveStoredTickets();
@@ -1373,16 +1411,17 @@
         return;
       }
       var ticket = allTickets.find(function(t) {
-        return (id && String(t.id).trim() === String(id).trim()) || (client && String(t.client).trim().toLowerCase() === String(client).trim().toLowerCase());
+        return id && String(t.id).trim() === String(id).trim();
       });
       if (ticket) {
         executeDelete(ticket);
-      } else {
+      } else if (id) {
         var delList = getDeletedIds();
-        if (id) delList.push(String(id).trim());
-        if (client) delList.push(String(client).trim().toLowerCase());
-        saveDeletedIds(delList);
-        allTickets = allTickets.filter(function(t) { return !isDeletedTicket(t, delList); });
+        if (delList.indexOf(String(id).trim()) === -1) {
+          delList.push(String(id).trim());
+          saveDeletedIds(delList);
+        }
+        allTickets = allTickets.filter(function(t) { return String(t.id).trim() !== String(id).trim(); });
         saveStoredTickets();
         renderAll();
       }
@@ -1515,8 +1554,11 @@
       var parts = rawReturn ? rawReturn.split('-') : [];
       var formattedReturn = parts.length === 3 ? (parts[2] + '/' + parts[1] + '/' + parts[0]) : 'A definir';
 
+      // Gera ID único baseado no timestamp para nunca colidir com IDs antigos
+      var uniqueId = "REC-" + String(Date.now()).slice(-4) + Math.floor(10 + Math.random() * 90);
+
       var newRec = {
-        id: "REC-" + (allTickets.length + 1 > 99 ? '' : '0') + (allTickets.length + 1),
+        id: uniqueId,
         mes: "11-2026",
         operator: f.operator.value,
         product: prod,
@@ -1548,7 +1590,6 @@
     // RELATÓRIO DE SLA (DINÂMICO E COM SLA POR PRODUTO)
     // =========================================================================
     function renderSlaReport() {
-      // 1. Matriz de SLA por Produto
       var prodStats = calcProductSlaStats();
       var prodTbody = document.getElementById('productSlaTableBody');
       if (prodTbody) {
@@ -1565,7 +1606,6 @@
         });
       }
 
-      // 2. Gráfico Dinâmico de Solicitação
       var container = document.getElementById('chartBarsContainer');
       if (container) {
         container.innerHTML = '';
@@ -1590,7 +1630,6 @@
         });
       }
 
-      // 3. Matriz de Solicitação
       var tbody = document.getElementById('execTableBody');
       if (tbody) {
         tbody.innerHTML = '';
@@ -1630,7 +1669,7 @@
       }
     } catch(e) {}
 
-    // Inicialização direta e imediata (Zero atraso de tela)
+    // Inicialização direta e imediata
     renderAll();
     syncFromGoogleSheets();
   </script>
