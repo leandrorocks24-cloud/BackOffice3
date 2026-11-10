@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TruckPag Backoffice • Gestão de Demandas & SLA de Terceiros</title>
+  <title>TruckPag Backoffice • Fila de Demandas & SLA</title>
+  <!-- Apenas Chart.js para os gráficos, zero React/Babel -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /* ==========================================================================
-       DESIGN SYSTEM • CORPORATIVO MINIMALISTA (TRUCKPAG ACCENT)
+       DESIGN SYSTEM • CORPORATIVO MINIMALISTA
        ========================================================================== */
     :root {
       --tp-green: #008744;
@@ -88,16 +90,13 @@
     /* Layout Principal */
     .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
 
-    /* ==========================================================================
-       SEÇÃO: BLOCOS "EM ANDAMENTO" COM DOIS RELÓGIOS DINÂMICOS
-       ========================================================================== */
+    /* BLOCOS EM ANDAMENTO */
     .in-progress-section { margin-bottom: 20px; }
     .section-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .section-title-bar h2 { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
     
     .cards-scroll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 10px; }
-    
-    .progress-card { background: var(--bg-surface); border: 1px solid var(--border); border-left: 3px solid #0284C7; border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--card-shadow); position: relative; }
+    .progress-card { background: var(--bg-surface); border: 1px solid var(--border); border-left: 3px solid #0284C7; border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--card-shadow); }
     .progress-card:hover { transform: translateY(-1px); border-color: var(--border-focus); }
     
     .progress-card-top { display: flex; justify-content: space-between; align-items: center; }
@@ -115,9 +114,7 @@
     .btn-card-archive { background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-main); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
     .btn-card-archive:hover { background: #DCFCE7; color: #166534; border-color: #A7F3D0; }
 
-    /* ==========================================================================
-       BARRA DE FILTROS AVANÇADOS
-       ========================================================================== */
+    /* FILTROS */
     .filter-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--card-shadow); }
     .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
     .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -129,9 +126,7 @@
     .pill-btn { padding: 4px 10px; font-size: 11px; font-weight: 600; border: none; background: transparent; color: var(--text-muted); border-radius: 4px; cursor: pointer; }
     .pill-btn.active { background: var(--bg-surface); color: var(--tp-green); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 
-    /* ==========================================================================
-       TABELA DE REGISTROS (SEM ID • ALTA DENSIDADE)
-       ========================================================================== */
+    /* TABELA */
     .table-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
     table.dense-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     table.dense-table thead tr { background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
@@ -146,9 +141,7 @@
     .st-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
     .st-cancel { background: var(--badge-cancel-bg); color: var(--badge-cancel-text); }
 
-    /* ==========================================================================
-       RELATÓRIO GERENCIAL DE SLA (PARA APRESENTAÇÃO À GERÊNCIA)
-       ========================================================================== */
+    /* RELATÓRIO SLA */
     .sla-report-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
     .sla-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: var(--card-shadow); }
     .sla-card.col-12 { grid-column: span 12; }
@@ -171,15 +164,12 @@
     .exec-table th { background: var(--bg-subtle); padding: 8px 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border); }
     .exec-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
 
-    /* ==========================================================================
-       DRAWER LATERAL • HISTÓRICO OPERACIONAL E CARTÃO DE CONTATO DESTACADO
-       ========================================================================== */
+    /* DRAWER LATERAL */
     .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(1.5px); }
     .drawer-content { width: 450px; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.1); }
     .drawer-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
     .drawer-body { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* Cartão em Destaque de Contato para Devolução */
     .contact-hero-card { background: var(--tp-green-light); border: 1.5px solid var(--tp-green-border); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
     .contact-hero-title { font-size: 10.5px; font-weight: 800; color: var(--tp-green); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
     .contact-hero-phone { font-size: 17px; font-weight: 800; color: var(--text-main); font-family: monospace; }
@@ -226,10 +216,10 @@
 
     <nav class="nav-tabs">
       <button class="tab-btn active" id="btnTabRecords" onclick="switchMainTab('records')">
-        📑 Fila & Registros Operacionais (<span id="totalTicketsCount">90</span>)
+        📑 Fila & Registros (<span id="totalTicketsCount">90</span>)
       </button>
       <button class="tab-btn" id="btnTabReport" onclick="switchMainTab('report')">
-        📊 Relatório Gerencial de SLA (Terceiros)
+        📊 Relatório Gerencial (SLA)
       </button>
     </nav>
 
@@ -250,60 +240,54 @@
   <main class="main-wrapper">
     
     <!-- =================================================================
-        TELA 1: FILA & REGISTROS OPERACIONAIS (PADRÃO INICIAL)
+        TELA 1: FILA & REGISTROS OPERACIONAIS
         ================================================================= -->
     <div id="viewPaneRecords">
       
-      <!-- BLOCOS "EM ANDAMENTO" COM DOIS RELÓGIOS DINÂMICOS -->
+      <!-- BLOCOS EM ANDAMENTO -->
       <section class="in-progress-section">
         <div class="section-title-bar">
           <h2>
             <span>⚡ Demandas Em Andamento</span>
-            <span style="font-size:11px; color:var(--text-muted); font-weight:normal;" id="inProgressCountLabel">
-              (calculando...)
-            </span>
+            <span style="font-size:11px; color:var(--text-muted); font-weight:normal;" id="inProgressCountLabel"></span>
           </h2>
           <span style="font-size:10.5px; color:var(--text-subtle);">
-            Clique em qualquer card para ver todos os detalhes ou arquivar individualmente
+            Clique no card para ver histórico ou arquivar individualmente
           </span>
         </div>
-
         <div class="cards-scroll-grid" id="inProgressCardsGrid">
-          <!-- Gerado via JavaScript -->
+          <!-- Renderizado via JS -->
         </div>
       </section>
 
-      <!-- PAINEL DE FILTROS AVANÇADOS -->
+      <!-- FILTROS AVANÇADOS -->
       <div class="filter-panel">
         <div class="filter-row">
           <div class="filter-items">
-            <!-- Filtro Mês -->
+            <!-- Mês -->
             <div class="filter-pills">
-              <button class="pill-btn active" data-month="" onclick="setMonthFilter('', this)">Todos (90)</button>
+              <button class="pill-btn active" data-month="" onclick="setMonthFilter('', this)">Todos</button>
               <button class="pill-btn" data-month="11-2026" onclick="setMonthFilter('11-2026', this)">11-2026 (Vigente)</button>
               <button class="pill-btn" data-month="10-2026" onclick="setMonthFilter('10-2026', this)">10-2026</button>
               <button class="pill-btn" data-month="09-2026" onclick="setMonthFilter('09-2026', this)">09-2026</button>
             </div>
 
-            <!-- Filtro Agente -->
             <select class="input-compact" id="filterAgentSelect" onchange="renderAll()">
-              <option value="">👤 Todos os Agentes</option>
+              <option value="">👤 Agente: Todos</option>
               <option value="Leandro">Leandro</option>
               <option value="Mirian">Mirian</option>
               <option value="Isabelli">Isabelli</option>
             </select>
 
-            <!-- Filtro Produto -->
             <select class="input-compact" id="filterProductSelect" onchange="renderAll()">
-              <option value="">🏷️ Todos os Produtos</option>
+              <option value="">🏷️ Produto: Todos</option>
               <option value="PEDÁGIO">Pedágio</option>
               <option value="ABASTECIMENTO">Abastecimento</option>
               <option value="MANUTENÇÃO">Manutenção</option>
             </select>
 
-            <!-- Filtro Serviço -->
             <select class="input-compact" id="filterServiceSelect" onchange="renderAll()">
-              <option value="">📂 Todos os Serviços</option>
+              <option value="">📂 Serviço: Todos</option>
               <option value="Contestação">Contestação</option>
               <option value="Chamado T.I">Chamado T.I</option>
               <option value="Layout XML">Layout XML</option>
@@ -312,9 +296,10 @@
               <option value="Logistica">Logística</option>
               <option value="Isenção">Isenção</option>
               <option value="Outros">Outros</option>
+              <option value="Orçamento">Orçamento</option>
             </select>
 
-            <!-- Filtro Status (Apenas os 3 únicos status solicitados) -->
+            <!-- Status (Em andamento, Concluído, Cancelado) -->
             <select class="input-compact" id="filterStatusSelect" onchange="renderAll()">
               <option value="all">⚡ Status: Todos</option>
               <option value="Em andamento">Em andamento</option>
@@ -323,24 +308,15 @@
             </select>
           </div>
 
-          <!-- Busca Textual -->
-          <input 
-            type="text" 
-            class="input-compact" 
-            id="searchInput" 
-            placeholder="🔍 Buscar cliente, terceiro, DAF, telefone..." 
-            style="width:230px;" 
-            onkeyup="renderAll()"
-          />
+          <input type="text" class="input-compact" id="searchInput" placeholder="🔍 Buscar cliente, DAF, telefone..." style="width:230px;" onkeyup="renderAll()" />
         </div>
       </div>
 
-      <!-- TABELA DE REGISTROS (SEM ID • MÊS VIGENTE PRIMEIRO • COLUNA MÊS/DATA DINÂMICA) -->
+      <!-- TABELA DE REGISTROS -->
       <div class="table-card">
         <table class="dense-table">
           <thead>
             <tr>
-              <!-- Ao selecionar o mês, na coluna mês altera para a data em que a demanda foi registrada -->
               <th id="thMonthOrDate">Mês</th>
               <th>Cliente / Transportadora</th>
               <th>Telefone / Contato</th>
@@ -353,7 +329,7 @@
             </tr>
           </thead>
           <tbody id="recordsTableBody">
-            <!-- Gerado via JavaScript -->
+            <!-- Renderizado via JS -->
           </tbody>
         </table>
       </div>
@@ -361,54 +337,41 @@
     </div>
 
     <!-- =================================================================
-        TELA 2: RELATÓRIO GERENCIAL DE SLA (PARA APRESENTAÇÃO À GERÊNCIA)
+        TELA 2: RELATÓRIO GERENCIAL DE SLA
         ================================================================= -->
     <div id="viewPaneReport" style="display:none;">
       <div class="sla-report-grid">
         
         <div class="sla-card col-6">
           <div class="headline-box">
-            <div class="action-headline">
-              Contestações e Isenções lideram o tempo de retenção externa (>16 dias)
-            </div>
-            <div class="action-sub">
-              Média real de dias em terceiros (MoveMais e Concessionárias de Rodovias)
-            </div>
+            <div class="action-headline">Contestações e Isenções lideram o tempo de retenção externa (>16 dias)</div>
+            <div class="action-sub">Média real de dias em terceiros operacionais (MoveMais e Concessionárias)</div>
           </div>
-
-          <div id="chartBarsContainer">
-            <!-- Gerado dinamicamente -->
-          </div>
+          <div id="chartBarsContainer"></div>
         </div>
 
         <div class="sla-card col-6">
           <div class="headline-box">
-            <div class="action-headline">
-              SLA Interno (TI e Logística) opera em média 50% abaixo de parceiros externos
-            </div>
-            <div class="action-sub">
-              Tempo de resposta por frente de atuação (09 a 11/2026)
-            </div>
+            <div class="action-headline">SLA Interno opera 50% mais rápido que parceiros externos</div>
+            <div class="action-sub">Comparativo de SLA por categoria de atuação (09 a 11/2026)</div>
           </div>
-
-          <div style="display:flex; flexDirection:column; gap:10px; margin-top:14px;">
-            <div style="background:var(--bg-subtle); padding:10px 14px; border-radius:6px; border-left:3px solid #EF4444; margin-bottom:8px;">
+          <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px;">
+            <div style="background:var(--bg-subtle); padding:10px 14px; border-radius:6px; border-left:3px solid #EF4444;">
               <div style="display:flex; justify-content:space-between; font-weight:700;">
                 <span>Parceiros Externos (MoveMais, ConnectCar, Rede DAF)</span>
                 <span style="color:#EF4444;">15,5 dias (Méd.)</span>
               </div>
               <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
-                Dependência de liberação de laudo de praça de pedágio e faturamento de concessionárias.
+                Dependência de laudos e espelhos de concessionárias externas.
               </div>
             </div>
-
             <div style="background:var(--bg-subtle); padding:10px 14px; border-radius:6px; border-left:3px solid var(--tp-green);">
               <div style="display:flex; justify-content:space-between; font-weight:700;">
                 <span>Setores Internos (T.I, Cadastro, Financeiro)</span>
                 <span style="color:var(--tp-green);">7,8 dias (Méd.)</span>
               </div>
               <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
-                Validação de schemas XML, conciliações de tarifas e cadastros na plataforma.
+                Resoluções sistêmicas (XML, API) e operacionais da base.
               </div>
             </div>
           </div>
@@ -416,14 +379,9 @@
 
         <div class="sla-card col-12">
           <div class="headline-box">
-            <div class="action-headline">
-              Matriz Consolidada de SLA por Tipo de Solicitação (Apresentação Gerencial)
-            </div>
-            <div class="action-sub">
-              Parâmetros extraídos da base real para definição e cobrança de prazos com parceiros
-            </div>
+            <div class="action-headline">Matriz Consolidada de SLA por Tipo de Solicitação (Gerencial)</div>
+            <div class="action-sub">Parâmetros extraídos da base real para definição e cobrança de prazos.</div>
           </div>
-
           <table class="exec-table">
             <thead>
               <tr>
@@ -436,9 +394,7 @@
                 <th>Prazo Recomendado ao Cliente</th>
               </tr>
             </thead>
-            <tbody id="execTableBody">
-              <!-- Gerado dinamicamente -->
-            </tbody>
+            <tbody id="execTableBody"></tbody>
           </table>
         </div>
 
@@ -448,7 +404,7 @@
   </main>
 
   <!-- =================================================================
-      DRAWER LATERAL • HISTÓRICO OPERACIONAL & CARTÃO DE CONTATO DESTACADO
+      DRAWER LATERAL • HISTÓRICO & CARTÃO DE CONTATO
       ================================================================= -->
   <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
     <div class="drawer-content" onclick="event.stopPropagation()">
@@ -465,21 +421,15 @@
         <!-- CARTÃO EM DESTAQUE ESPECIAL DO TELEFONE PARA RETORNO DO CONTATO/PARECER -->
         <div class="contact-hero-card">
           <div class="contact-hero-title">
-            <span>📞 Telefone Informado para Devolução do Contato / Parecer</span>
+            <span>📞 Telefone Informado para Devolução / Parecer</span>
           </div>
           <div class="contact-hero-phone" id="drawerPhoneDisplay">
             (00) 00000-0000
           </div>
           <div class="contact-hero-actions">
-            <button class="btn-contact-action" onclick="copyDrawerPhone()">
-              📋 Copiar Número
-            </button>
-            <a class="btn-contact-action" id="drawerWhatsappBtn" href="#" target="_blank" rel="noreferrer">
-              💬 Abrir WhatsApp
-            </a>
-            <a class="btn-contact-action" id="drawerCallBtn" href="#">
-              📞 Ligar
-            </a>
+            <button class="btn-contact-action" onclick="copyDrawerPhone()">📋 Copiar Número</button>
+            <a class="btn-contact-action" id="drawerWhatsappBtn" href="#" target="_blank" rel="noreferrer">💬 Abrir WhatsApp</a>
+            <a class="btn-contact-action" id="drawerCallBtn" href="#">📞 Ligar</a>
           </div>
         </div>
 
@@ -489,7 +439,7 @@
             <div class="detail-cell-val" id="drawerStatusVal">-</div>
           </div>
           <div class="detail-cell">
-            <div class="detail-cell-label">Agente Responsável</div>
+            <div class="detail-cell-label">Agente</div>
             <div class="detail-cell-val" id="drawerAgentVal">👤 -</div>
           </div>
           <div class="detail-cell full">
@@ -509,7 +459,7 @@
             </div>
           </div>
           <div class="detail-cell full">
-            <div class="detail-cell-label">Relato / Ocorrência Registrada no Atendimento IP</div>
+            <div class="detail-cell-label">Relato / Ocorrência Registrada no IP</div>
             <div class="detail-cell-val" style="font-weight:normal; color:var(--text-muted);" id="drawerDescVal">
               -
             </div>
@@ -526,7 +476,7 @@
           📁 Arquivar Demanda (Concluir & Registrar Retorno)
         </button>
 
-        <!-- BLOCO EXATO DO HISTÓRICO OPERACIONAL & PARECERES SOLICITADO -->
+        <!-- BLOCO HISTÓRICO OPERACIONAL -->
         <div class="pareceres-box">
           <div class="pareceres-header">Histórico Operacional & Pareceres</div>
           
@@ -566,7 +516,7 @@
   </div>
 
   <!-- =================================================================
-      MODAL: NOVA DEMANDA (COM CASAS DAF -> MUNICÍPIOS E 5 TERCEIROS)
+      MODAL: NOVA DEMANDA (COM CASAS DAF E CALCULADORA)
       ================================================================= -->
   <div class="modal-overlay" id="modalOverlay" onclick="closeModalDirect(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
@@ -684,9 +634,11 @@
     </div>
   </div>
 
-  <!-- JAVASCRIPT NATIVO (100% VANILLA • SEM BABEL • SEM ERRO DE TELA BRANCA) -->
+  <!-- JAVASCRIPT NATIVO (100% VANILLA • SEM TELA BRANCA) -->
   <script>
-    // SLA Benchmarks calculados sobre a base de 09 a 11/2026
+    // =========================================================================
+    // DADOS INICIAIS
+    // =========================================================================
     const SLA_BENCHMARKS = {
       'Contestação': { terceiro: 'MoveMais', mean: 16.4, median: 14.1, suggested: 16, count: 24, min: 2.0, max: 46.7 },
       'API MM': { terceiro: 'MoveMais', mean: 9.1, median: 12.7, suggested: 10, count: 3, min: 1.7, max: 12.9 },
@@ -699,7 +651,6 @@
       'Orçamento': { terceiro: 'Financeiro', mean: 3.5, median: 3.0, suggested: 4, count: 2, min: 1.9, max: 4.4 }
     };
 
-    // MAPEAMENTO DAS CASAS DAF E SEUS MUNICÍPIOS (EXTRAÍDO DA REDE CREDENCIADA)
     const DAF_CASA_MUNICIPALES = {
       "DAF ALIS": ["AGUA BOA/MT", "CUIABA/MT", "RONDONOPOLIS/MT", "SINOP/MT"],
       "DAF AVANTY": ["BENEVIDES/PA", "MARABA/PA", "PARAGOMINAS/PA"],
@@ -718,7 +669,7 @@
       "DAF VITORIA": ["FEIRA DE SANTANA/BA", "SIMOES FILHO/BA", "VIANA/ES", "VITORIA DA CONQUISTA/BA"]
     };
 
-    // Os 90 registros oficiais com telefone e ordenação do mês vigente (11-2026) primeiro!
+    // Base de 90 Registros com ordenação (11-2026 no topo)
     const RAW_RECORDS = [
       {"id": "REC-090", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "KNBEI LUCAS", "contact": "(55) 99118-1528", "solicitacao": "Outros", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:28", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Atualização de preço no sistema"},
       {"id": "REC-089", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Rapido Igrejinha", "contact": "(51) 98112-9045", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:02", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Contestação de passagem de pedágio."},
@@ -730,29 +681,26 @@
       {"id": "REC-083", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Globopiso", "contact": "(48) 99610-0095", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 08:33", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       
-      // Outubro / 2026
+      // Outubro
       {"id": "REC-081", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "29/10/2026 14:15", "endDate": "", "durationDays": null, "returnDate": "14/11/2026", "description": "Contestação de evasão de pedágio."},
-      {"id": "REC-080", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Outros", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7, "returnDate": "01/11/2026", "description": "Envio de comprovante de repasse."},
+      {"id": "REC-080", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "", "solicitacao": "Outros", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7, "returnDate": "01/11/2026", "description": "Envio de comprovante de repasse."},
       {"id": "REC-079", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4079/", "dafRede": "DAF FORNECEDORA", "dafMunicipio": "TERESINA/PI", "status": "Em andamento", "startDate": "27/10/2026 16:00", "endDate": "", "durationDays": null, "returnDate": "12/11/2026", "description": "Aguardando conclusão do chamado (TI) para layout."},
-      {"id": "REC-078", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "KIELING MULTIMODAL", "contact": "(51) 98442-2309", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "26/10/2026 09:30", "endDate": "31/10/2026 16:45", "durationDays": 5.3, "returnDate": "31/10/2026", "description": "Contestação de cancela que não abriu."},
-      {"id": "REC-077", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Carvalima", "contact": "(65) 99912-3001", "solicitacao": "Outros", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "24/10/2026 11:00", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Verificação de contrato ativo."},
-      {"id": "REC-076", "mes": "10-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Savar", "contact": "(51) 99234-8800", "solicitacao": "Contestação", "terceiro": "ConnectCar", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Cancelado", "startDate": "23/10/2026 14:00", "endDate": "30/10/2026 06:40", "durationDays": 6.7, "returnDate": "30/10/2026", "description": "Cliente desistiu da contestação."},
-      {"id": "REC-075", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Profitto", "contact": "(44) 99876-1234", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "21/10/2026 08:00", "endDate": "30/10/2026 08:00", "durationDays": 9.0, "returnDate": "30/10/2026", "description": "Passagem em duplicidade."},
       {"id": "REC-052", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF NOVA Maceio", "contact": "(81) 99867-2785", "solicitacao": "Outros", "terceiro": "T.I", "bitrixLink": "", "dafRede": "DAF NOVA", "dafMunicipio": "MACEIO/AL", "status": "Concluído", "startDate": "07/10/2026 13:57", "endDate": "15/10/2026 17:23", "durationDays": 8.1, "returnDate": "15/10/2026", "description": "Chamado criação de Layout da xml, cliente lançou a nota deu certo."},
-
-      // Setembro / 2026
+      
+      // Setembro
       {"id": "REC-040", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "lima transportes", "contact": "(85) 99171-4943", "solicitacao": "Outros", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "DAF CAMINHO", "dafMunicipio": "SAO JOSE DO RIO PRETO/SP", "status": "Concluído", "startDate": "16/09/2026 08:30", "endDate": "09/10/2026 06:00", "durationDays": 22.9, "returnDate": "09/10/2026", "description": "Aguardando lançamento da nfs no sistema."},
-      {"id": "REC-037", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF Barigui São jose dos Pinhais", "contact": "55 (41) 3098-8056", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4037/", "dafRede": "DAF BARIGUI", "dafMunicipio": "SAO JOSE DOS PINHAIS/PR", "status": "Concluído", "startDate": "12/09/2026 11:42", "endDate": "12/09/2026 12:33", "durationDays": 0.0, "returnDate": "12/09/2026", "description": "Layout XML - 55 (41) 3098-8056."},
-      {"id": "REC-035", "mes": "09-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Zé pneus", "contact": "(54) 99602-0450", "solicitacao": "API MM", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "12/09/2026 08:35", "endDate": "14/09/2026 00:51", "durationDays": 1.7, "returnDate": "14/09/2026", "description": "Ausência de TAG."},
+      {"id": "REC-037", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF Barigui São jose dos Pinhais", "contact": "(41) 3098-8056", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4037/", "dafRede": "DAF BARIGUI", "dafMunicipio": "SAO JOSE DOS PINHAIS/PR", "status": "Concluído", "startDate": "12/09/2026 11:42", "endDate": "12/09/2026 12:33", "durationDays": 0.0, "returnDate": "12/09/2026", "description": "Layout XML - 55 (41) 3098-8056."},
       {"id": "REC-004", "mes": "09-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "MOINHO CONSOLATA", "contact": "(45) 99970-2362", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "02/09/2026 08:10", "endDate": "19/10/2026 00:00", "durationDays": 46.7, "returnDate": "19/10/2026", "description": "Passagens com registro fora da tag, e-mail em aberto com a move mais."},
-      {"id": "REC-001", "mes": "09-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Menezes", "contact": "(65) 99259-7532", "solicitacao": "Logistica", "terceiro": "Cadastro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "31/08/2026 18:25", "endDate": "01/09/2026 11:43", "durationDays: 0.7, "returnDate": "01/09/2026", "description": "Não recebimento do cartão de frota."}
+      {"id": "REC-001", "mes": "09-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Menezes", "contact": "(65) 99259-7532", "solicitacao": "Logistica", "terceiro": "Cadastro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "31/08/2026 18:25", "endDate": "01/09/2026 11:43", "durationDays": 0.7, "returnDate": "01/09/2026", "description": "Não recebimento do cartão de frota."}
     ];
 
     let allTickets = [...RAW_RECORDS];
     let activeFilterMonth = "";
     let activeSelectedTicket = null;
 
-    // Utilitário de Data BR
+    // =========================================================================
+    // UTILITÁRIOS (DATAS BR & TIMERS)
+    // =========================================================================
     function parseDateBR(str) {
       if (!str) return null;
       if (str.includes('/')) {
@@ -767,7 +715,7 @@
     function getElapsedTime(startDateStr) {
       const start = parseDateBR(startDateStr);
       if (!start) return '-';
-      const now = new Date(2026, 10, 10, 8, 5); // Data e hora atual do sistema: 10/11/2026
+      const now = new Date(2026, 10, 10, 8, 15); // Data e hora atual: 10/11/2026 08:15
       const diffMs = Math.max(0, now - start);
       const mins = Math.floor(diffMs / 60000);
       const hours = Math.floor(mins / 60);
@@ -781,22 +729,22 @@
       if (!returnDateStr) return { text: "Sem Prazo", class: "" };
       const [dia, mes, ano] = returnDateStr.split('/');
       const target = new Date(ano, mes - 1, dia, 23, 59);
-      const now = new Date(2026, 10, 10, 8, 5);
+      const now = new Date(2026, 10, 10, 8, 15);
       const diffMs = target - now;
 
       if (diffMs < 0) {
         const lateDays = Math.ceil(Math.abs(diffMs) / (1000 * 60 * 60 * 24));
         return { text: `🚨 Atrasado há ${lateDays}d`, class: "late" };
       }
-
       const remHours = Math.floor(diffMs / (1000 * 60 * 60));
       const remDays = Math.floor(remHours / 24);
-
       if (remDays === 0) return { text: `⏰ Vence Hoje`, class: "today" };
       return { text: `Faltam ${remDays}d ${remHours % 24}h`, class: "" };
     }
 
-    // Navegação entre Abas
+    // =========================================================================
+    // NAVEGAÇÃO & FILTROS
+    // =========================================================================
     function switchMainTab(tab) {
       document.getElementById('viewPaneRecords').style.display = tab === 'records' ? 'block' : 'none';
       document.getElementById('viewPaneReport').style.display = tab === 'report' ? 'block' : 'none';
@@ -807,23 +755,19 @@
       if (tab === 'report') renderSlaReport();
     }
 
-    // Filtro Mês
     function setMonthFilter(month, btn) {
       activeFilterMonth = month;
       document.querySelectorAll('.filter-pills .pill-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
 
-      // Ao selecionar o mês, na coluna mês altera para a data em que a demanda foi registrada na plataforma
       const th = document.getElementById('thMonthOrDate');
-      if (th) {
-        th.innerText = activeFilterMonth ? 'Data de Registro' : 'Mês';
-      }
+      if (th) th.innerText = activeFilterMonth ? 'Data de Registro' : 'Mês';
 
       renderAll();
     }
 
     // =========================================================================
-    // ARQUIVAR TODAS AS DEMANDAS EM ABERTO DE UMA SÓ VEZ
+    // ARQUIVAMENTO & STATUS
     // =========================================================================
     function archiveAllOpenTickets() {
       const inProcessCount = allTickets.filter(t => t.status === 'Em andamento').length;
@@ -831,11 +775,9 @@
         alert("Não existem demandas 'Em andamento' para arquivar.");
         return;
       }
+      if (!confirm(`Deseja realmente arquivar todas as ${inProcessCount} demandas em andamento?\nTodas receberão o status 'Concluído' com o registro de retorno da data de hoje.`)) return;
 
-      const confirmAction = confirm(`Deseja realmente arquivar todas as ${inProcessCount} demandas em andamento?\nTodas receberão o status 'Concluído' com o registro de retorno da data de hoje.`);
-      if (!confirmAction) return;
-
-      const nowStr = "10/11/2026 08:05";
+      const nowStr = "10/11/2026 08:15";
       const nowEnd = parseDateBR(nowStr);
 
       allTickets = allTickets.map(t => {
@@ -857,16 +799,13 @@
       alert(`Sucesso! ${inProcessCount} demandas foram arquivadas e concluídas.`);
     }
 
-    // Arquivar uma demanda individualmente a partir do card
     function archiveSingleTicketFromCard(e, ticketId) {
       e.stopPropagation();
       const ticket = allTickets.find(t => t.id === ticketId);
       if (!ticket) return;
+      if (!confirm(`Deseja arquivar e concluir a demanda de ${ticket.client}?`)) return;
 
-      const confirmAction = confirm(`Deseja arquivar e concluir a demanda de ${ticket.client}?`);
-      if (!confirmAction) return;
-
-      const nowStr = "10/11/2026 08:05";
+      const nowStr = "10/11/2026 08:15";
       const start = parseDateBR(ticket.startDate);
       const nowEnd = parseDateBR(nowStr);
       const diffDays = start ? ((nowEnd - start) / (1000 * 60 * 60 * 24)).toFixed(1) : 1.0;
@@ -887,7 +826,35 @@
       renderAll();
     }
 
-    // Renderização Geral
+    function completeSelectedTicket() {
+      if (!activeSelectedTicket) return;
+      
+      const nowStr = "10/11/2026 08:15";
+      const start = parseDateBR(activeSelectedTicket.startDate);
+      const end = parseDateBR(nowStr);
+      const diffDays = start ? ((end - start) / (1000 * 60 * 60 * 24)).toFixed(1) : 1.0;
+
+      allTickets = allTickets.map(t => {
+        if (t.id === activeSelectedTicket.id) {
+          return {
+            ...t,
+            status: "Concluído",
+            endDate: nowStr,
+            durationDays: parseFloat(diffDays),
+            returnDate: nowStr.split(' ')[0]
+          };
+        }
+        return t;
+      });
+
+      const updated = allTickets.find(x => x.id === activeSelectedTicket.id);
+      openDrawer(updated);
+      renderAll();
+    }
+
+    // =========================================================================
+    // RENDERIZAÇÃO DA TELA INICIAL (KANBAN/TABELA)
+    // =========================================================================
     function renderAll() {
       const agent = document.getElementById('filterAgentSelect').value;
       const prod = document.getElementById('filterProductSelect').value;
@@ -901,16 +868,14 @@
         if (prod && t.product !== prod) return false;
         if (serv && t.solicitacao !== serv) return false;
         if (st !== 'all' && t.status !== st) return false;
-
         if (search) {
           const m = (t.client + " " + t.contact + " " + t.solicitacao + " " + t.terceiro + " " + (t.dafRede || "") + " " + (t.description || "")).toLowerCase();
           if (!m.includes(search)) return false;
         }
-
         return true;
       });
 
-      // 1. Atualizar Blocos Em Andamento
+      // Blocos Em Andamento
       const inProg = filtered.filter(t => t.status === 'Em andamento');
       document.getElementById('inProgressCountLabel').innerText = `(${inProg.length} em processo com terceiros)`;
 
@@ -935,7 +900,6 @@
             <div style="font-size:11.5px; color:var(--text-muted);">
               <strong>${t.solicitacao}</strong> • <span>⚙️ ${t.terceiro}</span>
             </div>
-            
             <div class="timers-box">
               <div class="timer-item">
                 <span class="timer-label">⏰ Próximo Retorno</span>
@@ -946,19 +910,16 @@
                 <span class="timer-val" style="color:var(--tp-green);">${elapsed}</span>
               </div>
             </div>
-
             <div class="card-footer-row">
-              <span>📞 ${t.contact || 'Sem tel'}</span>
-              <button class="btn-card-archive" onclick="archiveSingleTicketFromCard(event, '${t.id}')">
-                📁 Arquivar
-              </button>
+              <span style="font-family:monospace; font-weight:700; color:var(--text-main);">📞 ${t.contact || 'S/ Tel'}</span>
+              <button class="btn-card-archive" onclick="archiveSingleTicketFromCard(event, '${t.id}')">📁 Arquivar</button>
             </div>
           `;
           grid.appendChild(card);
         });
       }
 
-      // 2. Tabela de Registros (SEM ID • MÊS VIGENTE PRIMEIRO • COLUNA DINÂMICA)
+      // Tabela de Registros
       const tbody = document.getElementById('recordsTableBody');
       tbody.innerHTML = '';
 
@@ -973,17 +934,13 @@
 
         if (isProcess) {
           slaCellHtml = `
-            <div style="display:flex; gap:6px; alignItems:center;">
+            <div style="display:flex; gap:6px; align-items:center;">
               <span style="font-size:10px; color:var(--tp-green); font-weight:700;">⏱️ ${elapsed}</span>
               <span style="font-size:10px; font-weight:700;" class="${rem.class}">${rem.text}</span>
             </div>
           `;
         } else if (isDone) {
-          slaCellHtml = `
-            <span style="font-size:11px; font-weight:700; color:var(--tp-green);">
-              ✓ SLA Final: ${r.durationDays !== null ? r.durationDays + 'd' : '-'}
-            </span>
-          `;
+          slaCellHtml = `<span style="font-size:11px; font-weight:700; color:var(--tp-green);">✓ SLA Final: ${r.durationDays !== null ? r.durationDays + 'd' : '-'}</span>`;
         } else {
           slaCellHtml = `<span style="color:var(--text-subtle);">Cancelado</span>`;
         }
@@ -1010,7 +967,7 @@
     }
 
     // =========================================================================
-    // DRAWER LATERAL & TELEFONE DE CONTATO EM GRANDE DESTAQUE
+    // DRAWER LATERAL & CONTATO DESTACADO
     // =========================================================================
     function openDrawer(ticket) {
       activeSelectedTicket = ticket;
@@ -1022,7 +979,6 @@
       document.getElementById('drawerThirdVal').innerText = `⚙️ ${ticket.terceiro}`;
       document.getElementById('drawerDescVal').innerText = ticket.description || "Nenhum detalhe adicional relatado no atendimento IP.";
 
-      // TELEFONE DE CONTATO EM GRANDE DESTAQUE
       const phoneDisplay = document.getElementById('drawerPhoneDisplay');
       const whatsappBtn = document.getElementById('drawerWhatsappBtn');
       const callBtn = document.getElementById('drawerCallBtn');
@@ -1036,12 +992,11 @@
         callBtn.style.display = 'inline-flex';
         callBtn.href = `tel:${cleanDigits}`;
       } else {
-        phoneDisplay.innerText = "Nenhum telefone informado no IP";
+        phoneDisplay.innerText = "Nenhum telefone informado";
         whatsappBtn.style.display = 'none';
         callBtn.style.display = 'none';
       }
 
-      // Concessionária DAF & Município
       const dafCell = document.getElementById('drawerDafCell');
       if (ticket.dafRede) {
         dafCell.style.display = 'block';
@@ -1051,7 +1006,6 @@
         dafCell.style.display = 'none';
       }
 
-      // Bitrix
       const bitrixCell = document.getElementById('drawerBitrixCell');
       if (ticket.bitrixLink) {
         bitrixCell.style.display = 'block';
@@ -1060,11 +1014,9 @@
         bitrixCell.style.display = 'none';
       }
 
-      // Botão Arquivar/Concluir Individual
       const btnComp = document.getElementById('btnCompleteTicket');
       btnComp.style.display = ticket.status === 'Em andamento' ? 'block' : 'none';
 
-      // Histórico Operacional
       document.getElementById('step1Time').innerText = ticket.startDate;
       document.getElementById('step2Time').innerText = ticket.startDate;
       document.getElementById('step2Title').innerText = `Acionado ${ticket.terceiro}`;
@@ -1088,23 +1040,15 @@
 
         const rem = getRemainingTime(ticket.returnDate);
         const elapsed = getElapsedTime(ticket.startDate);
-        document.getElementById('drawerClockRem').innerText = `⏰ ${rem.text}`;
+        document.getElementById('drawerClockRem').innerText = `⏰ Próximo Retorno: ${rem.text}`;
         document.getElementById('drawerClockElapsed').innerText = `⏱️ Total em processo: ${elapsed}`;
       }
 
       document.getElementById('drawerOverlay').style.display = 'flex';
     }
 
-    function closeDrawer(e) {
-      if (e.target.id === 'drawerOverlay') {
-        closeDrawerDirect();
-      }
-    }
-
-    function closeDrawerDirect() {
-      document.getElementById('drawerOverlay').style.display = 'none';
-      activeSelectedTicket = null;
-    }
+    function closeDrawer(e) { if (e.target.id === 'drawerOverlay') closeDrawerDirect(); }
+    function closeDrawerDirect() { document.getElementById('drawerOverlay').style.display = 'none'; activeSelectedTicket = null; }
 
     function copyDrawerPhone() {
       if (!activeSelectedTicket || !activeSelectedTicket.contact) return alert("Sem telefone para copiar.");
@@ -1113,42 +1057,15 @@
       });
     }
 
-    function completeSelectedTicket() {
-      if (!activeSelectedTicket) return;
-      
-      const nowStr = "10/11/2026 08:05";
-      const start = parseDateBR(activeSelectedTicket.startDate);
-      const end = parseDateBR(nowStr);
-      const diffDays = start ? ((end - start) / (1000 * 60 * 60 * 24)).toFixed(1) : 1.0;
-
-      allTickets = allTickets.map(t => {
-        if (t.id === activeSelectedTicket.id) {
-          return {
-            ...t,
-            status: "Concluído",
-            endDate: nowStr,
-            durationDays: parseFloat(diffDays),
-            returnDate: nowStr.split(' ')[0]
-          };
-        }
-        return t;
-      });
-
-      const updated = allTickets.find(x => x.id === activeSelectedTicket.id);
-      openDrawer(updated);
-      renderAll();
-    }
-
     // =========================================================================
-    // MODAL DE CADASTRO COM CASCATA DAF E TERCEIROS PADRONIZADOS
+    // MODAL DE NOVA DEMANDA
     // =========================================================================
     function openNewModal() {
       document.getElementById('newDemandForm').reset();
       document.getElementById('modalFeedbackText').innerText = '';
       
-      // Popular Casas DAF
       const dafSel = document.getElementById('modalDafSelect');
-      dafSel.innerHTML = '<option value="">Selecione a Casa DAF...</option>';
+      dafSel.innerHTML = '<option value="">Selecione a Casa DAF credenciada...</option>';
       Object.keys(DAF_CASA_MUNICIPALES).forEach(casa => {
         dafSel.innerHTML += `<option value="${casa}">${casa}</option>`;
       });
@@ -1158,9 +1075,7 @@
     }
 
     function closeModalDirect(e) {
-      if (!e || e.target.id === 'modalOverlay') {
-        document.getElementById('modalOverlay').style.display = 'none';
-      }
+      if (!e || e.target.id === 'modalOverlay') document.getElementById('modalOverlay').style.display = 'none';
     }
 
     function onModalProductChange() {
@@ -1200,15 +1115,12 @@
         dafGroup.style.display = 'none';
         terceiroSel.value = 'Cadastro';
       }
-
       onModalServiceChange();
     }
 
-    // CASCATA DAF: AO SELECIONAR A CASA DAF, POPULA OS MUNICÍPIOS DAQUELA CASA
     function onModalDafCasaChange() {
       const casa = document.getElementById('modalDafSelect').value;
       const muniSel = document.getElementById('modalDafMunicipioSelect');
-
       muniSel.innerHTML = '<option value="">Selecione o Município...</option>';
       if (casa && DAF_CASA_MUNICIPALES[casa]) {
         DAF_CASA_MUNICIPALES[casa].forEach(muni => {
@@ -1236,7 +1148,6 @@
       
       const now = new Date(2026, 10, 10);
       now.setDate(now.getDate() + item.suggested);
-      
       const y = now.getFullYear();
       const m = String(now.getMonth() + 1).padStart(2, '0');
       const d = String(now.getDate()).padStart(2, '0');
@@ -1251,32 +1162,22 @@
       const prod = document.getElementById('modalProductSelect').value;
       const serv = document.getElementById('modalServiceSelect').value;
 
-      // Validação Casa DAF e Município
       if (prod === 'MANUTENÇÃO') {
-        if (!f.dafRede.value) {
-          alert("Atenção: Para o produto Manutenção, é OBRIGATÓRIO selecionar a Casa DAF.");
-          return;
-        }
-        if (!f.dafMunicipio.value) {
-          alert("Atenção: É OBRIGATÓRIO selecionar o Município da Casa DAF.");
-          return;
-        }
+        if (!f.dafRede.value) return alert("Atenção: Para o produto Manutenção, é OBRIGATÓRIO selecionar a Casa DAF.");
+        if (!f.dafMunicipio.value) return alert("Atenção: É OBRIGATÓRIO selecionar o Município da Casa DAF.");
       }
-
-      // Validação Bitrix
       if (serv === 'Chamado T.I' && !f.bitrixLink.value.trim()) {
-        alert("Atenção: Para solicitações de Chamado T.I, é OBRIGATÓRIO inserir o Link Card do Bitrix.");
-        return;
+        return alert("Atenção: Para solicitações de Chamado T.I, é OBRIGATÓRIO inserir o Link Card do Bitrix.");
       }
 
-      const now = new Date(2026, 10, 10, 8, 5);
+      const now = new Date(2026, 10, 10, 8, 15);
       const d = String(now.getDate()).padStart(2, '0');
       const m = String(now.getMonth() + 1).padStart(2, '0');
       const y = now.getFullYear();
       const h = String(now.getHours()).padStart(2, '0');
       const min = String(now.getMinutes()).padStart(2, '0');
 
-      const rawReturn = f.returnDate.value; // YYYY-MM-DD
+      const rawReturn = f.returnDate.value;
       const [rAno, rMes, rDia] = rawReturn ? rawReturn.split('-') : ['', '', ''];
       const formattedReturn = rawReturn ? `${rDia}/${rMes}/${rAno}` : 'A definir';
 
@@ -1355,7 +1256,6 @@
       document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
     }
 
-    // Inicialização
     const savedTheme = localStorage.getItem('tp_theme_clean') || 'light';
     if (savedTheme === 'dark') {
       document.body.classList.add('dark-theme');
@@ -1364,6 +1264,7 @@
       document.getElementById('themeIcon').innerText = '🌙';
     }
 
+    // Init
     renderAll();
   </script>
 </body>
