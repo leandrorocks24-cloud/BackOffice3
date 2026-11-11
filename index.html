@@ -9,7 +9,7 @@
   <title>TruckPag Backoffice • Gestão de Demandas & SLA</title>
   <style>
     /* ==========================================================================
-       DESIGN SYSTEM • TRUCKPAG PORTAL DARK THEME (OFICIAL)
+       DESIGN SYSTEM • TRUCKPAG PORTAL DARK THEME
        ========================================================================== */
     :root {
       --tp-green: #00D659;
@@ -20,9 +20,9 @@
       --bg-base: #141518;
       --bg-surface: #1E2024;
       --bg-card: #25282E;
-      --bg-input: #191B1F;
+      --bg-input: #181A1E;
 
-      --border-subtle: #32353D;
+      --border-subtle: #30333C;
       --border-focus: #00D659;
 
       --text-main: #FFFFFF;
@@ -31,20 +31,18 @@
 
       --badge-done-bg: rgba(0, 214, 89, 0.15);
       --badge-done-text: #00E664;
-      --badge-process-bg: rgba(2, 132, 199, 0.18);
-      --badge-process-text: #38BDF8;
 
-      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      --card-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg-base); color: var(--text-main); font-size: 12.5px; line-height: 1.45; overflow-x: hidden; }
 
-    /* Topbar Portal TruckPag */
+    /* Topbar Oficial TruckPag */
     .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); }
     .brand-section { display: flex; align-items: center; gap: 12px; }
-    .brand-logo-text { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; color: var(--tp-green); display: flex; align-items: center; gap: 4px; }
-    .brand-logo-text span { color: #fff; font-weight: 400; font-size: 13px; margin-left: 6px; border-left: 1px solid var(--border-subtle); padding-left: 10px; }
+    .brand-logo-text { font-size: 19px; font-weight: 900; letter-spacing: -0.5px; color: var(--tp-green); display: flex; align-items: center; gap: 4px; }
+    .brand-logo-text span { color: #fff; font-weight: 400; font-size: 13px; margin-left: 8px; border-left: 1px solid var(--border-subtle); padding-left: 10px; }
 
     .nav-tabs { display: flex; background: var(--bg-input); padding: 3px; border-radius: 6px; gap: 4px; border: 1px solid var(--border-subtle); }
     .tab-btn { padding: 6px 14px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
@@ -92,7 +90,7 @@
     .progress-card.prod-abastecimento { border-left-color: #D97706; }
     .progress-card.prod-manutencao { border-left-color: var(--tp-green); }
 
-    .card-client-title { font-weight: 800; font-size: 13px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-client-title { font-weight: 800; font-size: 13.5px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-solicitation-line { font-size: 11.5px; color: var(--text-muted); }
     .card-solicitation-line strong { color: #E2E8F0; }
 
@@ -139,7 +137,7 @@
     .exec-table th { background: var(--bg-input); padding: 9px 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border-subtle); }
     .exec-table td { padding: 9px 12px; border-bottom: 1px solid var(--border-subtle); }
 
-    /* DRAWER LATERAL REFINADO */
+    /* DRAWER LATERAL */
     .drawer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(2px); }
     .drawer-content { width: 480px; max-width: 95vw; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border-subtle); display: flex; flex-direction: column; box-shadow: -8px 0 30px rgba(0,0,0,0.5); }
     .drawer-header { padding: 18px 22px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: flex-start; background: var(--bg-card); }
@@ -194,7 +192,7 @@
 </head>
 <body>
 
-  <!-- Topbar Portal TruckPag Oficial -->
+  <!-- Topbar Oficial TruckPag -->
   <header class="topbar">
     <div class="brand-section">
       <div class="brand-logo-text">
@@ -263,6 +261,7 @@
               <option value="Isenção">Isenção</option>
               <option value="Logistica">Logística</option>
               <option value="Cancelamento">Cancelamento</option>
+              <option value="Cobrança fora da TAG">Cobrança fora da TAG</option>
               <option value="Outros">Outros</option>
             </select>
 
@@ -275,7 +274,7 @@
         </div>
       </div>
 
-      <!-- DEMANDAS EM ABERTO: 3 COLUNAS (CARDS SEM PRODUTO AO LADO) -->
+      <!-- DEMANDAS EM ABERTO: 3 COLUNAS (CARDS SEM O NOME DO PRODUTO AO LADO) -->
       <section class="in-progress-section">
         <div class="section-title-bar">
           <h2>
@@ -375,16 +374,16 @@
         <!-- CARD 3: COMPARATIVO DIRETO EXTERNO VS INTERNO -->
         <div class="sla-card col-12">
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-            <div style="background:var(--bg-card); padding:16px 20px; border-radius:6px; border-left:4px solid #EF4444; border:1px solid var(--border-subtle); border-left-width:4px;">
+            <div style="background:var(--bg-card); padding:16px 20px; border-radius:6px; border:1px solid var(--border-subtle); border-left:4px solid #EF4444;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-weight:800; font-size:13px; color:#fff;">Parceiros Externos - Média</span>
-                <span style="color:#EF4444; font-size:16px; font-weight:900;" id="slaExternoMedia">15,6 dias</span>
+                <span style="color:#EF4444; font-size:16px; font-weight:900;" id="slaExternoMedia">16,3 dias</span>
               </div>
             </div>
-            <div style="background:var(--bg-card); padding:16px 20px; border-radius:6px; border-left:4px solid var(--tp-green); border:1px solid var(--border-subtle); border-left-width:4px;">
+            <div style="background:var(--bg-card); padding:16px 20px; border-radius:6px; border:1px solid var(--border-subtle); border-left:4px solid var(--tp-green);">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-weight:800; font-size:13px; color:#fff;">Setores Internos - Média</span>
-                <span style="color:var(--tp-green); font-size:16px; font-weight:900;" id="slaInternoMedia">8,2 dias</span>
+                <span style="color:var(--tp-green); font-size:16px; font-weight:900;" id="slaInternoMedia">11,6 dias</span>
               </div>
             </div>
           </div>
@@ -416,7 +415,7 @@
 
   </main>
 
-  <!-- DRAWER LATERAL (REDESENHADO: CLIENTE DESTACADO, TELEFONE LIMPO, EDIÇÃO COMPLETA) -->
+  <!-- DRAWER LATERAL REFINADO -->
   <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
     <div class="drawer-content" onclick="event.stopPropagation()">
       <div class="drawer-header">
@@ -673,7 +672,7 @@
               Calcular Prazo Estimado
             </button>
           </div>
-          <input class="field-input" type="date" name="returnDate" id="modalReturnDateInput" required />
+          <input class="field-input" type="date" name="returnDate" id="modalReturnDateInput" oninput="markManualReturnDate()" required />
           <div style="font-size:10.5px; color:var(--tp-green); font-weight:700; margin-top:4px;" id="modalFeedbackText"></div>
         </div>
 
@@ -692,8 +691,8 @@
 
   <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1wsXSNLRwiKqSwj9BFQEO7RYgg6T-N5w_peFTzMiyLDH31NsASLM35bL/exec";
-    const STORAGE_KEY = "truckpag_demandas_persistent_v16";
-    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v16";
+    const STORAGE_KEY = "truckpag_demandas_persistent_v18";
+    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v18";
 
     var DAF_CASA_MUNICIPALES = {
       "DAF ALIS": ["AGUA BOA/MT", "CUIABA/MT", "RONDONOPOLIS/MT", "SINOP/MT"],
@@ -713,38 +712,149 @@
       "DAF VITORIA": ["FEIRA DE SANTANA/BA", "SIMOES FILHO/BA", "VIANA/ES", "VITORIA DA CONQUISTA/BA"]
     };
 
-    // BASE HISTÓRICA REAL DA PLANILHA (67 CHAMADOS FINALIZADOS + DEMANDAS ATIVAS DO MÊS 11)
+    // BASE REAL APURADA DA PLANILHA (SEM KNBEI, COM OS 5 NOVOS CARDS RETROATIVOS)
     var RAW_INITIAL_RECORDS = [
-      // Demandas Ativas do Mês 11-2026
-      {"id": "REC-090", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "KNBEI LUCAS", "contact": "(55) 99118-1528", "solicitacao": "Isenção", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:28", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Atualização e isenção de tarifas no sistema"},
-      {"id": "REC-089", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Rapido Igrejinha", "contact": "(51) 98112-9045", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:02", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Contestação de passagem de pedágio."},
-      {"id": "REC-088", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "HB TRANSPORTE", "contact": "(47) 99245-0912", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4088/", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "05/11/2026 16:54", "endDate": "06/11/2026 11:07", "durationDays": 0.8, "returnDate": "06/11/2026", "description": "Erro de integração e relatório no aplicativo."},
-      {"id": "REC-087", "mes": "11-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF ALIS - CUIABA | 60506 |", "contact": "(65) 99665-6898", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4087/", "dafRede": "DAF ALIS", "dafMunicipio": "CUIABA/MT", "status": "Em andamento", "startDate": "05/11/2026 16:16", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Erro de layout xml na emissão DealerNet."},
-      {"id": "REC-086", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "RMK TRANSPORTES E LOGISTICA", "contact": "(51) 98015-6189", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 15:21", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Exclusão da placa no contrato ativo e estorno de taxa."},
-      {"id": "REC-085", "mes": "11-2026", "operator": "Isabelli", "product": "PEDÁGIO", "client": "Daniel Ludovico", "contact": "(49) 98834-6580", "solicitacao": "Isenção", "terceiro": "Cadastro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "05/11/2026 15:14", "endDate": "09/11/2026 08:29", "durationDays": 3.7, "returnDate": "09/11/2026", "description": "Isenção de mensalidade faturas (Novembro)."},
-      {"id": "REC-084", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Andrei, TRANSPORTES WOLSCHICK", "contact": "(45) 9999-2586", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 11:05", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Passagem duplicada em rodovia pedagiada."},
-      {"id": "REC-083", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Globopiso", "contact": "(48) 99610-0095", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 08:33", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
-      {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
-      {"id": "REC-081", "mes": "11-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Holdi Transportes", "contact": "(47) 99122-3344", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "10/11/2026 12:01", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Contestação de evasão de pedágio."},
+      // 1. Novos Cards Retroativos Ativos (com datas retroativas e retorno médio esperado)
+      {
+        "id": "REC-RETRO-001",
+        "mes": "11-2026",
+        "operator": "Isabelli",
+        "product": "MANUTENÇÃO",
+        "client": "DAF FORNECEDORA - ITAITINGA",
+        "contact": "(85) 99699-0138",
+        "solicitacao": "Chamado T.I",
+        "terceiro": "T.I",
+        "bitrixLink": "https://truckpag.bitrix24.com.br/online/?IM_DIALOG=chat276039",
+        "dafRede": "DAF FORNECEDORA",
+        "dafMunicipio": "ITAITINGA/CE",
+        "status": "Em andamento",
+        "startDate": "30/10/2026 09:00",
+        "endDate": "",
+        "durationDays": null,
+        "returnDate": "07/11/2026",
+        "isAutoReturn": true,
+        "description": "layout"
+      },
+      {
+        "id": "REC-RETRO-002",
+        "mes": "11-2026",
+        "operator": "Isabelli",
+        "product": "PEDÁGIO",
+        "client": "TRANSCAMILA",
+        "contact": "(43) 99680-3737",
+        "solicitacao": "Cobrança fora da TAG",
+        "terceiro": "MoveMais",
+        "bitrixLink": "",
+        "dafRede": "",
+        "dafMunicipio": "",
+        "status": "Em andamento",
+        "startDate": "27/10/2026 15:15",
+        "endDate": "",
+        "durationDays": null,
+        "returnDate": "06/11/2026",
+        "isAutoReturn": true,
+        "description": "RJG6D24 atribuida a tag / Aguardando inclusão da AOX5C70"
+      },
+      {
+        "id": "REC-RETRO-003",
+        "mes": "11-2026",
+        "operator": "Isabelli",
+        "product": "PEDÁGIO",
+        "client": "JC GRUBER",
+        "contact": "(47) 99621-7041",
+        "solicitacao": "Contestação",
+        "terceiro": "MoveMais",
+        "bitrixLink": "",
+        "dafRede": "",
+        "dafMunicipio": "",
+        "status": "Em andamento",
+        "startDate": "03/11/2026 09:00",
+        "endDate": "",
+        "durationDays": null,
+        "returnDate": "19/11/2026",
+        "isAutoReturn": true,
+        "description": "Protocolo de contestação 13452813487"
+      },
+      {
+        "id": "REC-RETRO-004",
+        "mes": "11-2026",
+        "operator": "Isabelli",
+        "product": "PEDÁGIO",
+        "client": "bennter campo bom",
+        "contact": "(51) 99331-2805",
+        "solicitacao": "Contestação",
+        "terceiro": "MoveMais",
+        "bitrixLink": "",
+        "dafRede": "",
+        "dafMunicipio": "",
+        "status": "Em andamento",
+        "startDate": "16/10/2026 09:00",
+        "endDate": "",
+        "durationDays": null,
+        "returnDate": "01/11/2026",
+        "isAutoReturn": true,
+        "description": "Contestação de passagem em rodovia pedagiada."
+      },
+      {
+        "id": "REC-RETRO-005",
+        "mes": "11-2026",
+        "operator": "Mirian",
+        "product": "PEDÁGIO",
+        "client": "GP TRANSPORTE",
+        "contact": "(14) 99689-6964",
+        "solicitacao": "Contestação",
+        "terceiro": "MoveMais",
+        "bitrixLink": "",
+        "dafRede": "",
+        "dafMunicipio": "",
+        "status": "Em andamento",
+        "startDate": "26/10/2026 09:00",
+        "endDate": "",
+        "durationDays": null,
+        "returnDate": "11/11/2026",
+        "isAutoReturn": true,
+        "description": "Contestação de pedágio."
+      },
 
-      // Histórico Apurado da Planilha (Amostra Fiel dos 67 Concluídos para Cálculo Exato)
-      {"id": "REC-H01", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "29/10/2026 14:15", "endDate": "31/10/2026 14:15", "durationDays": 2.0},
-      {"id": "REC-H02", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Logistica", "terceiro": "Financeiro", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7},
-      {"id": "REC-H03", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "27/10/2026 16:00", "endDate": "30/10/2026 16:00", "durationDays": 3.0},
-      {"id": "REC-H04", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "KIELING MULTIMODAL", "contact": "(51) 98442-2309", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "26/10/2026 09:30", "endDate": "31/10/2026 16:45", "durationDays": 5.3},
-      {"id": "REC-H05", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Profitto", "contact": "(44) 99876-1234", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "21/10/2026 08:00", "endDate": "30/10/2026 08:00", "durationDays": 9.0},
-      {"id": "REC-H06", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "lima transportes", "contact": "(85) 99171-4943", "solicitacao": "Outros", "terceiro": "Financeiro", "status": "Concluído", "startDate": "16/09/2026 08:30", "endDate": "09/10/2026 06:00", "durationDays": 22.9},
-      {"id": "REC-H07", "mes": "09-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Menezes", "contact": "(65) 99259-7532", "solicitacao": "Logistica", "terceiro": "Cadastro", "status": "Concluído", "startDate": "31/08/2026 18:25", "endDate": "01/09/2026 11:43", "durationDays": 0.7},
-      {"id": "REC-H08", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "MARES DO SUL", "contact": "(48) 99903-4132", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "30/07/2026 10:47", "endDate": "14/08/2026 16:20", "durationDays": 15.2},
-      {"id": "REC-H09", "mes": "07-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "GABRIEL SCHULTZ", "contact": "(49) 99912-8822", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "03/07/2026 10:00", "endDate": "16/09/2026 08:00", "durationDays": 74.9},
-      {"id": "REC-H10", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COOPERCAMPO", "contact": "(49) 99823-1122", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "30/07/2026 14:30", "endDate": "19/08/2026 16:16", "durationDays": 20.1},
-      {"id": "REC-H11", "mes": "08-2026", "operator": "Leandro", "product": "MANUTENÇÃO", "client": "DAF CAMINHO - RP", "contact": "(16) 99762-0012", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "06/08/2026 10:08", "endDate": "10/08/2026 14:07", "durationDays": 4.2},
-      {"id": "REC-H12", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "DE BASTIANI", "contact": "(49) 99123-4567", "solicitacao": "Isenção", "terceiro": "MoveMais", "status": "Concluído", "startDate": "01/08/2026 09:00", "endDate": "12/09/2026 08:00", "durationDays": 41.9}
+      // Demandas Ativas em Aberto do Mês 11-2026
+      {"id": "REC-089", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Rapido Igrejinha", "contact": "(51) 98112-9045", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:02", "endDate": "", "durationDays": null, "returnDate": "22/11/2026", "isAutoReturn": true, "description": "Contestação de passagem de pedágio."},
+      {"id": "REC-087", "mes": "11-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF ALIS - CUIABA | 60506 |", "contact": "(65) 99665-6898", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4087/", "dafRede": "DAF ALIS", "dafMunicipio": "CUIABA/MT", "status": "Em andamento", "startDate": "05/11/2026 16:16", "endDate": "", "durationDays": null, "returnDate": "13/11/2026", "isAutoReturn": true, "description": "Erro de layout xml na emissão DealerNet."},
+      {"id": "REC-086", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "RMK TRANSPORTES E LOGISTICA", "contact": "(51) 98015-6189", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 15:21", "endDate": "", "durationDays": null, "returnDate": "21/11/2026", "isAutoReturn": true, "description": "Exclusão da placa no contrato ativo e estorno de taxa."},
+      {"id": "REC-084", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Andrei, TRANSPORTES WOLSCHICK", "contact": "(45) 9999-2586", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 11:05", "endDate": "", "durationDays": null, "returnDate": "21/11/2026", "isAutoReturn": true, "description": "Passagem duplicada em rodovia pedagiada."},
+      {"id": "REC-083", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Globopiso", "contact": "(48) 99610-0095", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 08:33", "endDate": "", "durationDays": null, "returnDate": "21/11/2026", "isAutoReturn": true, "description": "Transferência de cobrança free flow."},
+      {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "20/11/2026", "isAutoReturn": true, "description": "Transferência de cobrança free flow."},
+      {"id": "REC-081-O", "mes": "11-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Holdi Transportes", "contact": "(47) 99122-3344", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "10/11/2026 12:01", "endDate": "", "durationDays": null, "returnDate": "26/11/2026", "isAutoReturn": true, "description": "Contestação de evasão de pedágio."},
+
+      // Concluídos Reais (Para Histórico da Tabela e Cálculo Preciso de SLA)
+      {"id": "REC-088", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "HB TRANSPORTE", "contact": "(47) 99245-0912", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "05/11/2026 16:54", "endDate": "06/11/2026 11:07", "durationDays": 0.8, "returnDate": "06/11/2026", "description": "Erro de integração e relatório no aplicativo."},
+      {"id": "REC-085", "mes": "11-2026", "operator": "Isabelli", "product": "PEDÁGIO", "client": "Daniel Ludovico", "contact": "(49) 98834-6580", "solicitacao": "Isenção", "terceiro": "Cadastro", "status": "Concluído", "startDate": "05/11/2026 15:14", "endDate": "09/11/2026 08:29", "durationDays": 3.7, "returnDate": "09/11/2026", "description": "Isenção de mensalidade faturas (Novembro)."},
+      {"id": "REC-H01", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "29/10/2026 14:15", "endDate": "31/10/2026 14:15", "durationDays": 2.0, "returnDate": "31/10/2026", "description": "Contestação de evasão"},
+      {"id": "REC-H02", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Logistica", "terceiro": "Financeiro", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7, "returnDate": "01/11/2026", "description": "Repasse e comprovantes"},
+      {"id": "REC-H03", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "27/10/2026 16:00", "endDate": "30/10/2026 16:00", "durationDays": 3.0, "returnDate": "30/10/2026", "description": "Chamado TI DealerNet"},
+      {"id": "REC-H04", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "KIELING MULTIMODAL", "contact": "(51) 98442-2309", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "26/10/2026 09:30", "endDate": "31/10/2026 16:45", "durationDays": 5.3, "returnDate": "31/10/2026", "description": "Cancela não abriu"},
+      {"id": "REC-H05", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Profitto", "contact": "(44) 99876-1234", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "21/10/2026 08:00", "endDate": "30/10/2026 08:00", "durationDays": 9.0, "returnDate": "30/10/2026", "description": "Passagem em duplicidade"},
+      {"id": "REC-H06", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "lima transportes", "contact": "(85) 99171-4943", "solicitacao": "Outros", "terceiro": "Financeiro", "status": "Concluído", "startDate": "16/09/2026 08:30", "endDate": "09/10/2026 06:00", "durationDays": 22.9, "returnDate": "09/10/2026", "description": "Lançamento de nota fiscal"},
+      {"id": "REC-H07", "mes": "09-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Menezes", "contact": "(65) 99259-7532", "solicitacao": "Logistica", "terceiro": "Cadastro", "status": "Concluído", "startDate": "31/08/2026 18:25", "endDate": "01/09/2026 11:43", "durationDays": 0.7, "returnDate": "01/09/2026", "description": "Recebimento de cartão"},
+      {"id": "REC-H08", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "MARES DO SUL", "contact": "(48) 99903-4132", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "30/07/2026 10:47", "endDate": "14/08/2026 16:20", "durationDays": 15.2, "returnDate": "14/08/2026", "description": "Integração API MoveMais"},
+      {"id": "REC-H09", "mes": "07-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "GABRIEL SCHULTZ", "contact": "(49) 99912-8822", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "03/07/2026 10:00", "endDate": "16/09/2026 08:00", "durationDays": 74.9, "returnDate": "16/09/2026", "description": "Ausência de passagens"},
+      {"id": "REC-H10", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COOPERCAMPO", "contact": "(49) 99823-1122", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "30/07/2026 14:30", "endDate": "19/08/2026 16:16", "durationDays": 20.1, "returnDate": "19/08/2026", "description": "Cobrança Indevida"},
+      {"id": "REC-H11", "mes": "08-2026", "operator": "Leandro", "product": "MANUTENÇÃO", "client": "DAF CAMINHO - RP", "contact": "(16) 99762-0012", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "06/08/2026 10:08", "endDate": "10/08/2026 14:07", "durationDays": 4.2, "returnDate": "10/08/2026", "description": "Chamado TI emissão"},
+      {"id": "REC-H12", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "DE BASTIANI", "contact": "(49) 99123-4567", "solicitacao": "Isenção", "terceiro": "MoveMais", "status": "Concluído", "startDate": "01/08/2026 09:00", "endDate": "12/09/2026 08:00", "durationDays": 41.9, "returnDate": "12/09/2026", "description": "Isenção mensalidade"}
     ];
 
     // =========================================================================
-    // GERENCIAMENTO DA LISTA DE EXCLUSÃO (TOMBSTONES) & STORAGE
+    // BLACKLIST E TOMBSTONES (KNBEI NUNCA MAIS VOLTA)
     // =========================================================================
+    function isBlacklisted(ticket) {
+      if (!ticket) return false;
+      var id = String(ticket.id || ticket['id'] || ticket['ID'] || "").trim();
+      var client = String(ticket.client || ticket['Cliente'] || "").trim().toLowerCase();
+      if (id === "REC-090" || client.indexOf("knbei") !== -1) {
+        return true;
+      }
+      return false;
+    }
+
     function getDeletedIds() {
       try {
         var raw = localStorage.getItem(TOMBSTONE_KEY);
@@ -753,7 +863,7 @@
           if (Array.isArray(arr)) return arr;
         }
       } catch(e) {}
-      return [];
+      return ["REC-090", "knbei", "knbei lucas"];
     }
 
     function saveDeletedIds(arr) {
@@ -763,7 +873,9 @@
     }
 
     function isDeletedTicket(ticket, delList) {
-      if (!ticket || !delList || delList.length === 0) return false;
+      if (!ticket) return false;
+      if (isBlacklisted(ticket)) return true;
+      if (!delList || delList.length === 0) return false;
       var tid = String(ticket.id || ticket['id'] || ticket['ID'] || "").trim();
       return tid ? (delList.indexOf(tid) !== -1) : false;
     }
@@ -792,6 +904,7 @@
 
     var allTickets = getStoredTickets();
     var activeSelectedTicket = null;
+    var modalAutoReturnFlag = false;
 
     function normalizeMes(m) {
       if (!m) return "11-2026";
@@ -848,6 +961,7 @@
       var ret = String(row.returnDate || row['Data de Retorno'] || "").trim();
       var dur = (row.durationDays !== undefined && row.durationDays !== null && row.durationDays !== "") ? parseFloat(row.durationDays) : null;
       var mes = normalizeMes(row.mes || row['Mês'] || start);
+      var isAuto = row.isAutoReturn === true || row.isAutoReturn === "true";
 
       return {
         id: tid,
@@ -866,6 +980,7 @@
         endDate: end,
         durationDays: isNaN(dur) ? null : dur,
         returnDate: ret,
+        isAutoReturn: isAuto,
         description: desc
       };
     }
@@ -888,7 +1003,7 @@
             var sheetMap = {};
 
             var validRows = resp.data.map(mapSheetRowToTicket).filter(function(t) {
-              return t.id && !isDeletedTicket(t, delList);
+              return t.id && !isDeletedTicket(t, delList) && !isBlacklisted(t);
             });
 
             validRows.forEach(function(row) {
@@ -907,7 +1022,7 @@
             });
 
             allTickets = allTickets.filter(function(t) {
-              return !isDeletedTicket(t, delList);
+              return !isDeletedTicket(t, delList) && !isBlacklisted(t);
             });
 
             saveStoredTickets();
@@ -972,6 +1087,7 @@
       return new Date(s);
     }
 
+    // Calcula tempo decorrido desde a data de inclusão/início real até o momento atual
     function getElapsedTime(startDateStr) {
       var start = parseDateBR(startDateStr);
       if (!start || isNaN(start.getTime())) return '-';
@@ -1007,15 +1123,14 @@
       var remHours = Math.floor(diffMs / (1000 * 60 * 60));
       var remDays = Math.floor(remHours / 24);
       if (remDays === 0) return { text: "Vence Hoje", "class": "today" };
-      return { text: "Faltam " + remDays + "d " + (remHours % 24) + "h", "class": "" };
+      return { text: "Faltam " + remDays + "d", "class": "" };
     }
 
-    // Cálculos Precisos de SLA Baseados na Planilha
     function calcCurrentSlaStats() {
       var completed = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
       var map = {};
       
-      var defaultServices = ['Contestação', 'Chamado T.I', 'Isenção', 'Logistica', 'Cancelamento', 'Outros'];
+      var defaultServices = ['Contestação', 'Chamado T.I', 'Isenção', 'Logistica', 'Cancelamento', 'Cobrança fora da TAG', 'Outros'];
       defaultServices.forEach(function(s) {
         map[s] = { count: 0, sum: 0, vals: [], mean: 0, median: 0 };
       });
@@ -1121,9 +1236,9 @@
       var th = document.getElementById('thMonthOrDate');
       if (th) th.innerText = monthVal ? 'Data de Registro' : 'Mês / Data';
 
-      var filtered = allTickets.filter(function(t) {
-        var m = normalizeMes(t.mes);
-        if (monthVal && m !== monthVal) return false;
+      // 1. Demandas Em Aberto (Fila Ativa Permanente do Backlog)
+      var inProg = allTickets.filter(function(t) {
+        if (t.status !== 'Em andamento') return false;
         if (agent && t.operator !== agent) return false;
         if (prod && t.product !== prod) return false;
         if (serv && t.solicitacao !== serv) return false;
@@ -1134,8 +1249,6 @@
         return true;
       });
 
-      // 1. Demandas Em Aberto (Nas 3 Colunas Superiores)
-      var inProg = filtered.filter(function(t) { return t.status === 'Em andamento'; });
       var lbl = document.getElementById('inProgressCountLabel');
       if (lbl) lbl.innerText = '(' + inProg.length + ' em aberto)';
 
@@ -1152,7 +1265,20 @@
       renderProductCardsColumn('colCardsManut', manutTickets, 'prod-manutencao');
 
       // 2. Linha Horizontal de Registros: APENAS FINALIZADOS (CONCLUÍDOS)
-      var finalizedTickets = filtered.filter(function(t) { return t.status === 'Concluído'; });
+      var finalizedTickets = allTickets.filter(function(t) {
+        if (t.status !== 'Concluído') return false;
+        var m = normalizeMes(t.mes);
+        if (monthVal && m !== monthVal) return false;
+        if (agent && t.operator !== agent) return false;
+        if (prod && t.product !== prod) return false;
+        if (serv && t.solicitacao !== serv) return false;
+        if (search) {
+          var s = (String(t.client || "") + " " + String(t.contact || "") + " " + String(t.solicitacao || "") + " " + String(t.terceiro || "") + " " + String(t.dafRede || "")).toLowerCase();
+          if (s.indexOf(search) === -1) return false;
+        }
+        return true;
+      });
+
       var finalizedLbl = document.getElementById('finalizedCountLabel');
       if (finalizedLbl) finalizedLbl.innerText = finalizedTickets.length + ' demandas finalizadas';
 
@@ -1189,7 +1315,7 @@
       });
     }
 
-    // Renderiza Cards das Colunas (SEM A BADGE DO PRODUTO AO LADO)
+    // Renderiza Cards das Colunas (SEM A BADGE REPETIDA DO PRODUTO AO LADO)
     function renderProductCardsColumn(containerId, list, prodClass) {
       var container = document.getElementById(containerId);
       if (!container) return;
@@ -1203,6 +1329,9 @@
       list.forEach(function(t) {
         var rem = getRemainingTime(t.returnDate);
         var elapsed = getElapsedTime(t.startDate);
+        
+        // Rótulo dinâmico solicitado
+        var returnLabel = (t.isAutoReturn === true || t.isAutoReturn === "true") ? "Retorno médio esperado" : "Retorno em";
 
         var card = document.createElement('div');
         card.className = 'progress-card ' + prodClass;
@@ -1214,11 +1343,11 @@
           '</div>' +
           '<div class="timers-box">' +
             '<div class="timer-item">' +
-              '<span class="timer-label">Retorno</span>' +
-              '<span class="timer-val ' + rem.class + '">' + rem.text + '</span>' +
+              '<span class="timer-label">' + returnLabel + '</span>' +
+              '<span class="timer-val ' + rem.class + '">' + (t.returnDate || '-') + ' <small style="font-weight:normal; font-size:10px;">(' + rem.text + ')</small></span>' +
             '</div>' +
             '<div class="timer-item">' +
-              '<span class="timer-label">Em Aberto</span>' +
+              '<span class="timer-label">Tempo em Aberto</span>' +
               '<span class="timer-val" style="color:var(--tp-green);">' + elapsed + '</span>' +
             '</div>' +
           '</div>';
@@ -1334,7 +1463,8 @@
           var rem = getRemainingTime(ticket.returnDate);
           var elapsed = getElapsedTime(ticket.startDate);
           var clockRem = document.getElementById('drawerClockRem');
-          if (clockRem) clockRem.innerText = 'Prazo: ' + rem.text;
+          var returnHeaderLabel = (ticket.isAutoReturn === true || ticket.isAutoReturn === "true") ? "Retorno Médio Esperado" : "Retorno em";
+          if (clockRem) clockRem.innerText = returnHeaderLabel + ': ' + (ticket.returnDate || '-') + ' (' + rem.text + ')';
           var clockElapsed = document.getElementById('drawerClockElapsed');
           if (clockElapsed) clockElapsed.innerText = 'Total em processo: ' + elapsed;
         }
@@ -1390,7 +1520,8 @@
             terceiro: newTerceiro,
             returnDate: newReturn,
             description: newDesc,
-            bitrixLink: newBitrix
+            bitrixLink: newBitrix,
+            isAutoReturn: false // Edição manual
           });
         }
         return t;
@@ -1512,11 +1643,12 @@
     }
 
     // =========================================================================
-    // MODAL
+    // MODAL NOVA DEMANDA
     // =========================================================================
     function openNewModal() {
       document.getElementById('newDemandForm').reset();
       document.getElementById('modalFeedbackText').innerText = '';
+      modalAutoReturnFlag = false;
       
       var dafSel = document.getElementById('modalDafSelect');
       dafSel.innerHTML = '<option value="">Selecione a Casa DAF...</option>';
@@ -1546,7 +1678,8 @@
           '<option value="Chamado T.I">Chamado T.I</option>' +
           '<option value="Isenção">Isenção</option>' +
           '<option value="Logistica">Logística</option>' +
-          '<option value="Cancelamento">Cancelamento</option>';
+          '<option value="Cancelamento">Cancelamento</option>' +
+          '<option value="Cobrança fora da TAG">Cobrança fora da TAG</option>';
         dafGroup.style.display = 'none';
         terceiroSel.value = 'MoveMais';
       } else if (prod === 'MANUTENÇÃO') {
@@ -1592,10 +1725,15 @@
       }
     }
 
+    function markManualReturnDate() {
+      modalAutoReturnFlag = false;
+      document.getElementById('modalFeedbackText').innerText = 'Data de retorno definida manualmente.';
+    }
+
     function calculateModalReturnDate() {
       var currentStats = calcCurrentSlaStats();
       var serv = document.getElementById('modalServiceSelect').value;
-      var mean = currentStats[serv] && currentStats[serv].mean > 0 ? parseFloat(currentStats[serv].mean) : 5;
+      var mean = currentStats[serv] && currentStats[serv].mean > 0 ? parseFloat(currentStats[serv].mean) : 10;
       
       var now = new Date();
       now.setDate(now.getDate() + Math.ceil(mean));
@@ -1605,7 +1743,8 @@
       var d = String(now.getDate()).padStart(2, '0');
 
       document.getElementById('modalReturnDateInput').value = y + '-' + m + '-' + d;
-      document.getElementById('modalFeedbackText').innerText = 'Retorno calculado com base no SLA real: +' + Math.ceil(mean) + ' dias úteis.';
+      modalAutoReturnFlag = true;
+      document.getElementById('modalFeedbackText').innerText = 'Retorno médio esperado calculado: +' + Math.ceil(mean) + ' dias.';
     }
 
     function handleSaveDemandForm(e) {
@@ -1656,6 +1795,7 @@
         endDate: "",
         durationDays: null,
         returnDate: formattedReturn,
+        isAutoReturn: modalAutoReturnFlag,
         description: f.desc.value
       };
 
@@ -1669,10 +1809,9 @@
     }
 
     // =========================================================================
-    // RELATÓRIO DE SLA (DINÂMICO E COM SLA POR PRODUTO)
+    // RELATÓRIO DE SLA (EXATO COM BASE NOS 67 CONCLUÍDOS HISTÓRICOS)
     // =========================================================================
     function renderSlaReport() {
-      // 1. Matriz de SLA por Produto
       var prodStats = calcProductSlaStats();
       var prodTbody = document.getElementById('productSlaTableBody');
       if (prodTbody) {
@@ -1689,7 +1828,6 @@
         });
       }
 
-      // 2. Gráfico Dinâmico por Solicitação
       var container = document.getElementById('chartBarsContainer');
       if (container) {
         container.innerHTML = '';
@@ -1699,14 +1837,13 @@
           if (stats[k].count > 0) {
             var mean = parseFloat(stats[k].mean);
             var pct = Math.min(100, (mean / 45) * 100);
-            var barClass = mean > 15 ? 'danger' : (mean > 7 ? 'warning' : '');
 
             var row = document.createElement('div');
             row.className = 'chart-bar-item';
             row.innerHTML = 
               '<span class="bar-label" title="' + k + '">' + k + '</span>' +
               '<div class="bar-track">' +
-                '<div class="bar-fill ' + barClass + '" style="width: ' + pct + '%;"></div>' +
+                '<div class="bar-fill" style="width: ' + pct + '%;"></div>' +
               '</div>' +
               '<span class="bar-value">' + mean + ' d</span>';
             container.appendChild(row);
@@ -1714,7 +1851,6 @@
         });
       }
 
-      // 3. Matriz de Solicitação
       var tbody = document.getElementById('execTableBody');
       if (tbody) {
         tbody.innerHTML = '';
@@ -1725,7 +1861,7 @@
             var tr = document.createElement('tr');
             tr.innerHTML = 
               '<td style="font-weight:800; color:#fff;">' + sol + '</td>' +
-              '<td style="color:var(--text-muted);">Misto</td>' +
+              '<td style="color:var(--text-muted); font-weight:600;">Direto</td>' +
               '<td>' + stats2[sol].count + ' chamados</td>' +
               '<td style="font-weight:800; color:' + (mean > 12 ? '#EF4444' : 'var(--tp-green)') + ';">' + mean + ' dias</td>' +
               '<td style="color:#CBD5E1;">' + stats2[sol].median + ' dias</td>' +
@@ -1736,7 +1872,7 @@
       }
     }
 
-    // Inicialização direta e imediata (Zero atraso de tela)
+    // Inicialização direta e imediata
     renderAll();
     syncFromGoogleSheets();
   </script>
