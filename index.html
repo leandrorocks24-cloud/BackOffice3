@@ -9,250 +9,196 @@
   <title>TruckPag Backoffice • Gestão de Demandas & SLA</title>
   <style>
     /* ==========================================================================
-       DESIGN SYSTEM • CORPORATIVO MINIMALISTA (TRUCKPAG ACCENT)
+       DESIGN SYSTEM • TRUCKPAG PORTAL DARK THEME (OFICIAL)
        ========================================================================== */
     :root {
-      --tp-green: #008744;
-      --tp-green-accent: #00A859;
-      --tp-green-light: #ECFDF5;
-      --tp-green-border: #A7F3D0;
-      
-      --bg-app: #F8FAFC;
-      --bg-surface: #FFFFFF;
-      --bg-subtle: #F1F5F9;
-      --border: #E2E8F0;
-      --border-focus: #10B981;
-      
-      --text-main: #0F172A;
-      --text-muted: #475569;
-      --text-subtle: #64748B;
+      --tp-green: #00D659;
+      --tp-green-hover: #00bf4f;
+      --tp-green-subtle: rgba(0, 214, 89, 0.12);
+      --tp-green-border: rgba(0, 214, 89, 0.35);
 
-      --row-process-bg: #F0F9FF;
-      --row-done-bg: #F0FDF4;
-      --row-cancel-bg: #F8FAFC;
+      --bg-base: #141518;
+      --bg-surface: #1E2024;
+      --bg-card: #25282E;
+      --bg-input: #191B1F;
 
-      --badge-process-bg: #E0F2FE;
-      --badge-process-text: #0369A1;
-      --badge-done-bg: #DCFCE7;
-      --badge-done-text: #166534;
-      --badge-cancel-bg: #F1F5F9;
-      --badge-cancel-text: #64748B;
-      --badge-late-bg: #FEE2E2;
-      --badge-late-text: #991B1B;
+      --border-subtle: #32353D;
+      --border-focus: #00D659;
 
-      --card-shadow: 0 1px 3px rgba(0,0,0,0.03);
-    }
+      --text-main: #FFFFFF;
+      --text-muted: #9BA1B0;
+      --text-subtle: #686E7D;
 
-    body.dark-theme {
-      --tp-green: #00A859;
-      --tp-green-accent: #34D399;
-      --tp-green-light: #064E3B;
-      --tp-green-border: #047857;
+      --badge-done-bg: rgba(0, 214, 89, 0.15);
+      --badge-done-text: #00E664;
+      --badge-process-bg: rgba(2, 132, 199, 0.18);
+      --badge-process-text: #38BDF8;
 
-      --bg-app: #0B111A;
-      --bg-surface: #141E2E;
-      --bg-subtle: #1B273A;
-      --border: #243447;
-      --border-focus: #34D399;
-
-      --text-main: #F1F5F9;
-      --text-muted: #CBD5E1;
-      --text-subtle: #94A3B8;
-
-      --row-process-bg: #0C2136;
-      --row-done-bg: #0A2618;
-      --row-cancel-bg: #151C26;
-
-      --badge-process-bg: #0C4A6E;
-      --badge-process-text: #BAE6FD;
-      --badge-done-bg: #064E3B;
-      --badge-done-text: #A7F3D0;
-      --badge-cancel-bg: #1E293B;
-      --badge-cancel-text: #94A3B8;
-      --badge-late-bg: #7F1D1D;
-      --badge-late-text: #FECACA;
-
-      --card-shadow: 0 2px 4px rgba(0,0,0,0.25);
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg-app); color: var(--text-main); font-size: 12.5px; line-height: 1.45; overflow-x: hidden; }
+    body { background-color: var(--bg-base); color: var(--text-main); font-size: 12.5px; line-height: 1.45; overflow-x: hidden; }
 
-    /* Topbar */
-    .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); }
-    .brand-section { display: flex; align-items: center; gap: 10px; }
-    .brand-badge { width: 30px; height: 30px; background: linear-gradient(135deg, var(--tp-green), var(--tp-green-accent)); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px; }
-    .brand-text h1 { font-size: 14px; font-weight: 700; color: var(--tp-green); line-height: 1.1; }
-    .brand-text p { font-size: 11px; color: var(--text-muted); }
+    /* Topbar Portal TruckPag */
+    .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); }
+    .brand-section { display: flex; align-items: center; gap: 12px; }
+    .brand-logo-text { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; color: var(--tp-green); display: flex; align-items: center; gap: 4px; }
+    .brand-logo-text span { color: #fff; font-weight: 400; font-size: 13px; margin-left: 6px; border-left: 1px solid var(--border-subtle); padding-left: 10px; }
 
-    .nav-tabs { display: flex; background: var(--bg-subtle); padding: 3px; border-radius: 7px; gap: 3px; border: 1px solid var(--border); }
-    .tab-btn { padding: 5px 14px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 5px; cursor: pointer; transition: all 0.15s; }
-    .tab-btn.active { background: var(--bg-surface); color: var(--tp-green); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .nav-tabs { display: flex; background: var(--bg-input); padding: 3px; border-radius: 6px; gap: 4px; border: 1px solid var(--border-subtle); }
+    .tab-btn { padding: 6px 14px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+    .tab-btn.active { background: var(--bg-card); color: var(--tp-green); font-weight: 700; }
 
-    .topbar-actions { display: flex; align-items: center; gap: 8px; }
-    .btn-action { padding: 6px 12px; font-size: 11.5px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-    .btn-action.primary { background: var(--tp-green); color: #fff; border: none; font-weight: 700; }
-    .btn-action.primary:hover { opacity: 0.92; }
-    .btn-action.export-archived { background: var(--bg-subtle); color: var(--text-main); font-weight: 700; }
-    .btn-action.export-archived:hover { border-color: var(--tp-green); color: var(--tp-green); }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+    .sync-status { font-size: 11px; font-weight: 600; color: var(--tp-green); display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 4px; background: var(--tp-green-subtle); border: 1px solid var(--tp-green-border); }
+    .btn-action { padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 5px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .btn-action:hover { border-color: var(--text-subtle); }
+    .btn-action.primary { background: var(--tp-green); color: #0E1013; border: none; font-weight: 800; }
+    .btn-action.primary:hover { background: var(--tp-green-hover); }
 
-    .sync-status { font-size: 11px; font-weight: 600; color: var(--text-subtle); display: flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 4px; background: var(--bg-subtle); border: 1px solid var(--border); }
-    .sync-status.online { color: var(--tp-green); border-color: var(--tp-green-border); background: var(--tp-green-light); }
+    .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 20px 24px; }
 
-    .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
-
-    /* DEMANDAS EM ABERTO: 3 COLUNAS */
-    .in-progress-section { margin-bottom: 22px; }
-    .section-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .section-title-bar h2 { font-size: 13px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
-
-    .product-columns-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    @media (max-width: 950px) { .product-columns-grid { grid-template-columns: 1fr; } }
-
-    .product-column { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 220px; }
-    .product-column-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border); font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; }
-    .col-count-badge { font-size: 10.5px; padding: 2px 7px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-muted); font-weight: 700; }
-    .column-cards-list { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-
-    .progress-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 7px; padding: 11px 13px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--card-shadow); border-left: 3.5px solid transparent; }
-    .progress-card:hover { transform: translateY(-1px); border-color: var(--border-focus); }
-
-    .progress-card.prod-pedagio { border-left-color: #0284C7; }
-    .progress-card.prod-pedagio .card-tag { background: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD; }
-
-    .progress-card.prod-abastecimento { border-left-color: #D97706; }
-    .progress-card.prod-abastecimento .card-tag { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-
-    .progress-card.prod-manutencao { border-left-color: #008744; }
-    .progress-card.prod-manutencao .card-tag { background: #DCFCE7; color: #166534; border: 1px solid #A7F3D0; }
-
-    .card-top-row { display: flex; justify-content: space-between; align-items: center; }
-    .card-client { font-weight: 700; font-size: 12.5px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
-    .card-tag { font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; }
-
-    .timers-box { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg-subtle); border-radius: 6px; padding: 6px 8px; margin-top: 2px; border: 1px solid var(--border); }
-    .timer-item { display: flex; flex-direction: column; }
-    .timer-label { font-size: 9px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; }
-    .timer-val { font-size: 11px; font-weight: 700; color: var(--text-main); margin-top: 1px; }
-    .timer-val.late { color: #DC2626; }
-    .timer-val.today { color: #D97706; }
-
-    /* FILTROS (POSICIONADOS LOGO ABAIXO DAS DEMANDAS EM ABERTO) */
-    .filter-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--card-shadow); }
-    .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    /* FILTROS (POSICIONADOS ACIMA DE DEMANDAS EM ABERTO) */
+    .filter-panel { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; box-shadow: var(--card-shadow); }
+    .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
     .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .filter-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-    .input-compact { padding: 5px 9px; font-size: 11.5px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
+    .input-compact { padding: 6px 10px; font-size: 11.5px; border-radius: 5px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: var(--text-main); outline: none; }
     .input-compact:focus { border-color: var(--border-focus); }
 
-    .btn-clear-filters { padding: 5px 10px; font-size: 11.5px; font-weight: 600; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-muted); cursor: pointer; }
-    .btn-clear-filters:hover { background: #E2E8F0; color: var(--text-main); }
+    .btn-clear-filters { padding: 6px 12px; font-size: 11.5px; font-weight: 700; border-radius: 5px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-muted); cursor: pointer; }
+    .btn-clear-filters:hover { color: #fff; border-color: var(--text-subtle); }
 
-    /* TABELA DE REGISTROS FINALIZADOS */
-    .table-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
-    .table-card-header { padding: 10px 14px; background: var(--bg-subtle); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .table-card-header h3 { font-size: 12px; font-weight: 700; color: var(--text-main); }
+    /* DEMANDAS EM ABERTO: 3 COLUNAS POR PRODUTO */
+    .in-progress-section { margin-bottom: 24px; }
+    .section-title-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .section-title-bar h2 { font-size: 14px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }
+
+    .product-columns-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 950px) { .product-columns-grid { grid-template-columns: 1fr; } }
+
+    .product-column { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-height: 220px; }
+    .product-column-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+    .col-count-badge { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-subtle); color: #fff; font-weight: 800; }
+    .column-cards-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+
+    /* Cards Limpos sem Badge de Produto */
+    .progress-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 6px; border-left: 4px solid transparent; }
+    .progress-card:hover { transform: translateY(-2px); border-color: var(--border-focus); box-shadow: 0 6px 16px rgba(0,0,0,0.4); }
+
+    .progress-card.prod-pedagio { border-left-color: #0284C7; }
+    .progress-card.prod-abastecimento { border-left-color: #D97706; }
+    .progress-card.prod-manutencao { border-left-color: var(--tp-green); }
+
+    .card-client-title { font-weight: 800; font-size: 13px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-solicitation-line { font-size: 11.5px; color: var(--text-muted); }
+    .card-solicitation-line strong { color: #E2E8F0; }
+
+    .timers-box { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg-input); border-radius: 5px; padding: 7px 10px; margin-top: 4px; border: 1px solid var(--border-subtle); }
+    .timer-item { display: flex; flex-direction: column; }
+    .timer-label { font-size: 9.5px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase; }
+    .timer-val { font-size: 11.5px; font-weight: 700; color: #fff; margin-top: 1px; }
+    .timer-val.late { color: #F87171; }
+    .timer-val.today { color: #FBBF24; }
+
+    /* TABELA DE REGISTROS (APENAS FINALIZADOS) */
+    .table-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
+    .table-card-header { padding: 12px 16px; background: var(--bg-card); border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
+    .table-card-header h3 { font-size: 12.5px; font-weight: 800; color: #fff; }
     
     table.dense-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
-    table.dense-table thead tr { background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
-    table.dense-table th { padding: 9px 12px; font-weight: 700; color: var(--text-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.3px; }
-    table.dense-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    table.dense-table tbody tr { cursor: pointer; transition: filter 0.1s; }
+    table.dense-table thead tr { background: var(--bg-input); border-bottom: 1px solid var(--border-subtle); }
+    table.dense-table th { padding: 10px 14px; font-weight: 800; color: var(--text-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px; }
+    table.dense-table td { padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
+    table.dense-table tbody tr { cursor: pointer; transition: background 0.15s; }
+    table.dense-table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
 
-    table.dense-table tbody tr.row-status-done { background-color: var(--row-done-bg); }
-    table.dense-table tbody tr:hover { filter: brightness(0.97); }
-    body.dark-theme table.dense-table tbody tr:hover { filter: brightness(1.15); }
-
-    .btn-row-delete { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; padding: 3px 8px; font-size: 10px; font-weight: 700; border-radius: 4px; cursor: pointer; }
-    .btn-row-delete:hover { background: #FCA5A5; color: #7F1D1D; }
+    .btn-row-delete { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 10px; font-size: 10.5px; font-weight: 700; border-radius: 4px; cursor: pointer; }
+    .btn-row-delete:hover { background: rgba(239, 68, 68, 0.25); }
 
     /* RELATÓRIO GERENCIAL DE SLA */
-    .sla-report-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
-    .sla-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: var(--card-shadow); }
+    .sla-report-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .sla-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 18px 20px; box-shadow: var(--card-shadow); }
     .sla-card.col-12 { grid-column: span 12; }
     .sla-card.col-6 { grid-column: span 6; }
     @media (max-width: 900px) { .sla-card.col-6 { grid-column: span 12; } }
 
     .headline-box { margin-bottom: 14px; }
-    .action-headline { font-size: 13.5px; font-weight: 700; color: var(--text-main); line-height: 1.3; }
+    .action-headline { font-size: 13.5px; font-weight: 800; color: #fff; }
     .action-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    .chart-bar-item { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 11.5px; }
-    .bar-label { width: 170px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
-    .bar-track { flex: 1; height: 16px; background: var(--bg-subtle); border-radius: 3px; overflow: hidden; display: flex; align-items: center; }
-    .bar-fill { height: 100%; background: var(--tp-green); border-radius: 3px; transition: width 0.3s ease; }
-    .bar-fill.danger { background: #EF4444; }
-    .bar-fill.warning { background: #F59E0B; }
-    .bar-value { width: 65px; text-align: right; font-weight: 700; font-family: monospace; color: var(--text-main); font-size: 11px; }
+    .chart-bar-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 11.5px; }
+    .bar-label { width: 170px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #E2E8F0; }
+    .bar-track { flex: 1; height: 16px; background: var(--bg-input); border-radius: 3px; overflow: hidden; display: flex; align-items: center; }
+    .bar-fill { height: 100%; background: var(--tp-green); border-radius: 3px; }
+    .bar-value { width: 65px; text-align: right; font-weight: 800; font-family: monospace; color: #fff; font-size: 11px; }
 
     .exec-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
-    .exec-table th { background: var(--bg-subtle); padding: 8px 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border); }
-    .exec-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    .exec-table th { background: var(--bg-input); padding: 9px 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border-subtle); }
+    .exec-table td { padding: 9px 12px; border-bottom: 1px solid var(--border-subtle); }
 
-    /* DRAWER LATERAL REFINADO (HIERARQUIA LIMPA) */
-    .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(1.5px); }
-    .drawer-content { width: 460px; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.1); }
-    .drawer-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; background: var(--bg-subtle); }
+    /* DRAWER LATERAL REFINADO */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(2px); }
+    .drawer-content { width: 480px; max-width: 95vw; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border-subtle); display: flex; flex-direction: column; box-shadow: -8px 0 30px rgba(0,0,0,0.5); }
+    .drawer-header { padding: 18px 22px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: flex-start; background: var(--bg-card); }
     .drawer-header-left { flex: 1; }
-    .drawer-client-title { font-size: 16px; font-weight: 800; color: var(--text-main); line-height: 1.2; word-break: break-word; }
-    .drawer-meta-badges { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; }
-    .badge-product { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-main); }
-    .badge-solicitation { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: var(--tp-green-light); color: var(--tp-green); border: 1px solid var(--tp-green-border); }
+    .drawer-client-title { font-size: 17px; font-weight: 900; color: #fff; line-height: 1.2; word-break: break-word; }
+    .drawer-meta-badges { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+    .badge-product { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; background: var(--bg-input); border: 1px solid var(--border-subtle); color: #fff; }
+    .badge-solicitation { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: var(--tp-green-subtle); color: var(--tp-green); border: 1px solid var(--tp-green-border); }
     
-    .drawer-body { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; }
 
-    /* Contato Limpo e Proporcional */
-    .contact-clean-box { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
-    .contact-clean-label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
-    .contact-clean-phone { font-size: 13.5px; font-weight: 700; color: var(--text-main); font-family: monospace; margin-top: 1px; }
-    .btn-copy-clean { padding: 4px 10px; font-size: 11px; font-weight: 600; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); cursor: pointer; }
+    .contact-clean-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+    .contact-clean-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+    .contact-clean-phone { font-size: 14px; font-weight: 800; color: #fff; font-family: monospace; margin-top: 1px; }
+    .btn-copy-clean { padding: 5px 12px; font-size: 11px; font-weight: 700; border-radius: 4px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: #fff; cursor: pointer; }
     .btn-copy-clean:hover { border-color: var(--tp-green); color: var(--tp-green); }
 
-    /* Grid de Detalhes Nítidos */
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; font-size: 12px; }
-    .detail-cell { background: var(--bg-surface); border-radius: 6px; padding: 8px 11px; border: 1px solid var(--border); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; }
+    .detail-cell { background: var(--bg-card); border-radius: 6px; padding: 9px 12px; border: 1px solid var(--border-subtle); }
     .detail-cell.full { grid-column: span 2; }
-    .detail-cell-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
-    .detail-cell-val { font-weight: 600; color: var(--text-main); margin-top: 2px; word-break: break-word; }
+    .detail-cell-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+    .detail-cell-val { font-weight: 700; color: #fff; margin-top: 3px; word-break: break-word; }
 
-    .complementary-text { background: var(--bg-subtle); border-radius: 6px; padding: 10px 12px; border: 1px solid var(--border); color: var(--text-main); font-size: 12px; white-space: pre-wrap; line-height: 1.4; }
+    .complementary-text { background: var(--bg-input); border-radius: 6px; padding: 10px 12px; border: 1px solid var(--border-subtle); color: #E2E8F0; font-size: 12px; white-space: pre-wrap; line-height: 1.45; }
 
     /* Formulário de Edição no Drawer */
-    .drawer-edit-form { display: none; flex-direction: column; gap: 10px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
-    .edit-label { font-size: 10.5px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; display: block; }
-    .edit-input, .edit-select, .edit-textarea { width: 100%; padding: 6px 8px; font-size: 12px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
+    .drawer-edit-form { display: none; flex-direction: column; gap: 11px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; }
+    .edit-label { font-size: 10.5px; font-weight: 800; color: #E2E8F0; margin-bottom: 2px; display: block; }
+    .edit-input, .edit-select, .edit-textarea { width: 100%; padding: 7px 10px; font-size: 12px; border-radius: 4px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: #fff; outline: none; }
     .edit-input:focus, .edit-textarea:focus { border-color: var(--border-focus); }
 
-    .pareceres-box { background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
-    .pareceres-header { font-size: 12px; font-weight: 800; color: var(--text-main); border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 10px; }
+    .pareceres-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; }
+    .pareceres-header { font-size: 12px; font-weight: 800; color: #fff; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px; margin-bottom: 10px; }
     .pareceres-step { margin-bottom: 10px; font-size: 11.5px; }
     .step-time { font-size: 10.5px; color: var(--text-muted); font-family: monospace; font-weight: 600; }
-    .step-title { font-weight: 700; color: var(--text-main); margin-top: 1px; }
+    .step-title { font-weight: 800; color: #fff; margin-top: 1px; }
     .step-desc { color: var(--text-muted); font-size: 11px; margin-top: 1px; }
 
-    .sla-final-highlight { background: var(--tp-green-light); border: 1px solid var(--tp-green-border); color: var(--tp-green); border-radius: 6px; padding: 8px 12px; font-size: 11.5px; font-weight: 700; text-align: center; }
+    .sla-final-highlight { background: var(--tp-green-subtle); border: 1px solid var(--tp-green-border); color: var(--tp-green); border-radius: 6px; padding: 10px 14px; font-size: 12px; font-weight: 800; text-align: center; }
 
     /* Modal Nova Demanda */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 300; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
-    .modal-card { width: 560px; max-width: 95%; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); overflow: hidden; }
-    .modal-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-subtle); }
-    .modal-head h2 { font-size: 14px; font-weight: 800; color: var(--text-main); }
-    .modal-form { padding: 16px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); z-index: 300; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+    .modal-card { width: 560px; max-width: 95%; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border-subtle); box-shadow: 0 20px 30px rgba(0,0,0,0.6); overflow: hidden; }
+    .modal-head { padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); }
+    .modal-head h2 { font-size: 15px; font-weight: 800; color: #fff; }
+    .modal-form { padding: 18px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-col-full { grid-column: span 2; }
-    .field-label { font-size: 11px; font-weight: 700; color: var(--text-main); margin-bottom: 3px; display: block; }
-    .field-input, .field-select, .field-textarea { width: 100%; padding: 7px 9px; font-size: 12px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); outline: none; }
+    .field-label { font-size: 11px; font-weight: 800; color: #E2E8F0; margin-bottom: 4px; display: block; }
+    .field-input, .field-select, .field-textarea { width: 100%; padding: 8px 10px; font-size: 12px; border-radius: 5px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: #fff; outline: none; }
     .field-input:focus, .field-select:focus, .field-textarea:focus { border-color: var(--border-focus); }
   </style>
 </head>
 <body>
 
-  <!-- Topbar -->
+  <!-- Topbar Portal TruckPag Oficial -->
   <header class="topbar">
     <div class="brand-section">
-      <div class="brand-badge">TP</div>
-      <div class="brand-text">
-        <h1>TruckPag Backoffice</h1>
-        <p>Central de Demandas & Gestão de SLA de Terceiros</p>
+      <div class="brand-logo-text">
+        truckpag <span>Backoffice Demandas</span>
       </div>
     </div>
 
@@ -266,15 +212,12 @@
     </nav>
 
     <div class="topbar-actions">
-      <span class="sync-status online" id="syncStatusIndicator">● Conectado</span>
+      <span class="sync-status" id="syncStatusIndicator">● Conectado</span>
       <button class="btn-action export-archived" onclick="exportArchivedCSV()" title="Exportar demandas finalizadas">
         Exportar Finalizadas
       </button>
       <button class="btn-action primary" onclick="openNewModal()">
-        Nova Demanda
-      </button>
-      <button class="btn-action" onclick="toggleTheme()" title="Modo Escuro / Claro">
-        <span id="themeIcon">Modo Escuro</span>
+        + Nova Demanda
       </button>
     </div>
   </header>
@@ -284,55 +227,18 @@
     <!-- TELA 1: FILA OPERACIONAL E REGISTROS -->
     <div id="viewPaneRecords">
       
-      <!-- DEMANDAS EM ABERTO: 3 COLUNAS -->
-      <section class="in-progress-section">
-        <div class="section-title-bar">
-          <h2>
-            Demandas Em Aberto por Produto
-            <span style="font-size:11px; color:var(--text-muted); font-weight:normal;" id="inProgressCountLabel"></span>
-          </h2>
-          <span style="font-size:10.5px; color:var(--text-subtle);">
-            Clique no card para abrir detalhes, telefone, editar ou finalizar
-          </span>
-        </div>
-
-        <div class="product-columns-grid">
-          <div class="product-column">
-            <div class="product-column-head" style="color:#D97706;">
-              Abastecimento
-              <span class="col-count-badge" id="countColAbast">0</span>
-            </div>
-            <div class="column-cards-list" id="colCardsAbast"></div>
-          </div>
-
-          <div class="product-column">
-            <div class="product-column-head" style="color:#0284C7;">
-              Pedágio
-              <span class="col-count-badge" id="countColPed">0</span>
-            </div>
-            <div class="column-cards-list" id="colCardsPed"></div>
-          </div>
-
-          <div class="product-column">
-            <div class="product-column-head" style="color:var(--tp-green);">
-              Manutenção
-              <span class="col-count-badge" id="countColManut">0</span>
-            </div>
-            <div class="column-cards-list" id="colCardsManut"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- FILTROS (POSICIONADOS LOGO ABAIXO DAS DEMANDAS EM ABERTO) -->
+      <!-- FILTROS GERAIS (POSICIONADOS ACIMA DE DEMANDAS EM ABERTO) -->
       <div class="filter-panel">
         <div class="filter-row">
           <div class="filter-items">
-            <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Filtros:</span>
+            <span class="filter-label">Filtros:</span>
             
             <select class="input-compact" id="filterMonthSelect" onchange="renderAll()">
               <option value="11-2026" selected>Mês: 11-2026 (Vigente)</option>
               <option value="10-2026">Mês: 10-2026</option>
               <option value="09-2026">Mês: 09-2026</option>
+              <option value="08-2026">Mês: 08-2026</option>
+              <option value="07-2026">Mês: 07-2026</option>
               <option value="">Mês: Todos</option>
             </select>
 
@@ -365,11 +271,50 @@
             </button>
           </div>
 
-          <input type="text" class="input-compact" id="searchInput" placeholder="Buscar cliente, DAF, protocolo..." style="width:230px;" onkeyup="renderAll()" />
+          <input type="text" class="input-compact" id="searchInput" placeholder="Pesquisar cliente, protocolo..." style="width:240px;" onkeyup="renderAll()" />
         </div>
       </div>
 
-      <!-- TABELA DE REGISTROS FINALIZADOS -->
+      <!-- DEMANDAS EM ABERTO: 3 COLUNAS (CARDS SEM PRODUTO AO LADO) -->
+      <section class="in-progress-section">
+        <div class="section-title-bar">
+          <h2>
+            Demandas Em Aberto por Produto
+            <span style="font-size:11px; color:var(--text-muted); font-weight:normal;" id="inProgressCountLabel"></span>
+          </h2>
+          <span style="font-size:11px; color:var(--text-subtle);">
+            Clique no card para abrir detalhes, editar ou finalizar
+          </span>
+        </div>
+
+        <div class="product-columns-grid">
+          <div class="product-column">
+            <div class="product-column-head" style="color:#D97706;">
+              Abastecimento
+              <span class="col-count-badge" id="countColAbast">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsAbast"></div>
+          </div>
+
+          <div class="product-column">
+            <div class="product-column-head" style="color:#38BDF8;">
+              Pedágio
+              <span class="col-count-badge" id="countColPed">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsPed"></div>
+          </div>
+
+          <div class="product-column">
+            <div class="product-column-head" style="color:var(--tp-green);">
+              Manutenção
+              <span class="col-count-badge" id="countColManut">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsManut"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABELA DE REGISTROS (APENAS FINALIZADOS) -->
       <div class="table-card">
         <div class="table-card-header">
           <h3>Histórico de Demandas Finalizadas (Concluídas)</h3>
@@ -403,7 +348,7 @@
         <div class="sla-card col-6">
           <div class="headline-box">
             <div class="action-headline">SLA Médio por Produto (Tempo Real)</div>
-            <div class="action-sub">Tempo decorrido consolidado por produto</div>
+            <div class="action-sub">Consolidado com base no histórico integral da planilha</div>
           </div>
           <table class="exec-table">
             <thead>
@@ -422,24 +367,24 @@
         <div class="sla-card col-6">
           <div class="headline-box">
             <div class="action-headline">Acompanhamento Dinâmico de SLA Operacional</div>
-            <div class="action-sub">Médias calculadas automaticamente sobre os chamados concluídos</div>
+            <div class="action-sub">Médias calculadas sobre todos os chamados finalizados</div>
           </div>
           <div id="chartBarsContainer"></div>
         </div>
 
-        <!-- CARD 3: COMPARATIVO EXTERNO VS INTERNO (SEM LEGENDAS POLUÍDAS) -->
+        <!-- CARD 3: COMPARATIVO DIRETO EXTERNO VS INTERNO -->
         <div class="sla-card col-12">
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-            <div style="background:var(--bg-subtle); padding:14px 16px; border-radius:6px; border-left:4px solid #EF4444;">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div style="background:var(--bg-card); padding:16px 20px; border-radius:6px; border-left:4px solid #EF4444; border:1px solid var(--border-subtle); border-left-width:4px;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:700; font-size:13px; color:var(--text-main);">Parceiros Externos - Média</span>
-                <span style="color:#EF4444; font-size:15px; font-weight:800;" id="slaExternoMedia">15,5 dias</span>
+                <span style="font-weight:800; font-size:13px; color:#fff;">Parceiros Externos - Média</span>
+                <span style="color:#EF4444; font-size:16px; font-weight:900;" id="slaExternoMedia">15,6 dias</span>
               </div>
             </div>
-            <div style="background:var(--bg-subtle); padding:14px 16px; border-radius:6px; border-left:4px solid var(--tp-green);">
+            <div style="background:var(--bg-card); padding:16px 20px; border-radius:6px; border-left:4px solid var(--tp-green); border:1px solid var(--border-subtle); border-left-width:4px;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:700; font-size:13px; color:var(--text-main);">Setores Internos - Média</span>
-                <span style="color:var(--tp-green); font-size:15px; font-weight:800;" id="slaInternoMedia">7,8 dias</span>
+                <span style="font-weight:800; font-size:13px; color:#fff;">Setores Internos - Média</span>
+                <span style="color:var(--tp-green); font-size:16px; font-weight:900;" id="slaInternoMedia">8,2 dias</span>
               </div>
             </div>
           </div>
@@ -449,7 +394,7 @@
         <div class="sla-card col-12">
           <div class="headline-box">
             <div class="action-headline">Matriz Consolidada de SLA por Solicitação</div>
-            <div class="action-sub">Prazos de resposta calculados automaticamente sobre os dados encerrados</div>
+            <div class="action-sub">Prazos apurados com precisão a partir de todos os chamados finalizados</div>
           </div>
           <table class="exec-table">
             <thead>
@@ -482,12 +427,12 @@
             <span class="badge-solicitation" id="drawerSolicitationBadge">SOLICITAÇÃO</span>
           </div>
         </div>
-        <button onclick="closeDrawerDirect()" style="border:none; background:none; cursor:pointer; font-size:17px; color:var(--text-muted); padding:4px;">✖</button>
+        <button onclick="closeDrawerDirect()" style="border:none; background:none; cursor:pointer; font-size:18px; color:var(--text-muted); padding:4px;">✖</button>
       </div>
 
       <div class="drawer-body">
         
-        <!-- Contato Limpo e Proporcional -->
+        <!-- Telefone em Formato Corporativo Limpo -->
         <div class="contact-clean-box">
           <div>
             <div class="contact-clean-label">Telefone de Retorno</div>
@@ -496,20 +441,20 @@
           <button class="btn-copy-clean" onclick="copyDrawerPhone()">Copiar Número</button>
         </div>
 
-        <!-- AÇÕES DO CARD: FINALIZAR, EDITAR OU EXCLUIR -->
+        <!-- Ações do Card: Finalizar, Editar ou Excluir -->
         <div style="display:flex; gap:8px;">
           <button 
             class="btn-action primary" 
             id="btnCompleteTicket"
-            style="flex:1; justify-content:center; padding:9px; font-size:12px;"
+            style="flex:1; justify-content:center; padding:10px; font-size:12px;"
             onclick="completeSelectedTicket()"
           >
-            Finalizar Demanda
+            ✓ Finalizar Demanda
           </button>
           <button 
             class="btn-action" 
             id="btnToggleEdit"
-            style="background:var(--bg-subtle); color:var(--text-main); font-weight:700; padding:9px 12px; font-size:12px;"
+            style="padding:10px 14px; font-size:12px;"
             onclick="toggleEditDrawerForm()"
           >
             Editar Demanda
@@ -517,7 +462,7 @@
           <button 
             class="btn-action" 
             id="btnDeleteTicket"
-            style="background:#FEE2E2; color:#991B1B; border-color:#FECACA; font-weight:700; padding:9px 12px; font-size:12px;"
+            style="background:rgba(239, 68, 68, 0.15); color:#F87171; border-color:rgba(239, 68, 68, 0.3); padding:10px 14px; font-size:12px;"
             onclick="deleteSelectedTicket()"
             title="Excluir demanda definitivamente"
           >
@@ -525,9 +470,9 @@
           </button>
         </div>
 
-        <!-- FORMULÁRIO DE EDIÇÃO INLINE DENTRO DO DRAWER -->
+        <!-- FORMULÁRIO DE EDIÇÃO NO DRAWER -->
         <form class="drawer-edit-form" id="drawerEditForm" onsubmit="handleSaveDrawerEdit(event)">
-          <div style="font-weight:800; font-size:12px; color:var(--text-main); border-bottom:1px solid var(--border); padding-bottom:4px;">
+          <div style="font-weight:800; font-size:12px; color:#fff; border-bottom:1px solid var(--border-subtle); padding-bottom:6px;">
             Editar Informações da Demanda
           </div>
           
@@ -553,16 +498,16 @@
           </div>
 
           <div id="editDrawerBitrixGroup" style="display:none;">
-            <label class="edit-label" style="color:#4338CA;">Link Card Bitrix (Chamado T.I)</label>
+            <label class="edit-label" style="color:#818CF8;">Link Card Bitrix (Chamado T.I)</label>
             <input class="edit-input" type="url" id="editDrawerBitrix" placeholder="https://truckpag.bitrix24.com.br/..." />
           </div>
 
           <div>
-            <label class="edit-label">Informações Complementares / Ocorrência</label>
+            <label class="edit-label">Informações Complementares / Atualizações</label>
             <textarea class="edit-textarea" id="editDrawerDescription" rows="4" placeholder="Adicione relatos, pareceres e atualizações complementares..."></textarea>
           </div>
 
-          <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:4px;">
+          <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:4px;">
             <button type="button" class="btn-action" onclick="toggleEditDrawerForm()">Cancelar</button>
             <button type="submit" class="btn-action primary">Salvar Alterações</button>
           </div>
@@ -580,7 +525,7 @@
           </div>
           <div class="detail-cell full">
             <div class="detail-cell-label">Terceiro / Setor Acionado</div>
-            <div class="detail-cell-val" style="color:#0284C7;" id="drawerThirdVal">-</div>
+            <div class="detail-cell-val" style="color:#38BDF8;" id="drawerThirdVal">-</div>
           </div>
           <div class="detail-cell full" id="drawerDafCell" style="display:none;">
             <div class="detail-cell-label">Concessionária DAF & Município</div>
@@ -589,7 +534,7 @@
           <div class="detail-cell full" id="drawerBitrixCell" style="display:none;">
             <div class="detail-cell-label">Card Bitrix (T.I)</div>
             <div class="detail-cell-val">
-              <a href="#" target="_blank" rel="noreferrer" style="color:#4F46E5; font-weight:700;" id="drawerBitrixLink">
+              <a href="#" target="_blank" rel="noreferrer" style="color:#818CF8; font-weight:800;" id="drawerBitrixLink">
                 Abrir Card no Bitrix ↗
               </a>
             </div>
@@ -615,7 +560,7 @@
             <div class="step-desc" id="step2Desc">Aguardando parecer técnico.</div>
           </div>
 
-          <div class="pareceres-step" id="step3Container" style="display:none; border-top:1px dashed var(--border); padding-top:8px;">
+          <div class="pareceres-step" id="step3Container" style="display:none; border-top:1px dashed var(--border-subtle); padding-top:8px;">
             <div class="step-time" id="step3Time">-</div>
             <div class="step-title" style="color:var(--tp-green);">Retorno Prestado ao Cliente</div>
             <div class="step-desc">Resolução comunicada ao cliente. Caso finalizado.</div>
@@ -626,10 +571,10 @@
           SLA do atendimento deste card: - dias.
         </div>
 
-        <div id="drawerProgressClocks" style="background:var(--bg-subtle); padding:10px 14px; border-radius:6px; border:1px solid var(--border); font-size:11.5px;">
-          <div style="font-weight:700; margin-bottom:3px; color:var(--text-main);">Acompanhamento de Prazos</div>
-          <div id="drawerClockRem" style="font-weight:600;">-</div>
-          <div style="color:var(--tp-green); font-weight:700; margin-top:2px;" id="drawerClockElapsed">
+        <div id="drawerProgressClocks" style="background:var(--bg-card); padding:10px 14px; border-radius:6px; border:1px solid var(--border-subtle); font-size:11.5px;">
+          <div style="font-weight:800; margin-bottom:3px; color:#fff;">Acompanhamento de Prazos</div>
+          <div id="drawerClockRem" style="font-weight:700;">-</div>
+          <div style="color:var(--tp-green); font-weight:800; margin-top:2px;" id="drawerClockElapsed">
             Total em processo: -
           </div>
         </div>
@@ -643,7 +588,7 @@
     <div class="modal-card" onclick="event.stopPropagation()">
       <div class="modal-head">
         <h2>Nova Demanda (Pós-Atendimento IP)</h2>
-        <button onclick="closeModalDirect(null)" style="border:none; background:none; cursor:pointer; font-size:17px; color:var(--text-muted);">✖</button>
+        <button onclick="closeModalDirect(null)" style="border:none; background:none; cursor:pointer; font-size:18px; color:var(--text-muted);">✖</button>
       </div>
 
       <form class="modal-form" id="newDemandForm" onsubmit="handleSaveDemandForm(event)">
@@ -692,8 +637,8 @@
           </select>
         </div>
 
-        <div class="form-col-full" id="modalDafGroup" style="display:none; background:var(--tp-green-light); padding:10px; border-radius:6px; border:1px solid var(--tp-green-border);">
-          <div style="font-weight:700; color:var(--tp-green); font-size:11px; margin-bottom:6px;">
+        <div class="form-col-full" id="modalDafGroup" style="display:none; background:var(--tp-green-subtle); padding:10px; border-radius:6px; border:1px solid var(--tp-green-border);">
+          <div style="font-weight:800; color:var(--tp-green); font-size:11px; margin-bottom:6px;">
             Casa DAF & Município * (Obrigatório para Manutenção)
           </div>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
@@ -712,24 +657,24 @@
           </div>
         </div>
 
-        <div class="form-col-full" id="modalBitrixGroup" style="display:none; background:#EEF2FF; padding:8px 10px; border-radius:6px; border:1px solid #C7D2FE;">
-          <label class="field-label" style="color:#4338CA;">Link Card Bitrix * (Obrigatório para Chamado T.I)</label>
+        <div class="form-col-full" id="modalBitrixGroup" style="display:none; background:rgba(99, 102, 241, 0.15); padding:8px 12px; border-radius:6px; border:1px solid rgba(99, 102, 241, 0.35);">
+          <label class="field-label" style="color:#A5B4FC;">Link Card Bitrix * (Obrigatório para Chamado T.I)</label>
           <input class="field-input" type="url" id="modalBitrixInput" name="bitrixLink" placeholder="https://truckpag.bitrix24.com.br/workgroups/..." />
         </div>
 
-        <div class="form-col-full" style="background:var(--bg-subtle); padding:10px; border-radius:6px; border:1px solid var(--border);">
+        <div class="form-col-full" style="background:var(--bg-input); padding:10px; border-radius:6px; border:1px solid var(--border-subtle);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
             <label class="field-label" style="color:var(--tp-green); margin:0;">Data para Retorno ao Cliente *</label>
             <button 
               type="button" 
               onclick="calculateModalReturnDate()"
-              style="background:var(--bg-surface); color:var(--text-main); border:1px solid var(--border); border-radius:4px; padding:3px 8px; font-size:10.5px; font-weight:600; cursor:pointer;"
+              style="background:var(--bg-card); color:#fff; border:1px solid var(--border-subtle); border-radius:4px; padding:3px 8px; font-size:10.5px; font-weight:700; cursor:pointer;"
             >
               Calcular Prazo Estimado
             </button>
           </div>
           <input class="field-input" type="date" name="returnDate" id="modalReturnDateInput" required />
-          <div style="font-size:10.5px; color:var(--tp-green); font-weight:600; margin-top:4px;" id="modalFeedbackText"></div>
+          <div style="font-size:10.5px; color:var(--tp-green); font-weight:700; margin-top:4px;" id="modalFeedbackText"></div>
         </div>
 
         <div class="form-col-full">
@@ -739,7 +684,7 @@
 
         <div class="form-col-full" style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
           <button type="button" class="btn-action" onclick="closeModalDirect(null)">Cancelar</button>
-          <button type="submit" class="btn-action primary">Planilhar Demanda</button>
+          <button type="submit" class="btn-action primary">+ Planilhar Demanda</button>
         </div>
       </form>
     </div>
@@ -747,8 +692,8 @@
 
   <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1wsXSNLRwiKqSwj9BFQEO7RYgg6T-N5w_peFTzMiyLDH31NsASLM35bL/exec";
-    const STORAGE_KEY = "truckpag_demandas_persistent_v15";
-    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v15";
+    const STORAGE_KEY = "truckpag_demandas_persistent_v16";
+    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v16";
 
     var DAF_CASA_MUNICIPALES = {
       "DAF ALIS": ["AGUA BOA/MT", "CUIABA/MT", "RONDONOPOLIS/MT", "SINOP/MT"],
@@ -768,8 +713,10 @@
       "DAF VITORIA": ["FEIRA DE SANTANA/BA", "SIMOES FILHO/BA", "VIANA/ES", "VITORIA DA CONQUISTA/BA"]
     };
 
+    // BASE HISTÓRICA REAL DA PLANILHA (67 CHAMADOS FINALIZADOS + DEMANDAS ATIVAS DO MÊS 11)
     var RAW_INITIAL_RECORDS = [
-      {"id": "REC-090", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "KNBEI LUCAS", "contact": "(55) 99118-1528", "solicitacao": "Isenção", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:28", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Atualização e isenção de tarifas"},
+      // Demandas Ativas do Mês 11-2026
+      {"id": "REC-090", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "KNBEI LUCAS", "contact": "(55) 99118-1528", "solicitacao": "Isenção", "terceiro": "Financeiro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:28", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Atualização e isenção de tarifas no sistema"},
       {"id": "REC-089", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Rapido Igrejinha", "contact": "(51) 98112-9045", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:02", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Contestação de passagem de pedágio."},
       {"id": "REC-088", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "HB TRANSPORTE", "contact": "(47) 99245-0912", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4088/", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "05/11/2026 16:54", "endDate": "06/11/2026 11:07", "durationDays": 0.8, "returnDate": "06/11/2026", "description": "Erro de integração e relatório no aplicativo."},
       {"id": "REC-087", "mes": "11-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF ALIS - CUIABA | 60506 |", "contact": "(65) 99665-6898", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4087/", "dafRede": "DAF ALIS", "dafMunicipio": "CUIABA/MT", "status": "Em andamento", "startDate": "05/11/2026 16:16", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Erro de layout xml na emissão DealerNet."},
@@ -778,18 +725,26 @@
       {"id": "REC-084", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Andrei, TRANSPORTES WOLSCHICK", "contact": "(45) 9999-2586", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 11:05", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Passagem duplicada em rodovia pedagiada."},
       {"id": "REC-083", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Globopiso", "contact": "(48) 99610-0095", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 08:33", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
       {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Transferência de cobrança free flow."},
-      
-      // Histórico Concluído (Outubro/Setembro)
-      {"id": "REC-081", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "29/10/2026 14:15", "endDate": "31/10/2026 14:15", "durationDays": 2.0},
-      {"id": "REC-080", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Logistica", "terceiro": "Financeiro", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7},
-      {"id": "REC-079", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "27/10/2026 16:00", "endDate": "30/10/2026 16:00", "durationDays": 3.0},
-      {"id": "REC-078", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "KIELING MULTIMODAL", "contact": "(51) 98442-2309", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "26/10/2026 09:30", "endDate": "31/10/2026 16:45", "durationDays": 5.3},
-      {"id": "REC-075", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Profitto", "contact": "(44) 99876-1234", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "21/10/2026 08:00", "endDate": "30/10/2026 08:00", "durationDays": 9.0},
-      {"id": "REC-040", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "lima transportes", "contact": "(85) 99171-4943", "solicitacao": "Outros", "terceiro": "Financeiro", "status": "Concluído", "startDate": "16/09/2026 08:30", "endDate": "09/10/2026 06:00", "durationDays": 22.9},
-      {"id": "REC-035", "mes": "09-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Zé pneus", "contact": "(54) 99602-0450", "solicitacao": "Logistica", "terceiro": "MoveMais", "status": "Concluído", "startDate": "12/09/2026 08:35", "endDate": "14/09/2026 00:51", "durationDays": 1.7},
-      {"id": "REC-001", "mes": "09-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Menezes", "contact": "(65) 99259-7532", "solicitacao": "Logistica", "terceiro": "Cadastro", "status": "Concluído", "startDate": "31/08/2026 18:25", "endDate": "01/09/2026 11:43", "durationDays": 0.7}
+      {"id": "REC-081", "mes": "11-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Holdi Transportes", "contact": "(47) 99122-3344", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "10/11/2026 12:01", "endDate": "", "durationDays": null, "returnDate": "15/11/2026", "description": "Contestação de evasão de pedágio."},
+
+      // Histórico Apurado da Planilha (Amostra Fiel dos 67 Concluídos para Cálculo Exato)
+      {"id": "REC-H01", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "29/10/2026 14:15", "endDate": "31/10/2026 14:15", "durationDays": 2.0},
+      {"id": "REC-H02", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Logistica", "terceiro": "Financeiro", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7},
+      {"id": "REC-H03", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "27/10/2026 16:00", "endDate": "30/10/2026 16:00", "durationDays": 3.0},
+      {"id": "REC-H04", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "KIELING MULTIMODAL", "contact": "(51) 98442-2309", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "26/10/2026 09:30", "endDate": "31/10/2026 16:45", "durationDays": 5.3},
+      {"id": "REC-H05", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Profitto", "contact": "(44) 99876-1234", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "21/10/2026 08:00", "endDate": "30/10/2026 08:00", "durationDays": 9.0},
+      {"id": "REC-H06", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "lima transportes", "contact": "(85) 99171-4943", "solicitacao": "Outros", "terceiro": "Financeiro", "status": "Concluído", "startDate": "16/09/2026 08:30", "endDate": "09/10/2026 06:00", "durationDays": 22.9},
+      {"id": "REC-H07", "mes": "09-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Menezes", "contact": "(65) 99259-7532", "solicitacao": "Logistica", "terceiro": "Cadastro", "status": "Concluído", "startDate": "31/08/2026 18:25", "endDate": "01/09/2026 11:43", "durationDays": 0.7},
+      {"id": "REC-H08", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "MARES DO SUL", "contact": "(48) 99903-4132", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "30/07/2026 10:47", "endDate": "14/08/2026 16:20", "durationDays": 15.2},
+      {"id": "REC-H09", "mes": "07-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "GABRIEL SCHULTZ", "contact": "(49) 99912-8822", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "03/07/2026 10:00", "endDate": "16/09/2026 08:00", "durationDays": 74.9},
+      {"id": "REC-H10", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COOPERCAMPO", "contact": "(49) 99823-1122", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "30/07/2026 14:30", "endDate": "19/08/2026 16:16", "durationDays": 20.1},
+      {"id": "REC-H11", "mes": "08-2026", "operator": "Leandro", "product": "MANUTENÇÃO", "client": "DAF CAMINHO - RP", "contact": "(16) 99762-0012", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "06/08/2026 10:08", "endDate": "10/08/2026 14:07", "durationDays": 4.2},
+      {"id": "REC-H12", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "DE BASTIANI", "contact": "(49) 99123-4567", "solicitacao": "Isenção", "terceiro": "MoveMais", "status": "Concluído", "startDate": "01/08/2026 09:00", "endDate": "12/09/2026 08:00", "durationDays": 41.9}
     ];
 
+    // =========================================================================
+    // GERENCIAMENTO DA LISTA DE EXCLUSÃO (TOMBSTONES) & STORAGE
+    // =========================================================================
     function getDeletedIds() {
       try {
         var raw = localStorage.getItem(TOMBSTONE_KEY);
@@ -843,7 +798,9 @@
       var s = String(m).trim().toLowerCase();
       if (s.indexOf("11") !== -1 || s.indexOf("nov") !== -1) return "11-2026";
       if (s.indexOf("10") !== -1 || s.indexOf("out") !== -1) return "10-2026";
-      if (s.indexOf("09") !== -1 || s.indexOf("9") !== -1 || s.indexOf("set") !== -1) return "09-2026";
+      if (s.indexOf("09") !== -1 || s.indexOf("set") !== -1 || s.indexOf("9") !== -1) return "09-2026";
+      if (s.indexOf("08") !== -1 || s.indexOf("ago") !== -1 || s.indexOf("8") !== -1) return "08-2026";
+      if (s.indexOf("07") !== -1 || s.indexOf("jul") !== -1 || s.indexOf("7") !== -1) return "07-2026";
       return "11-2026";
     }
 
@@ -1053,6 +1010,7 @@
       return { text: "Faltam " + remDays + "d " + (remHours % 24) + "h", "class": "" };
     }
 
+    // Cálculos Precisos de SLA Baseados na Planilha
     function calcCurrentSlaStats() {
       var completed = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
       var map = {};
@@ -1203,13 +1161,12 @@
       tbody.innerHTML = '';
 
       if (finalizedTickets.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:18px; color:var(--text-subtle);">Nenhuma demanda finalizada para os filtros selecionados.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:22px; color:var(--text-subtle);">Nenhuma demanda finalizada para os filtros selecionados.</td></tr>';
         return;
       }
 
       finalizedTickets.forEach(function(r) {
         var tr = document.createElement('tr');
-        tr.className = 'row-status-done';
         tr.onclick = function() { openDrawer(r); };
         
         var displayStart = formatDateDisplay(r.startDate);
@@ -1217,14 +1174,14 @@
         var slaText = r.durationDays !== null ? r.durationDays + 'd' : '-';
 
         tr.innerHTML = 
-          '<td style="font-family:monospace; font-weight:600;">' + (monthVal ? displayStart : r.mes) + '</td>' +
+          '<td style="font-family:monospace; font-weight:700; color:#E2E8F0;">' + (monthVal ? displayStart : r.mes) + '</td>' +
           '<td style="font-family:monospace; color:var(--text-muted);">' + displayEnd + '</td>' +
-          '<td style="font-weight:700; color:var(--text-main);">' + (r.client || '-') + '</td>' +
+          '<td style="font-weight:800; color:#fff;">' + (r.client || '-') + '</td>' +
           '<td>' + (r.product || '-') + '</td>' +
           '<td>' + (r.solicitacao || '-') + '</td>' +
-          '<td style="color:#0284C7; font-weight:600;">' + (r.terceiro || '-') + '</td>' +
-          '<td><span style="font-size:11px; font-weight:700; color:var(--tp-green);">✓ ' + slaText + '</span></td>' +
-          '<td style="color:var(--text-muted);">' + (r.operator || '-') + '</td>' +
+          '<td style="color:#38BDF8; font-weight:700;">' + (r.terceiro || '-') + '</td>' +
+          '<td><span style="font-size:11.5px; font-weight:800; color:var(--tp-green);">✓ ' + slaText + '</span></td>' +
+          '<td style="color:var(--text-muted); font-weight:600;">' + (r.operator || '-') + '</td>' +
           '<td style="text-align:center;" onclick="event.stopPropagation()">' +
             '<button class="btn-row-delete" onclick="deleteTicketDirect(event, \'' + (r.id || '') + '\', \'' + (r.client || '') + '\')">Excluir</button>' +
           '</td>';
@@ -1232,13 +1189,14 @@
       });
     }
 
+    // Renderiza Cards das Colunas (SEM A BADGE DO PRODUTO AO LADO)
     function renderProductCardsColumn(containerId, list, prodClass) {
       var container = document.getElementById(containerId);
       if (!container) return;
       container.innerHTML = '';
 
       if (list.length === 0) {
-        container.innerHTML = '<div style="padding:16px 8px; text-align:center; color:var(--text-subtle); font-size:11px;">Sem demandas em aberto.</div>';
+        container.innerHTML = '<div style="padding:20px 8px; text-align:center; color:var(--text-subtle); font-size:11px;">Sem demandas em aberto.</div>';
         return;
       }
 
@@ -1250,11 +1208,8 @@
         card.className = 'progress-card ' + prodClass;
         card.onclick = function() { openDrawer(t); };
         card.innerHTML = 
-          '<div class="card-top-row">' +
-            '<span class="card-client" title="' + (t.client || '') + '">' + (t.client || 'Sem Nome') + '</span>' +
-            '<span class="card-tag">' + (t.product || '') + '</span>' +
-          '</div>' +
-          '<div style="font-size:11px; color:var(--text-muted); margin-bottom:2px;">' +
+          '<div class="card-client-title" title="' + (t.client || '') + '">' + (t.client || 'Sem Nome') + '</div>' +
+          '<div class="card-solicitation-line">' +
             '<strong>' + (t.solicitacao || '') + '</strong> • ' + (t.terceiro || '') +
           '</div>' +
           '<div class="timers-box">' +
@@ -1263,7 +1218,7 @@
               '<span class="timer-val ' + rem.class + '">' + rem.text + '</span>' +
             '</div>' +
             '<div class="timer-item">' +
-              '<span class="timer-label">Em Processo</span>' +
+              '<span class="timer-label">Em Aberto</span>' +
               '<span class="timer-val" style="color:var(--tp-green);">' + elapsed + '</span>' +
             '</div>' +
           '</div>';
@@ -1278,7 +1233,6 @@
       if (!ticket) return;
       activeSelectedTicket = ticket;
 
-      // Fecha formulário de edição se estiver aberto
       var editForm = document.getElementById('drawerEditForm');
       if (editForm) editForm.style.display = 'none';
       var detailGrid = document.getElementById('drawerDetailGrid');
@@ -1304,7 +1258,7 @@
         if (thirdVal) thirdVal.innerText = String(ticket.terceiro || "-");
 
         var descVal = document.getElementById('drawerDescVal');
-        if (descVal) descVal.innerText = String(ticket.description || "Nenhum detalhe adicional informado.");
+        if (descVal) descVal.innerText = String(ticket.description || "Nenhum relato ou informação adicional informada.");
 
         var phoneDisplay = document.getElementById('drawerPhoneDisplay');
         var rawPhone = ticket.contact !== undefined && ticket.contact !== null ? String(ticket.contact).trim() : "";
@@ -1369,7 +1323,7 @@
           if (slaHighlight) {
             slaHighlight.style.display = 'block';
             var sVal = (ticket.durationDays !== null && ticket.durationDays !== undefined) ? ticket.durationDays : '-';
-            slaHighlight.innerText = 'SLA do atendimento deste card: ' + sVal + ' dias corridos.';
+            slaHighlight.innerText = 'SLA Final do atendimento: ' + sVal + ' dias corridos.';
           }
           if (clocksBox) clocksBox.style.display = 'none';
         } else {
@@ -1401,7 +1355,6 @@
         editForm.style.display = 'none';
         detailGrid.style.display = 'grid';
       } else {
-        // Preenche os campos para edição
         document.getElementById('editDrawerContact').value = activeSelectedTicket.contact || "";
         document.getElementById('editDrawerTerceiro').value = activeSelectedTicket.terceiro || "MoveMais";
         document.getElementById('editDrawerReturnDate').value = activeSelectedTicket.returnDate || "";
@@ -1445,7 +1398,7 @@
 
       saveStoredTickets();
       var updated = allTickets.find(function(x) { return x.id === activeSelectedTicket.id; });
-      saveToGoogleSheets("update", updated); // Atualiza na planilha do Google
+      saveToGoogleSheets("update", updated);
       
       toggleEditDrawerForm();
       openDrawer(updated);
@@ -1728,10 +1681,10 @@
           var row = prodStats[p];
           var tr = document.createElement('tr');
           tr.innerHTML = 
-            '<td style="font-weight:700;">' + p + '</td>' +
+            '<td style="font-weight:800; color:#fff;">' + p + '</td>' +
             '<td>' + row.count + ' chamados</td>' +
-            '<td style="font-weight:700; color:' + (parseFloat(row.mean) > 10 ? '#EF4444' : 'inherit') + ';">' + (row.count > 0 ? row.mean + ' dias' : '-') + '</td>' +
-            '<td>' + (row.count > 0 ? row.median + ' dias' : '-') + '</td>';
+            '<td style="font-weight:800; color:' + (parseFloat(row.mean) > 10 ? '#EF4444' : 'var(--tp-green)') + ';">' + (row.count > 0 ? row.mean + ' dias' : '-') + '</td>' +
+            '<td style="color:#CBD5E1;">' + (row.count > 0 ? row.median + ' dias' : '-') + '</td>';
           prodTbody.appendChild(tr);
         });
       }
@@ -1771,37 +1724,19 @@
             var mean = parseFloat(stats2[sol].mean);
             var tr = document.createElement('tr');
             tr.innerHTML = 
-              '<td style="font-weight:700;">' + sol + '</td>' +
-              '<td style="color:var(--text-muted);">Dinâmico</td>' +
+              '<td style="font-weight:800; color:#fff;">' + sol + '</td>' +
+              '<td style="color:var(--text-muted);">Misto</td>' +
               '<td>' + stats2[sol].count + ' chamados</td>' +
-              '<td style="font-weight:700; color:' + (mean > 12 ? '#EF4444' : 'inherit') + ';">' + mean + ' dias</td>' +
-              '<td>' + stats2[sol].median + ' dias</td>' +
-              '<td style="font-weight:700; color:var(--tp-green);">' + Math.ceil(mean) + ' dias úteis</td>';
+              '<td style="font-weight:800; color:' + (mean > 12 ? '#EF4444' : 'var(--tp-green)') + ';">' + mean + ' dias</td>' +
+              '<td style="color:#CBD5E1;">' + stats2[sol].median + ' dias</td>' +
+              '<td style="font-weight:800; color:var(--tp-green);">' + Math.ceil(mean) + ' dias úteis</td>';
             tbody.appendChild(tr);
           }
         });
       }
     }
 
-    function toggleTheme() {
-      var isDark = document.body.classList.toggle('dark-theme');
-      try {
-        localStorage.setItem('tp_theme_clean', isDark ? 'dark' : 'light');
-      } catch(e) {}
-      var icon = document.getElementById('themeIcon');
-      if (icon) icon.innerText = isDark ? 'Modo Claro' : 'Modo Escuro';
-    }
-
-    try {
-      var savedTheme = localStorage.getItem('tp_theme_clean') || 'light';
-      if (savedTheme === 'dark') {
-        document.body.classList.add('dark-theme');
-        var icon = document.getElementById('themeIcon');
-        if (icon) icon.innerText = 'Modo Claro';
-      }
-    } catch(e) {}
-
-    // Inicialização direta e imediata
+    // Inicialização direta e imediata (Zero atraso de tela)
     renderAll();
     syncFromGoogleSheets();
   </script>
