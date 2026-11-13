@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>TruckPag Backoffice • Gestão de Demandas & SLA</title>
+  <title>TruckPag Backoffice • Central Operacional & B.I. de SLA</title>
   <style>
     /* ==========================================================================
        DESIGN SYSTEM • TRUCKPAG PORTAL DARK THEME
@@ -36,7 +36,7 @@
     body { background-color: var(--bg-base); color: var(--text-main); font-size: 12.5px; line-height: 1.45; overflow-x: hidden; }
 
     /* Topbar Oficial TruckPag */
-    .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); gap: 12px; flex-wrap: wrap; }
+    .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); padding: 11px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); gap: 12px; flex-wrap: wrap; }
     .brand-section { display: flex; align-items: center; gap: 12px; }
     .brand-logo-text { font-size: 19px; font-weight: 900; letter-spacing: -0.5px; color: var(--tp-green); display: flex; align-items: center; gap: 4px; }
     .brand-logo-text span { color: #fff; font-weight: 400; font-size: 13px; margin-left: 8px; border-left: 1px solid var(--border-subtle); padding-left: 10px; }
@@ -46,7 +46,15 @@
     .tab-btn.active { background: var(--bg-card); color: var(--tp-green); font-weight: 700; }
 
     .topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .sync-status { font-size: 11px; font-weight: 700; color: var(--tp-green); display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 4px; background: var(--tp-green-subtle); border: 1px solid var(--tp-green-border); cursor: pointer; }
+    
+    /* Seletor de Operador Logado */
+    .operator-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 5px; padding: 4px 9px; font-size: 11.5px; color: var(--text-muted); }
+    .operator-pill select { background: transparent; border: none; color: #fff; font-weight: 800; font-size: 11.5px; outline: none; cursor: pointer; }
+    .operator-pill select option { background: var(--bg-surface); color: #fff; }
+
+    /* Badge Unificado de Sincronização */
+    .sync-status { font-size: 11px; font-weight: 700; color: var(--tp-green); display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 5px; background: var(--tp-green-subtle); border: 1px solid var(--tp-green-border); cursor: pointer; transition: all 0.15s; user-select: none; }
+    .sync-status:hover { background: rgba(0, 214, 89, 0.2); }
     .sync-status.syncing { color: #FBBF24; background: rgba(251, 191, 36, 0.12); border-color: rgba(251, 191, 36, 0.35); }
     .sync-status.offline { color: #F87171; background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.35); }
 
@@ -63,7 +71,7 @@
     .kpi-box { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 11px 14px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--card-shadow); transition: border-color 0.15s; }
     .kpi-box.clickable { cursor: pointer; }
     .kpi-box.clickable:hover { border-color: var(--border-focus); }
-    .kpi-box.active-kpi { border-color: #F87171; background: rgba(248, 113, 113, 0.06); }
+    .kpi-box.active-kpi { border-color: #F87171; background: rgba(248, 113, 113, 0.08); }
     .kpi-title { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
     .kpi-value { font-size: 20px; font-weight: 900; color: #fff; margin-top: 3px; font-variant-numeric: tabular-nums; }
     .kpi-sub { font-size: 10.5px; color: var(--text-subtle); margin-top: 2px; }
@@ -104,8 +112,9 @@
     .card-top-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .card-client-title { font-weight: 800; font-size: 13.5px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card-agent-pill { font-size: 10px; font-weight: 700; color: var(--text-muted); background: var(--bg-input); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border-subtle); flex-shrink: 0; }
-    .card-solicitation-line { font-size: 11.5px; color: var(--text-muted); }
+    .card-solicitation-line { font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     .card-solicitation-line strong { color: #E2E8F0; }
+    .cycle-alert-tag { font-size: 9.5px; font-weight: 800; color: #FBBF24; background: rgba(251, 191, 36, 0.14); border: 1px solid rgba(251, 191, 36, 0.35); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
 
     .timers-box { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg-input); border-radius: 5px; padding: 7px 10px; margin-top: 4px; border: 1px solid var(--border-subtle); }
     .timer-item { display: flex; flex-direction: column; }
@@ -114,45 +123,66 @@
     .timer-val.late { color: #F87171; }
     .timer-val.today { color: #FBBF24; }
 
-    /* TABELA DE REGISTROS (APENAS FINALIZADOS) */
-    .table-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
-    .table-card-header { padding: 12px 16px; background: var(--bg-card); border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
-    .table-card-header h3 { font-size: 12.5px; font-weight: 800; color: #fff; }
+    /* TABELA DE REGISTROS FINALIZADOS (COM LEVE TOM VERDE) */
+    .table-card { background: var(--bg-surface); border: 1px solid rgba(0, 214, 89, 0.25); border-radius: 8px; overflow: hidden; box-shadow: var(--card-shadow); }
+    .table-card-header { padding: 12px 16px; background: rgba(0, 214, 89, 0.08); border-bottom: 1px solid rgba(0, 214, 89, 0.2); display: flex; justify-content: space-between; align-items: center; }
+    .table-card-header h3 { font-size: 12.5px; font-weight: 800; color: var(--tp-green); display: flex; align-items: center; gap: 6px; }
     
     table.dense-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     table.dense-table thead tr { background: var(--bg-input); border-bottom: 1px solid var(--border-subtle); }
     table.dense-table th { padding: 10px 14px; font-weight: 800; color: var(--text-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px; }
-    table.dense-table td { padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
-    table.dense-table tbody tr { cursor: pointer; transition: background 0.15s; }
-    table.dense-table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+    table.dense-table td { padding: 10px 14px; border-bottom: 1px solid rgba(0, 214, 89, 0.12); vertical-align: middle; }
+    table.dense-table tbody tr { cursor: pointer; transition: background 0.15s; background: rgba(0, 214, 89, 0.045); border-left: 3px solid rgba(0, 214, 89, 0.5); }
+    table.dense-table tbody tr:hover { background: rgba(0, 214, 89, 0.11); }
 
     .btn-row-delete { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 10px; font-size: 10.5px; font-weight: 700; border-radius: 4px; cursor: pointer; }
     .btn-row-delete:hover { background: rgba(239, 68, 68, 0.25); }
 
-    /* RELATÓRIO GERENCIAL DE SLA */
+    /* ==========================================================================
+       RELATÓRIO GERENCIAL EXECUTIVO DE B.I. (SLA DE TERCEIROS & OPERAÇÃO)
+       ========================================================================== */
+    .bi-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+    @media (max-width: 950px) { .bi-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .bi-kpi-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 15px 18px; box-shadow: var(--card-shadow); border-top: 3px solid var(--border-subtle); }
+    .bi-kpi-label { font-size: 10.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .bi-kpi-num { font-size: 22px; font-weight: 900; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .bi-kpi-detail { font-size: 11px; color: var(--text-subtle); margin-top: 3px; }
+
     .sla-report-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
     .sla-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 18px 20px; box-shadow: var(--card-shadow); }
     .sla-card.col-12 { grid-column: span 12; }
+    .sla-card.col-7 { grid-column: span 7; }
+    .sla-card.col-5 { grid-column: span 5; }
     .sla-card.col-6 { grid-column: span 6; }
-    @media (max-width: 900px) { .sla-card.col-6 { grid-column: span 12; } }
+    @media (max-width: 1024px) { .sla-card.col-7, .sla-card.col-5, .sla-card.col-6 { grid-column: span 12; } }
 
-    .headline-box { margin-bottom: 14px; }
-    .action-headline { font-size: 13.5px; font-weight: 800; color: #fff; }
+    .headline-box { margin-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+    .action-headline { font-size: 14px; font-weight: 800; color: #fff; }
     .action-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-    .chart-bar-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 11.5px; }
-    .bar-label { width: 170px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #E2E8F0; }
-    .bar-track { flex: 1; height: 16px; background: var(--bg-input); border-radius: 3px; overflow: hidden; display: flex; align-items: center; }
-    .bar-fill { height: 100%; background: var(--tp-green); border-radius: 3px; }
-    .bar-value { width: 65px; text-align: right; font-weight: 800; font-family: monospace; color: #fff; font-size: 11px; }
+    /* Legenda Degradê Semafórico */
+    .gradient-legend { display: flex; align-items: center; gap: 8px; font-size: 10.5px; color: var(--text-muted); background: var(--bg-input); padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border-subtle); }
+    .gradient-bar-sample { width: 70px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #00D659 0%, #F59E0B 50%, #EF4444 100%); }
+
+    .sla-pill-gradient { display: inline-flex; align-items: center; justify-content: center; padding: 3px 9px; border-radius: 4px; font-weight: 800; font-family: monospace; font-size: 11.5px; min-width: 68px; }
+    .mini-track { width: 100%; height: 7px; background: var(--bg-input); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+    .mini-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
 
     .exec-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
-    .exec-table th { background: var(--bg-input); padding: 9px 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border-subtle); }
-    .exec-table td { padding: 9px 12px; border-bottom: 1px solid var(--border-subtle); }
+    .exec-table th { background: var(--bg-input); padding: 9px 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; font-size: 10px; border-bottom: 1px solid var(--border-subtle); text-align: left; }
+    .exec-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
+    .exec-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+    /* Card de Inteligência de Isenção / Fechamento */
+    .cycle-intel-box { background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.3); border-left: 4px solid #F59E0B; border-radius: 6px; padding: 12px 14px; margin-bottom: 12px; }
+    .cycle-intel-title { font-size: 12px; font-weight: 800; color: #FBBF24; display: flex; align-items: center; gap: 6px; }
+    .cycle-intel-desc { font-size: 11.5px; color: #E2E8F0; margin-top: 4px; line-height: 1.45; }
+    .cycle-ticket-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 4px 9px; border-radius: 4px; font-size: 11px; color: #fff; cursor: pointer; margin-top: 6px; margin-right: 6px; }
+    .cycle-ticket-chip:hover { border-color: #FBBF24; color: #FBBF24; }
 
     /* DRAWER LATERAL */
     .drawer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.72); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(2px); }
-    .drawer-content { width: 500px; max-width: 95vw; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border-subtle); display: flex; flex-direction: column; box-shadow: -8px 0 30px rgba(0,0,0,0.5); }
+    .drawer-content { width: 510px; max-width: 95vw; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border-subtle); display: flex; flex-direction: column; box-shadow: -8px 0 30px rgba(0,0,0,0.5); }
     .drawer-header { padding: 18px 22px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: flex-start; background: var(--bg-card); }
     .drawer-header-left { flex: 1; }
     .drawer-client-title { font-size: 17px; font-weight: 900; color: #fff; line-height: 1.2; word-break: break-word; }
@@ -160,13 +190,18 @@
     .badge-product { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; background: var(--bg-input); border: 1px solid var(--border-subtle); color: #fff; }
     .badge-solicitation { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: var(--tp-green-subtle); color: var(--tp-green); border: 1px solid var(--tp-green-border); }
     
-    .drawer-body { flex: 1; overflow-y: auto; padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 18px 22px; display: flex; flex-direction: column; gap: 13px; }
 
-    .contact-clean-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+    .contact-clean-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .contact-clean-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
     .contact-clean-phone { font-size: 14px; font-weight: 800; color: #fff; font-family: monospace; margin-top: 1px; }
-    .btn-copy-clean { padding: 5px 12px; font-size: 11px; font-weight: 700; border-radius: 4px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: #fff; cursor: pointer; }
+    .btn-copy-clean { padding: 5px 11px; font-size: 11px; font-weight: 700; border-radius: 4px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: #fff; cursor: pointer; transition: all 0.15s; }
     .btn-copy-clean:hover { border-color: var(--tp-green); color: var(--tp-green); }
+
+    /* Barra de Ações Rápidas de Produtividade */
+    .quick-ops-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-quick-op { padding: 7px 10px; font-size: 11px; font-weight: 700; border-radius: 5px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: #E2E8F0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.15s; }
+    .btn-quick-op:hover { border-color: var(--tp-green); color: var(--tp-green); background: var(--tp-green-subtle); }
 
     .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; }
     .detail-cell { background: var(--bg-card); border-radius: 6px; padding: 9px 12px; border: 1px solid var(--border-subtle); }
@@ -202,6 +237,12 @@
     .field-label { font-size: 11px; font-weight: 800; color: #E2E8F0; margin-bottom: 4px; display: block; }
     .field-input, .field-select, .field-textarea { width: 100%; padding: 8px 10px; font-size: 12px; border-radius: 5px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: #fff; outline: none; }
     .field-input:focus, .field-select:focus, .field-textarea:focus { border-color: var(--border-focus); }
+
+    /* TOAST NOTIFICATION (AUTO-DISMISS READ-ONLY) */
+    .toast-container { position: fixed; bottom: 22px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast-msg { background: #1E2024; color: #fff; border: 1px solid var(--tp-green); border-left: 4px solid var(--tp-green); padding: 10px 16px; border-radius: 6px; font-size: 12px; font-weight: 700; box-shadow: 0 10px 25px rgba(0,0,0,0.55); display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateY(10px); transition: all 0.22s ease; }
+    .toast-msg.show { opacity: 1; transform: translateY(0); }
+    .toast-msg.warn { border-color: #F59E0B; border-left-color: #F59E0B; }
   </style>
 </head>
 <body>
@@ -219,16 +260,23 @@
         Fila Operacional & Registros
       </button>
       <button class="tab-btn" id="btnTabReport" onclick="switchMainTab('report')">
-        Relatório Gerencial (SLA)
+        Relatório Gerencial (B.I. & SLA)
       </button>
     </nav>
 
     <div class="topbar-actions">
-      <span class="sync-status" id="syncStatusIndicator" onclick="manualSyncNow()" title="Clique para sincronizar agora com a planilha">● Sincronizado</span>
-      <button class="btn-action" onclick="manualSyncNow()" title="Atualizar dados da equipe">
-        ↻ Sincronizar
-      </button>
-      <button class="btn-action" onclick="exportArchivedCSV()" title="Exportar demandas finalizadas">
+      <!-- Identificação do Operador Logado (Preenche automático em novas demandas) -->
+      <div class="operator-pill" title="Operador ativo nesta sessão (preenchimento automático)">
+        <span>👤 Operador:</span>
+        <select id="activeOperatorSelect" onchange="handleActiveOperatorChange()"></select>
+      </div>
+
+      <!-- Badge Unificado de Sincronização (Clicável) -->
+      <span class="sync-status" id="syncStatusIndicator" onclick="manualSyncNow()" title="Clique para sincronizar agora com a planilha">
+        ↻ ● Sincronizado
+      </span>
+
+      <button class="btn-action" onclick="exportArchivedCSV()" title="Exportar demandas finalizadas em CSV">
         Exportar Finalizadas
       </button>
       <button class="btn-action primary" onclick="openNewModal()">
@@ -242,7 +290,7 @@
     <!-- TELA 1: FILA OPERACIONAL E REGISTROS -->
     <div id="viewPaneRecords">
 
-      <!-- PAINEL EXECUTIVO DE KPIS (BI) -->
+      <!-- PAINEL EXECUTIVO DE KPIS -->
       <div class="kpi-strip">
         <div class="kpi-box">
           <span class="kpi-title">Demandas em Aberto</span>
@@ -267,7 +315,7 @@
         <div class="kpi-box">
           <span class="kpi-title">SLA Médio Geral</span>
           <span class="kpi-value" style="color:#E2E8F0;" id="kpiOverallSla">-</span>
-          <span class="kpi-sub">Base histórica real</span>
+          <span class="kpi-sub">Base histórica auditada</span>
         </div>
       </div>
       
@@ -288,9 +336,6 @@
 
             <select class="input-compact" id="filterAgentSelect" onchange="renderAll()">
               <option value="">Agente: Todos</option>
-              <option value="Leandro">Leandro</option>
-              <option value="Mirian">Mirian</option>
-              <option value="Isabelli">Isabelli</option>
             </select>
 
             <select class="input-compact" id="filterProductSelect" onchange="renderAll()">
@@ -311,12 +356,21 @@
               <option value="Outros">Outros</option>
             </select>
 
+            <select class="input-compact" id="filterThirdSelect" onchange="renderAll()">
+              <option value="">Terceiro: Todos</option>
+              <option value="MoveMais">MoveMais</option>
+              <option value="T.I">T.I</option>
+              <option value="Financeiro">Financeiro</option>
+              <option value="Cadastro">Cadastro</option>
+              <option value="ConnectCar">ConnectCar</option>
+            </select>
+
             <button type="button" class="btn-clear-filters" onclick="clearFilters()" title="Redefinir filtros para o padrão">
               Limpar Filtros
             </button>
           </div>
 
-          <input type="text" class="input-compact" id="searchInput" placeholder="Pesquisar cliente, protocolo..." style="width:240px;" onkeyup="renderAll()" />
+          <input type="text" class="input-compact" id="searchInput" placeholder="Pesquisar cliente, protocolo, DAF..." style="width:240px;" onkeyup="renderAll()" />
         </div>
       </div>
 
@@ -328,7 +382,7 @@
             <span style="font-size:11px; color:var(--text-muted); font-weight:normal;" id="inProgressCountLabel"></span>
           </h2>
           <span style="font-size:11px; color:var(--text-subtle);">
-            Clique no card para abrir detalhes, editar ou finalizar
+            Clique no card para abrir detalhes, editar, cobrar terceiro ou finalizar
           </span>
         </div>
 
@@ -359,11 +413,11 @@
         </div>
       </section>
 
-      <!-- TABELA DE REGISTROS (APENAS FINALIZADOS) -->
+      <!-- TABELA DE REGISTROS FINALIZADOS (LEVE TOM VERDE) -->
       <div class="table-card">
         <div class="table-card-header">
-          <h3>Histórico de Demandas Finalizadas (Concluídas)</h3>
-          <span style="font-size:11px; color:var(--text-muted);" id="finalizedCountLabel">0 demandas finalizadas</span>
+          <h3>✓ Histórico de Demandas Finalizadas (Concluídas)</h3>
+          <span style="font-size:11px; color:#A7F3D0; font-weight:700;" id="finalizedCountLabel">0 demandas finalizadas</span>
         </div>
         <table class="dense-table">
           <thead>
@@ -385,21 +439,77 @@
 
     </div>
 
-    <!-- TELA 2: RELATÓRIO GERENCIAL DE SLA -->
+    <!-- ======================================================================
+         TELA 2: RELATÓRIO GERENCIAL EXECUTIVO DE B.I. (SLA DE PARCEIROS & SETORES)
+         ====================================================================== -->
     <div id="viewPaneReport" style="display:none;">
+      
+      <!-- 4 KPIS EXECUTIVOS DO B.I. -->
+      <div class="bi-kpi-grid">
+        <div class="bi-kpi-card" id="biCardExterno">
+          <div class="bi-kpi-label">Parceiros Externos (MoveMais / Concess.)</div>
+          <div class="bi-kpi-num" id="biExternoVal">-</div>
+          <div class="bi-kpi-detail" id="biExternoSub">Média e mediana de resposta externa</div>
+        </div>
+        <div class="bi-kpi-card" id="biCardInterno">
+          <div class="bi-kpi-label">Setores Internos (T.I. / Fin. / Cad.)</div>
+          <div class="bi-kpi-num" id="biInternoVal">-</div>
+          <div class="bi-kpi-detail" id="biInternoSub">Média e mediana de tratativa interna</div>
+        </div>
+        <div class="bi-kpi-card" id="biCardGargalo">
+          <div class="bi-kpi-label">Maior Gargalo de SLA</div>
+          <div class="bi-kpi-num" style="font-size:16px; margin-top:7px;" id="biGargaloVal">-</div>
+          <div class="bi-kpi-detail" id="biGargaloSub">Foco prioritário de cobrança</div>
+        </div>
+        <div class="bi-kpi-card" style="border-top-color:var(--tp-green);">
+          <div class="bi-kpi-label">Base Histórica Auditada</div>
+          <div class="bi-kpi-num" style="color:var(--tp-green);" id="biTotalAuditado">0</div>
+          <div class="bi-kpi-detail">Chamados concluídos analisados</div>
+        </div>
+      </div>
+
       <div class="sla-report-grid">
         
-        <!-- CARD 1: SLA POR PRODUTO -->
+        <!-- MATRIZ PRINCIPAL: SLA POR TERCEIRO / PARCEIRO & ASSUNTO (COM DEGRADÊ) -->
+        <div class="sla-card col-12">
+          <div class="headline-box">
+            <div>
+              <div class="action-headline">Matriz Executiva de SLA por Terceiro / Parceiro & Assunto</div>
+              <div class="action-sub">Tempo real de resposta da MoveMais, T.I. (por produto), Financeiro e Cadastro para definição de prazos</div>
+            </div>
+            <div class="gradient-legend">
+              <span>Ágil (≤5d)</span>
+              <div class="gradient-bar-sample"></div>
+              <span>Crítico (≥15d)</span>
+            </div>
+          </div>
+          <table class="exec-table">
+            <thead>
+              <tr>
+                <th>Terceiro / Setor</th>
+                <th>Produto</th>
+                <th>Assunto (Solicitação)</th>
+                <th>Volume</th>
+                <th style="width:180px;">SLA Médio (Semáforo)</th>
+                <th>Mediana (Típico)</th>
+                <th>Regra Operacional / Prazo Sugerido</th>
+              </tr>
+            </thead>
+            <tbody id="partnerMatrixTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- CARD ESQUERDO: SLA CONSOLIDADO POR PRODUTO -->
         <div class="sla-card col-6">
           <div class="headline-box">
-            <div class="action-headline">SLA Médio por Produto (Tempo Real)</div>
-            <div class="action-sub">Consolidado com base no histórico integral da planilha</div>
+            <div class="action-headline">SLA Consolidado por Família de Produto</div>
+            <div class="action-sub">Visão macro de eficiência por frente de negócio</div>
           </div>
           <table class="exec-table">
             <thead>
               <tr>
                 <th>Produto</th>
-                <th>Volume Concluído</th>
+                <th>Concluídos</th>
                 <th>SLA Médio</th>
                 <th>Mediana</th>
               </tr>
@@ -408,51 +518,32 @@
           </table>
         </div>
 
-        <!-- CARD 2: GRÁFICO DINÂMICO DE SLA POR SOLICITAÇÃO -->
+        <!-- CARD DIREITO: RADAR DE CICLO DE FATURAMENTO (ISENÇÕES) & EQUIPE -->
         <div class="sla-card col-6">
           <div class="headline-box">
-            <div class="action-headline">Acompanhamento Dinâmico de SLA Operacional</div>
-            <div class="action-sub">Médias calculadas sobre todos os chamados finalizados</div>
+            <div class="action-headline">Radar de Fechamento (Isenções) & Carga da Equipe</div>
+            <div class="action-sub">Monitoramento de recorrência e distribuição operacional</div>
           </div>
-          <div id="chartBarsContainer"></div>
-        </div>
 
-        <!-- CARD 3: COMPARATIVO DIRETO EXTERNO VS INTERNO -->
-        <div class="sla-card col-12">
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-            <div style="background:var(--bg-card); padding:16px 20px; border-radius:6px; border:1px solid var(--border-subtle); border-left:4px solid #EF4444;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:800; font-size:13px; color:#fff;">Parceiros Externos - Média</span>
-                <span style="color:#EF4444; font-size:16px; font-weight:900;" id="slaExternoMedia">16,3 dias</span>
-              </div>
+          <div class="cycle-intel-box">
+            <div class="cycle-intel-title">⚠️ Regra de Ciclo: Solicitações de Isenção</div>
+            <div class="cycle-intel-desc">
+              Isenções possuem SLA longo (~41,9d na MoveMais) e dependem do ciclo de faturamento. Toda isenção aberta deve ser <strong>revalidada/cobrada novamente próximo ao fechamento da fatura do cliente</strong>.
             </div>
-            <div style="background:var(--bg-card); padding:16px 20px; border-radius:6px; border:1px solid var(--border-subtle); border-left:4px solid var(--tp-green);">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:800; font-size:13px; color:#fff;">Setores Internos - Média</span>
-                <span style="color:var(--tp-green); font-size:16px; font-weight:900;" id="slaInternoMedia">11,6 dias</span>
-              </div>
-            </div>
+            <div id="openIsencoesChips"></div>
           </div>
-        </div>
 
-        <!-- CARD 4: MATRIZ COMPLETA DE SLA POR SOLICITAÇÃO -->
-        <div class="sla-card col-12">
-          <div class="headline-box">
-            <div class="action-headline">Matriz Consolidada de SLA por Solicitação</div>
-            <div class="action-sub">Prazos apurados com precisão a partir de todos os chamados finalizados</div>
-          </div>
-          <table class="exec-table">
+          <table class="exec-table" style="margin-top:10px;">
             <thead>
               <tr>
-                <th>Solicitação</th>
-                <th>Terceiro Responsável</th>
-                <th>Volume Concluído</th>
-                <th>SLA Médio Real</th>
-                <th>Mediana</th>
-                <th>Prazo Recomendado ao Cliente</th>
+                <th>Operador</th>
+                <th>Em Aberto</th>
+                <th>Atrasados</th>
+                <th>Finalizados</th>
+                <th>SLA Médio</th>
               </tr>
             </thead>
-            <tbody id="execTableBody"></tbody>
+            <tbody id="operatorStatsTableBody"></tbody>
           </table>
         </div>
 
@@ -472,7 +563,7 @@
             <span class="badge-solicitation" id="drawerSolicitationBadge">SOLICITAÇÃO</span>
           </div>
         </div>
-        <button onclick="closeDrawerDirect()" style="border:none; background:none; cursor:pointer; font-size:18px; color:var(--text-muted); padding:4px;">✖</button>
+        <button onclick="closeDrawerDirect()" title="Fechar (ESC)" style="border:none; background:none; cursor:pointer; font-size:18px; color:var(--text-muted); padding:4px;">✖</button>
       </div>
 
       <div class="drawer-body">
@@ -483,10 +574,20 @@
             <div class="contact-clean-label">Telefone de Retorno</div>
             <div class="contact-clean-phone" id="drawerPhoneDisplay">(00) 00000-0000</div>
           </div>
-          <button class="btn-copy-clean" onclick="copyDrawerPhone()">Copiar Número</button>
+          <button class="btn-copy-clean" id="btnCopyPhoneDrawer" onclick="copyDrawerPhone()">Copiar Número</button>
         </div>
 
-        <!-- Ações do Card -->
+        <!-- Ações Rápidas de Eficiência (1 Clique) -->
+        <div class="quick-ops-strip" id="drawerQuickOpsStrip">
+          <button type="button" class="btn-quick-op" onclick="registerThirdPartyFollowup()">
+            🔔 Registrar Cobrança
+          </button>
+          <button type="button" class="btn-quick-op" onclick="copyClientStatusTemplate()">
+            💬 Copiar Status p/ Cliente
+          </button>
+        </div>
+
+        <!-- Ações Principais do Card -->
         <div style="display:flex; gap:8px;">
           <button 
             class="btn-action primary" 
@@ -518,7 +619,7 @@
         <!-- FORMULÁRIO DE EDIÇÃO COMPLETA NO DRAWER -->
         <form class="drawer-edit-form" id="drawerEditForm" onsubmit="handleSaveDrawerEdit(event)">
           <div style="font-weight:800; font-size:12px; color:var(--tp-green); border-bottom:1px solid var(--border-subtle); padding-bottom:6px;">
-            Editar Demanda (Salva na Planilha e em Toda a Equipe)
+            Editar Demanda (Sincroniza com Toda a Equipe)
           </div>
 
           <div>
@@ -548,11 +649,7 @@
             </div>
             <div>
               <label class="edit-label">Agente</label>
-              <select class="edit-select" id="editDrawerOperator">
-                <option value="Leandro">Leandro</option>
-                <option value="Mirian">Mirian</option>
-                <option value="Isabelli">Isabelli</option>
-              </select>
+              <select class="edit-select" id="editDrawerOperator"></select>
             </div>
           </div>
 
@@ -597,7 +694,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <label class="edit-label" style="margin:0;">Informações Complementares / Pareceres</label>
               <button type="button" onclick="appendTimestampedNote()" style="background:var(--bg-input); color:var(--tp-green); border:1px solid var(--tp-green-border); border-radius:4px; padding:2px 7px; font-size:10px; font-weight:700; cursor:pointer;">
-                + Inserir Carimbo Data/Hora
+                + Carimbo Data/Hora
               </button>
             </div>
             <textarea class="edit-textarea" id="editDrawerDescription" rows="5" placeholder="Adicione relatos, pareceres e atualizações complementares..."></textarea>
@@ -684,7 +781,7 @@
     <div class="modal-card" onclick="event.stopPropagation()">
       <div class="modal-head">
         <h2>Nova Demanda (Pós-Atendimento IP)</h2>
-        <button onclick="closeModalDirect(null)" style="border:none; background:none; cursor:pointer; font-size:18px; color:var(--text-muted);">✖</button>
+        <button onclick="closeModalDirect(null)" title="Fechar (ESC)" style="border:none; background:none; cursor:pointer; font-size:18px; color:var(--text-muted);">✖</button>
       </div>
 
       <form class="modal-form" id="newDemandForm" onsubmit="handleSaveDemandForm(event)">
@@ -700,11 +797,7 @@
 
         <div>
           <label class="field-label">Agente Responsável</label>
-          <select class="field-select" name="operator">
-            <option value="Leandro">Leandro</option>
-            <option value="Mirian">Mirian</option>
-            <option value="Isabelli">Isabelli</option>
-          </select>
+          <select class="field-select" id="modalOperatorSelect" name="operator"></select>
         </div>
 
         <div>
@@ -786,11 +879,16 @@
     </div>
   </div>
 
+  <!-- CONTAINER DE TOAST (NOTIFICAÇÕES NÃO-BLOQUEANTES) -->
+  <div class="toast-container" id="toastContainer"></div>
+
   <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1wsXSNLRwiKqSwj9BFQEO7RYgg6T-N5w_peFTzMiyLDH31NsASLM35bL/exec";
-    const STORAGE_KEY = "truckpag_demandas_persistent_v20";
-    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v20";
-    const PENDING_KEY = "truckpag_pending_mutations_v20";
+    const STORAGE_KEY = "truckpag_demandas_persistent_v22";
+    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v22";
+    const PENDING_KEY = "truckpag_pending_mutations_v22";
+    const OPERATOR_KEY = "truckpag_active_operator_v22";
+    const TEAM_LIST_KEY = "truckpag_team_list_v22";
 
     var DAF_CASA_MUNICIPALES = {
       "DAF ALIS": ["AGUA BOA/MT", "CUIABA/MT", "RONDONOPOLIS/MT", "SINOP/MT"],
@@ -809,6 +907,75 @@
       "DAF VIA TRUCKS": ["CONTAGEM/MG", "CUBATAO/SP", "GOVERNADOR VALADARES/MG", "GUARULHOS/SP", "MONTES CLAROS/MG", "SAO BERNARDO DO CAMPO/SP"],
       "DAF VITORIA": ["FEIRA DE SANTANA/BA", "SIMOES FILHO/BA", "VIANA/ES", "VITORIA DA CONQUISTA/BA"]
     };
+
+    // Base Histórica Real Consolidada (67 Chamados Concluídos da Planilha Auditada)
+    var COMPACT_HISTORICAL_DONE = [
+      ["HIST-001","07-2026","Leandro","PEDÁGIO","MARES DO SUL","(48) 99903-4132","Chamado T.I","T.I","30/07/2026 10:47","14/08/2026 16:20",15.2,"14/08/2026","Ausência de registro de VPO - Integração API MM."],
+      ["HIST-003","07-2026","Leandro","PEDÁGIO","Rufatto","(45) 99107-8477","Contestação","MoveMais","03/07/2026 10:00","16/09/2026 08:00",74.9,"16/09/2026","Ausência de passagens - BEN7033. Contestação: protocolo 12443036327"],
+      ["HIST-005","07-2026","Leandro","PEDÁGIO","Bennter Argamassas Canoas","51 8140-3005","Contestação","MoveMais","30/07/2026 14:30","19/08/2026 16:16",20.1,"19/08/2026","Contestação: Cobrança Indevida - IOT0C12"],
+      ["HIST-011","08-2026","Leandro","MANUTENÇÃO","AUTO ELETRICA DO CHICO","(67) 98114-9090","Chamado T.I","T.I","06/08/2026 10:08","10/08/2026 14:07",4.2,"10/08/2026","Erro no XML"],
+      ["HIST-012","08-2026","Leandro","ABASTECIMENTO","UNIDAO TRANSPORTES","(51) 93500-0138","Chamado T.I","T.I","06/08/2026 16:33","10/08/2026 10:46",3.8,"10/08/2026","Erro de integração, não recebeu o relatório"],
+      ["HIST-015","08-2026","Mirian","PEDÁGIO","QUERO-QUERO-CD05","(51) 99663-1487","Chamado T.I","T.I","07/08/2026 17:24","11/09/2026 08:04",34.6,"11/09/2026","Tags canceladas com passagem ativa"],
+      ["HIST-017","08-2026","Mirian","MANUTENÇÃO","DAF CAMINHO - SAO JOSE DO RIO PRETO","(19) 99891-3619","Chamado T.I","T.I","10/08/2026 15:55","12/08/2026 11:53",1.8,"12/08/2026","Chamado erro na importação da xml do municipio"],
+      ["HIST-021","08-2026","Mirian","PEDÁGIO","Interports","(41) 99102-9403","Contestação","MoveMais","11/08/2026 00:00","25/08/2026 08:34",14.4,"25/08/2026","Eixos cobrados a mais de veiculo"],
+      ["HIST-023","08-2026","Mirian","MANUTENÇÃO","Al transporte","(83) 99197-8795","Outros","Financeiro","12/08/2026 16:18","14/08/2026 10:20",1.8,"14/08/2026","Informativo de nf cancelada e acordo financeiro"],
+      ["HIST-024","08-2026","Leandro","PEDÁGIO","Mares do Sul","(48) 99964-2662","Contestação","MoveMais","13/08/2026 09:26","31/08/2026 16:25",18.3,"31/08/2026","Contestação de passagem de pedágio"],
+      ["HIST-025","08-2026","Leandro","PEDÁGIO","HN TRANSPORTES","(34) 99238-3911","Contestação","MoveMais","13/08/2026 10:32","19/08/2026 16:07",6.2,"19/08/2026","Contestação de passagem OVK2A45 / QOW5J31"],
+      ["HIST-026","08-2026","Leandro","PEDÁGIO","Machado transportes/CD5","16 99185-7571","Chamado T.I","T.I","13/08/2026 13:54","24/08/2026 09:11",10.8,"24/08/2026","Inconsistência no processo de ativação e vinculação de tags"],
+      ["HIST-029","08-2026","Leandro","ABASTECIMENTO","Cavalheiro Log.","(65) 98135-1096","Chamado T.I","T.I","13/08/2026 17:29","17/08/2026 09:14",3.7,"17/08/2026","E-mail em supressão"],
+      ["HIST-030","08-2026","Mirian","PEDÁGIO","ARDIGO TRANSPORTES","(41) 99968-5144","Chamado T.I","T.I","17/08/2026 14:22","10/09/2026 08:14",23.7,"10/09/2026","Emissões de VPO sem registro dentro do gestão"],
+      ["HIST-032","08-2026","Mirian","PEDÁGIO","EA TRANSPORTES E LOGISTICA","(15) 98137-3408","Contestação","MoveMais","18/08/2026 15:13","15/09/2026 11:23",27.8,"15/09/2026","Exclusão do contrato ativo"],
+      ["HIST-034","08-2026","Mirian","MANUTENÇÃO","DAF CAMINHO - SAO JOSE DO RIO PRETO","(16) 3040-9531","Chamado T.I","T.I","20/08/2026 17:06","15/09/2026 11:23",25.8,"15/09/2026","Validação do layout DAF CAMINHO"],
+      ["HIST-036","08-2026","Mirian","MANUTENÇÃO","TLGA GRALHA AZUL","(41) 99746-9444","Outros","Financeiro","21/08/2026 09:17","02/09/2026 11:02",12.1,"02/09/2026","Lançamento da nf"],
+      ["HIST-037","08-2026","Mirian","MANUTENÇÃO","Eldorado Caminhoes","(54) 99947-2440","Chamado T.I","T.I","21/08/2026 16:21","02/09/2026 11:01",11.8,"02/09/2026","Erro de xml importação dealer"],
+      ["HIST-038","08-2026","Leandro","MANUTENÇÃO","DAF MACPONTA - SALTO GRANDE","(18) 99115-1753","Chamado T.I","T.I","24/08/2026 16:31","31/08/2026 16:26",7.0,"31/08/2026","Erro de XML Layout"],
+      ["HIST-039","08-2026","Leandro","PEDÁGIO","Transportadora Mahle","(45) 99116-4124","Contestação","MoveMais","25/08/2026 09:17","25/08/2026 17:38",0.3,"25/08/2026","Passagens cobradas na concessionaria EPR"],
+      ["HIST-040","08-2026","Mirian","PEDÁGIO","GLOBOAVES SAO PAULO","(45) 99810-0235","Contestação","MoveMais","25/08/2026 09:38","26/08/2026 15:32",1.2,"26/08/2026","Passagens registradas pelo site da EPR"],
+      ["HIST-041","08-2026","Leandro","PEDÁGIO","MedLive","(51) 99649-7205","Contestação","MoveMais","25/08/2026 10:05","26/08/2026 13:13",1.1,"26/08/2026","Passagens cobradas na concessionaria EPR"],
+      ["HIST-042","08-2026","Leandro","PEDÁGIO","Rio Pardo","(44) 99139-7500","Contestação","MoveMais","25/08/2026 10:48","25/08/2026 16:17",0.2,"25/08/2026","Passagens cobradas na concessionaria EPR"],
+      ["HIST-043","08-2026","Mirian","MANUTENÇÃO","Gustavo Rodrigues - Lemar","(11) 98583-0330","Outros","Financeiro","25/08/2026 15:59","16/10/2026 14:01",51.9,"16/10/2026","Lançamento da nf NF 49652"],
+      ["HIST-044","08-2026","Mirian","MANUTENÇÃO","DAF CAMINHO - RIBEIRAO PRETO","(14) 99749-7248","Chamado T.I","T.I","26/08/2026 16:13","10/09/2026 08:11",14.7,"10/09/2026","Erro de importação de xml"],
+      ["HIST-045","08-2026","Mirian","ABASTECIMENTO","FIBRA FORTE COMERCIAL","(66) 99658-0541","Chamado T.I","T.I","27/08/2026 14:54","01/09/2026 10:20",4.8,"01/09/2026","Estorno cliente pré pago"],
+      ["HIST-046","08-2026","Leandro","PEDÁGIO","Breno","(45) 99949-0042","Contestação","MoveMais","28/08/2026 17:26","01/09/2026 10:20",3.7,"01/09/2026","Contestação pedágio"],
+      ["HIST-047","08-2026","Leandro","PEDÁGIO","MEDLIVE","(51) 99649-7205","Contestação","MoveMais","31/08/2026 10:22","31/08/2026 16:29",0.3,"31/08/2026","Passagens cobradas na plataforma de pedágio"],
+      ["HIST-050","09-2026","Leandro","ABASTECIMENTO","Menezes","(65) 99259-7532","Logistica","Cadastro","31/08/2026 18:25","01/09/2026 11:43",0.7,"01/09/2026","Não recebimento do cartão"],
+      ["HIST-051","09-2026","Leandro","PEDÁGIO","Breno interno","(45) 99949-0042","Contestação","MoveMais","01/09/2026 10:28","03/09/2026 10:25",2.0,"03/09/2026","Contestação eixos"],
+      ["HIST-052","09-2026","Leandro","PEDÁGIO","JC Gruber","(47) 99621-7041","Contestação","MoveMais","01/09/2026 16:44","09/09/2026 18:38",8.1,"09/09/2026","Contestação eixos"],
+      ["HIST-053","09-2026","Mirian","PEDÁGIO","MOINHO CONSOLATA","(45) 99970-2362","Contestação","MoveMais","02/09/2026 08:10","19/10/2026 00:00",46.7,"19/10/2026","Passagens com registro fora da tag"],
+      ["HIST-054","09-2026","Mirian","PEDÁGIO","Interportes","(41) 99247-1885","Contestação","MoveMais","02/09/2026 08:37","09/09/2026 09:31",7.0,"09/09/2026","Contestação de passagem"],
+      ["HIST-055","09-2026","Leandro","PEDÁGIO","Cristal Azul","(46) 99902-6031","Contestação","MoveMais","02/09/2026 09:08","22/09/2026 10:27",20.1,"22/09/2026","Passagens com registro fora da tag - UAX9J70"],
+      ["HIST-058","09-2026","Leandro","PEDÁGIO","Rasador","(54) 99244-3338","Contestação","MoveMais","03/09/2026 10:49","09/09/2026 18:26",6.3,"09/09/2026","Passagens com registro fora da tag"],
+      ["HIST-059","09-2026","Leandro","PEDÁGIO","Ludovico isenção","(49) 98834-6580","Isenção","MoveMais","04/09/2026 15:18","16/10/2026 14:04",41.9,"16/10/2026","Isenção de tarifas de mensalidade TOZZO"],
+      ["HIST-060","09-2026","Leandro","PEDÁGIO","MOINHO CONSOLATA","(45) 99970-2362","Contestação","MoveMais","04/09/2026 15:23","08/09/2026 10:57",3.8,"08/09/2026","Cobrança em duplicidade JAK7H55"],
+      ["HIST-061","09-2026","Leandro","MANUTENÇÃO","Macponta Jessica","(19) 99550-8805","Chamado T.I","T.I","04/09/2026 17:20","08/09/2026 10:58",3.7,"08/09/2026","Liberação de acesso GM DAF"],
+      ["HIST-062","09-2026","Leandro","PEDÁGIO","Medlive","(51) 99649-7205","Contestação","MoveMais","08/09/2026 09:17","16/10/2026 14:04",38.2,"16/10/2026","Passagens com registro fora da tag JBI3A79"],
+      ["HIST-063","09-2026","Leandro","PEDÁGIO","Mares do Sul","(48) 3198-8243","Contestação","MoveMais","08/09/2026 09:40","29/09/2026 16:21",21.3,"29/09/2026","Autuação, passagem com tag ativa SXX0C55"],
+      ["HIST-065","09-2026","Leandro","PEDÁGIO","P & M","(51) 99960-1369","Contestação","MoveMais","08/09/2026 15:28","22/09/2026 17:06",14.1,"22/09/2026","Passagens com registro fora da tag TQY4B28"],
+      ["HIST-066","09-2026","Leandro","PEDÁGIO","ReckLog","(54) 98428-7212","Contestação","MoveMais","08/09/2026 15:49","23/09/2026 10:40",14.8,"23/09/2026","Passagens com registro fora da tag IZG8H72"],
+      ["HIST-067","09-2026","Leandro","PEDÁGIO","Plastytech","(45) 98840-8118","Contestação","MoveMais","09/09/2026 09:26","11/09/2026 09:40",2.0,"11/09/2026","Passagem com registro fora da TAG ANU7A14"],
+      ["HIST-068","09-2026","Leandro","PEDÁGIO","Duas Marias","(45) 98840-8118","Contestação","MoveMais","09/09/2026 09:27","16/10/2026 14:04",37.2,"16/10/2026","Passagem com registro fora da TAG EQU7D43"],
+      ["HIST-069","09-2026","Mirian","PEDÁGIO","Ouro negro","(48) 98813-6709","Contestação","MoveMais","10/09/2026 13:26","02/10/2026 08:08",21.8,"02/10/2026","Passagem com registro fora da tag RYC9E75"],
+      ["HIST-071","09-2026","Leandro","PEDÁGIO","CRJ logistica","(45) 99113-9089","Contestação","MoveMais","10/09/2026 15:47","23/09/2026 10:46",12.8,"23/09/2026","Passagem com registro fora da TAG TAX1E67"],
+      ["HIST-073","09-2026","Mirian","PEDÁGIO","Ouro negro","(48) 98813-6709","Contestação","MoveMais","11/09/2026 10:15","16/10/2026 14:15",35.2,"16/10/2026","Registro de passagens fora da tag vinculada a placa"],
+      ["HIST-074","09-2026","Leandro","PEDÁGIO","Interportes","(41) 98487-8345","Contestação","MoveMais","11/09/2026 15:02","15/09/2026 10:33",3.8,"15/09/2026","Contestação eixos TAP1A61"],
+      ["HIST-076","09-2026","Mirian","PEDÁGIO","LOJAS QUERO-QUERO CD2","(51) 99608-4314","Chamado T.I","T.I","14/09/2026 10:41","05/11/2026 10:06",52.0,"05/11/2026","Cobrança de pedágio com tag cancelada"],
+      ["HIST-082","09-2026","Leandro","MANUTENÇÃO","Daf caminho","(17) 99673-2561","Outros","Financeiro","17/09/2026 16:58","21/09/2026 13:37",3.9,"21/09/2026","Cadastro gestores planilha"],
+      ["HIST-083","09-2026","Mirian","PEDÁGIO","Vitor mahle","(42) 3122-3743","Contestação","MoveMais","21/09/2026 17:24","15/10/2026 16:03",23.9,"15/10/2026","Aguardando relação de passagens"],
+      ["HIST-086","09-2026","Leandro","MANUTENÇÃO","DAF Barigui São jose dos Pinhais","(41) 3098-8010","Chamado T.I","T.I","22/09/2026 15:53","22/09/2026 16:38",0.1,"22/09/2026","Layout XML"],
+      ["HIST-087","09-2026","Leandro","PEDÁGIO","Globoaves Julia","(41) 3098-8010","Chamado T.I","T.I","22/09/2026 16:15","22/09/2026 16:43",0.1,"22/09/2026","Liberação de tela para gestor"],
+      ["HIST-088","09-2026","Mirian","PEDÁGIO","KIELING MULTIMODAL","(51) 98442-2309","Contestação","MoveMais","23/09/2026 16:41","15/10/2026 16:03",22.0,"15/10/2026","Aguardando confirmação na SENATRAN"],
+      ["HIST-089","09-2026","Mirian","MANUTENÇÃO","lima transportes","(85) 99171-4943","Outros","Financeiro","23/09/2026 17:13","16/10/2026 14:20",22.9,"16/10/2026","Aguardando lançamento da nfs no sistema"],
+      ["HIST-091","09-2026","Mirian","ABASTECIMENTO","POSTO MARKET DUTRA - REDE GRAAL","(11) 97091-1872","Chamado T.I","T.I","24/09/2026 15:17","25/09/2026 08:27",0.7,"25/09/2026","Tela com divergência no registro de transações"],
+      ["HIST-097","09-2026","Leandro","PEDÁGIO","Medlive","(51) 99649-7205","Contestação","MoveMais","30/09/2026 15:31","15/10/2026 16:52",15.1,"15/10/2026","Passagem registrada na movemais e concessionaria"],
+      ["HIST-098","10-2026","Mirian","PEDÁGIO","KIELING MULTIMODAL","(51) 98442-2309","Contestação","MoveMais","02/10/2026 09:19","16/10/2026 14:22",14.2,"16/10/2026","Chamado em aberto com a move mais"],
+      ["HIST-101","10-2026","Mirian","MANUTENÇÃO","DAF NOVA Maceio","(81) 99867-2785","Outros","Financeiro","07/10/2026 13:57","15/10/2026 17:23",8.1,"15/10/2026","Criação de Layout da xml"],
+      ["HIST-105","10-2026","Mirian","MANUTENÇÃO","Daf somafertil","(62) 99910-3293","Chamado T.I","T.I","15/10/2026 10:27","22/10/2026 10:04",7.0,"22/10/2026","Layout em produção para importação DealerNet"],
+      ["HIST-106","10-2026","Mirian","MANUTENÇÃO","DAF DU GREGORIO","(62) 99801-1889","Chamado T.I","T.I","15/10/2026 11:49","15/10/2026 17:23",0.2,"15/10/2026","Erro layout de nfe"],
+      ["HIST-114","10-2026","Isabelli","MANUTENÇÃO","DAF CAMINHO/SAMARA","(16) 3040-9531","Chamado T.I","T.I","22/10/2026 16:31","30/10/2026 11:54",7.8,"30/10/2026","Implementação de layout TI"],
+      ["HIST-123","10-2026","Isabelli","PEDÁGIO","Rasador","(54) 99244-3338","Contestação","MoveMais","27/10/2026 17:28","05/11/2026 16:25",9.0,"05/11/2026","Aberto chamado via email para Move Mais"],
+      ["HIST-124","10-2026","Isabelli","PEDÁGIO","Profitto","(49) 3441-7618","Contestação","MoveMais","27/10/2026 17:29","05/11/2026 16:34",9.0,"05/11/2026","Aberto chamado via email para Move Mais"],
+      ["HIST-127","10-2026","Mirian","PEDÁGIO","KIELING MULTIMODAL","51 8971-4182","Contestação","MoveMais","29/10/2026 09:05","03/11/2026 15:18",5.3,"03/11/2026","Transferencia de cobrança para tag do veiculo"]
+    ];
 
     var RAW_INITIAL_RECORDS = [
       {
@@ -919,27 +1086,58 @@
       {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "20/11/2026", "isAutoReturn": true, "description": "Transferência de cobrança free flow."},
       {"id": "REC-081-O", "mes": "11-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Holdi Transportes", "contact": "(47) 99122-3344", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "10/11/2026 12:01", "endDate": "", "durationDays": null, "returnDate": "26/11/2026", "isAutoReturn": true, "description": "Contestação de evasão de pedágio."},
 
-      {"id": "REC-088", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "HB TRANSPORTE", "contact": "(47) 99245-0912", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "05/11/2026 16:54", "endDate": "06/11/2026 11:07", "durationDays": 0.8, "returnDate": "06/11/2026", "description": "Erro de integração e relatório no aplicativo."},
-      {"id": "REC-085", "mes": "11-2026", "operator": "Isabelli", "product": "PEDÁGIO", "client": "Daniel Ludovico", "contact": "(49) 98834-6580", "solicitacao": "Isenção", "terceiro": "Cadastro", "status": "Concluído", "startDate": "05/11/2026 15:14", "endDate": "09/11/2026 08:29", "durationDays": 3.7, "returnDate": "09/11/2026", "description": "Isenção de mensalidade faturas (Novembro)."},
-      {"id": "REC-H01", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "29/10/2026 14:15", "endDate": "31/10/2026 14:15", "durationDays": 2.0, "returnDate": "31/10/2026", "description": "Contestação de evasão"},
-      {"id": "REC-H02", "mes": "10-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Cristiane - Posto D Angel", "contact": "(19) 99712-4401", "solicitacao": "Logistica", "terceiro": "Financeiro", "status": "Concluído", "startDate": "29/10/2026 10:20", "endDate": "01/11/2026 03:00", "durationDays": 2.7, "returnDate": "01/11/2026", "description": "Repasse e comprovantes"},
-      {"id": "REC-H03", "mes": "10-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "Fornecedora Caminhões Teresina", "contact": "(85) 99825-0282", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "27/10/2026 16:00", "endDate": "30/10/2026 16:00", "durationDays": 3.0, "returnDate": "30/10/2026", "description": "Chamado TI DealerNet"},
-      {"id": "REC-H04", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "KIELING MULTIMODAL", "contact": "(51) 98442-2309", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "26/10/2026 09:30", "endDate": "31/10/2026 16:45", "durationDays": 5.3, "returnDate": "31/10/2026", "description": "Cancela não abriu"},
-      {"id": "REC-H05", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Profitto", "contact": "(44) 99876-1234", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "21/10/2026 08:00", "endDate": "30/10/2026 08:00", "durationDays": 9.0, "returnDate": "30/10/2026", "description": "Passagem em duplicidade"},
-      {"id": "REC-H06", "mes": "09-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "lima transportes", "contact": "(85) 99171-4943", "solicitacao": "Outros", "terceiro": "Financeiro", "status": "Concluído", "startDate": "16/09/2026 08:30", "endDate": "09/10/2026 06:00", "durationDays": 22.9, "returnDate": "09/10/2026", "description": "Lançamento de nota fiscal"},
-      {"id": "REC-H07", "mes": "09-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "Menezes", "contact": "(65) 99259-7532", "solicitacao": "Logistica", "terceiro": "Cadastro", "status": "Concluído", "startDate": "31/08/2026 18:25", "endDate": "01/09/2026 11:43", "durationDays": 0.7, "returnDate": "01/09/2026", "description": "Recebimento de cartão"},
-      {"id": "REC-H08", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "MARES DO SUL", "contact": "(48) 99903-4132", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "30/07/2026 10:47", "endDate": "14/08/2026 16:20", "durationDays": 15.2, "returnDate": "14/08/2026", "description": "Integração API MoveMais"},
-      {"id": "REC-H09", "mes": "07-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "GABRIEL SCHULTZ", "contact": "(49) 99912-8822", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "03/07/2026 10:00", "endDate": "16/09/2026 08:00", "durationDays": 74.9, "returnDate": "16/09/2026", "description": "Ausência de passagens"},
-      {"id": "REC-H10", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COOPERCAMPO", "contact": "(49) 99823-1122", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "30/07/2026 14:30", "endDate": "19/08/2026 16:16", "durationDays": 20.1, "returnDate": "19/08/2026", "description": "Cobrança Indevida"},
-      {"id": "REC-H11", "mes": "08-2026", "operator": "Leandro", "product": "MANUTENÇÃO", "client": "DAF CAMINHO - RP", "contact": "(16) 99762-0012", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "06/08/2026 10:08", "endDate": "10/08/2026 14:07", "durationDays": 4.2, "returnDate": "10/08/2026", "description": "Chamado TI emissão"},
-      {"id": "REC-H12", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "DE BASTIANI", "contact": "(49) 99123-4567", "solicitacao": "Isenção", "terceiro": "MoveMais", "status": "Concluído", "startDate": "01/08/2026 09:00", "endDate": "12/09/2026 08:00", "durationDays": 41.9, "returnDate": "12/09/2026", "description": "Isenção mensalidade"}
-    ];
+      // Concluídos do Mês 11
+      {"id": "REC-088", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "HB TRANSPORTE", "contact": "(47) 99245-0912", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "05/11/2026 16:54", "endDate": "06/11/2026 11:07", "durationDays": 0.8, "returnDate": "06/11/2026", "description": "Erro de integração e relatório no aplicativo."},
+      {"id": "REC-085", "mes": "11-2026", "operator": "Isabelli", "product": "PEDÁGIO", "client": "Daniel Ludovico", "contact": "(49) 98834-6580", "solicitacao": "Isenção", "terceiro": "Cadastro", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Concluído", "startDate": "05/11/2026 15:14", "endDate": "09/11/2026 08:29", "durationDays": 3.7, "returnDate": "09/11/2026", "description": "Isenção de mensalidade faturas (Novembro)."}
+    ].concat(COMPACT_HISTORICAL_DONE.map(function(arr) {
+      return {
+        id: arr[0],
+        mes: arr[1],
+        operator: arr[2],
+        product: arr[3],
+        client: arr[4],
+        contact: arr[5],
+        solicitacao: arr[6],
+        terceiro: arr[7],
+        bitrixLink: "",
+        dafRede: "",
+        dafMunicipio: "",
+        status: "Concluído",
+        startDate: arr[8],
+        endDate: arr[9],
+        durationDays: arr[10],
+        returnDate: arr[11],
+        isAutoReturn: false,
+        description: arr[12]
+      };
+    }));
 
     var INITIAL_ID_SET = {};
     RAW_INITIAL_RECORDS.forEach(function(r) { INITIAL_ID_SET[r.id] = true; });
 
     // =========================================================================
-    // UTILITÁRIOS DE SEGURANÇA & NORMALIZAÇÃO
+    // TOAST NOTIFICATION (AVISO AUTO-DESCARTÁVEL SEM CLIQUE)
+    // =========================================================================
+    function showToast(message, isWarn) {
+      var container = document.getElementById('toastContainer');
+      if (!container) return;
+      var el = document.createElement('div');
+      el.className = 'toast-msg' + (isWarn ? ' warn' : '');
+      el.innerHTML = '<span>' + (isWarn ? '⚠️' : '✓') + '</span><span>' + escapeHtml(message) + '</span>';
+      container.appendChild(el);
+      requestAnimationFrame(function() {
+        el.classList.add('show');
+      });
+      setTimeout(function() {
+        el.classList.remove('show');
+        setTimeout(function() {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 250);
+      }, 2500);
+    }
+
+    // =========================================================================
+    // UTILITÁRIOS DE DATA (CORREÇÃO COMPLETA DE ISO 2026-11-15T03:00:00.000Z)
     // =========================================================================
     function escapeHtml(str) {
       if (str === null || str === undefined) return "";
@@ -949,6 +1147,59 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
+    }
+
+    // Extrai e formata APENAS DD/MM/AAAA (usado para Data de Retorno)
+    function formatOnlyDateBR(d) {
+      if (!d) return "";
+      var s = String(d).trim();
+      if (!s || s === "-" || s === "A definir" || s === "null" || s === "undefined") return s === "A definir" ? "A definir" : "";
+
+      // Já está em DD/MM/AAAA (com ou sem hora)
+      var brMatch = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+      if (brMatch) {
+        return brMatch[1] + "/" + brMatch[2] + "/" + brMatch[3];
+      }
+
+      // Formato YYYY-MM-DD puro (input date)
+      var isoDateOnly = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (isoDateOnly) {
+        return isoDateOnly[3] + "/" + isoDateOnly[2] + "/" + isoDateOnly[1];
+      }
+
+      // Formato ISO completo vindo do Google Sheets (ex: 2026-11-15T03:00:00.000Z)
+      if (s.indexOf('T') !== -1) {
+        if (s.indexOf('T00:00:00') !== -1) {
+          var p0 = s.split('T')[0].split('-');
+          if (p0.length === 3) return p0[2] + "/" + p0[1] + "/" + p0[0];
+        }
+        var dt = new Date(s);
+        if (!isNaN(dt.getTime())) {
+          var dd = String(dt.getDate()).padStart(2, '0');
+          var mm = String(dt.getMonth() + 1).padStart(2, '0');
+          var yyyy = dt.getFullYear();
+          return dd + "/" + mm + "/" + yyyy;
+        }
+      }
+      return s;
+    }
+
+    // Formata Data + Hora DD/MM/AAAA HH:mm
+    function formatDateDisplay(d) {
+      if (!d) return "-";
+      var s = String(d).trim();
+      if (s.indexOf('T') !== -1) {
+        var dt = new Date(s);
+        if (!isNaN(dt.getTime())) {
+          var dd = String(dt.getDate()).padStart(2, '0');
+          var mm = String(dt.getMonth() + 1).padStart(2, '0');
+          var yyyy = dt.getFullYear();
+          var hh = String(dt.getHours()).padStart(2, '0');
+          var min = String(dt.getMinutes()).padStart(2, '0');
+          return dd + "/" + mm + "/" + yyyy + " " + hh + ":" + min;
+        }
+      }
+      return s;
     }
 
     function normalizeProduct(p) {
@@ -977,20 +1228,6 @@
       return "11-2026";
     }
 
-    function formatDateDisplay(d) {
-      if (!d) return "-";
-      var s = String(d).trim();
-      if (s.indexOf('T') !== -1) {
-        var parts = s.split('T');
-        var ymd = parts[0].split('-');
-        if (ymd.length === 3) {
-          var timePart = parts[1] ? parts[1].split('.')[0].substring(0, 5) : "00:00";
-          return ymd[2] + "/" + ymd[1] + "/" + ymd[0] + " " + timePart;
-        }
-      }
-      return s;
-    }
-
     function isBlacklisted(ticket) {
       if (!ticket) return false;
       var id = String(ticket.id || ticket['id'] || ticket['ID'] || "").trim();
@@ -999,7 +1236,102 @@
     }
 
     // =========================================================================
-    // PERSISTÊNCIA À PROVA DE FALHAS (TOMBSTONES + FILA DE MUTAÇÕES PENDENTES)
+    // GESTÃO DE OPERADOR ATIVO & ESCALABILIDADE DA EQUIPE
+    // =========================================================================
+    function getTeamList() {
+      var defaults = ["Leandro", "Mirian", "Isabelli"];
+      try {
+        var saved = localStorage.getItem(TEAM_LIST_KEY);
+        if (saved) {
+          var arr = JSON.parse(saved);
+          if (Array.isArray(arr) && arr.length > 0) return arr;
+        }
+      } catch(e) {}
+      return defaults;
+    }
+
+    function saveTeamList(list) {
+      try { localStorage.setItem(TEAM_LIST_KEY, JSON.stringify(list)); } catch(e) {}
+    }
+
+    function getActiveOperator() {
+      try {
+        var op = localStorage.getItem(OPERATOR_KEY);
+        if (op) return op;
+      } catch(e) {}
+      return "Leandro";
+    }
+
+    function setActiveOperator(name) {
+      try { localStorage.setItem(OPERATOR_KEY, name); } catch(e) {}
+    }
+
+    function refreshOperatorDropdowns() {
+      var team = getTeamList();
+      var active = getActiveOperator();
+      if (team.indexOf(active) === -1) {
+        team.push(active);
+        saveTeamList(team);
+      }
+
+      // Topbar selector
+      var topSel = document.getElementById('activeOperatorSelect');
+      if (topSel) {
+        topSel.innerHTML = team.map(function(m) {
+          return '<option value="' + escapeHtml(m) + '">' + escapeHtml(m) + '</option>';
+        }).join('') + '<option value="__NEW__">+ Novo Operador...</option>';
+        topSel.value = active;
+      }
+
+      // Filter selector
+      var filtSel = document.getElementById('filterAgentSelect');
+      if (filtSel) {
+        var curFilt = filtSel.value;
+        filtSel.innerHTML = '<option value="">Agente: Todos</option>' + team.map(function(m) {
+          return '<option value="' + escapeHtml(m) + '">' + escapeHtml(m) + '</option>';
+        }).join('');
+        filtSel.value = curFilt;
+      }
+
+      // Modal & Edit drawer selectors
+      ['modalOperatorSelect', 'editDrawerOperator'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          var cur = el.value;
+          el.innerHTML = team.map(function(m) {
+            return '<option value="' + escapeHtml(m) + '">' + escapeHtml(m) + '</option>';
+          }).join('');
+          if (cur && team.indexOf(cur) !== -1) el.value = cur;
+        }
+      });
+    }
+
+    function handleActiveOperatorChange() {
+      var sel = document.getElementById('activeOperatorSelect');
+      if (!sel) return;
+      if (sel.value === '__NEW__') {
+        var newName = prompt("Digite o nome do novo integrante da equipe:");
+        if (newName && newName.trim()) {
+          var clean = newName.trim();
+          var team = getTeamList();
+          if (team.indexOf(clean) === -1) {
+            team.push(clean);
+            saveTeamList(team);
+          }
+          setActiveOperator(clean);
+          refreshOperatorDropdowns();
+          showToast("Operador ativo alterado para " + clean);
+        } else {
+          sel.value = getActiveOperator();
+        }
+        return;
+      }
+      setActiveOperator(sel.value);
+      showToast("Sessão ativa: " + sel.value);
+    }
+
+    // =========================================================================
+    // PERSISTÊNCIA À PROVA DE FALHAS (TOMBSTONES + FILA DE MUTAÇÕES)
     // =========================================================================
     function getDeletedIds() {
       var base = ["REC-090", "knbei", "knbei lucas"];
@@ -1018,9 +1350,7 @@
     }
 
     function saveDeletedIds(arr) {
-      try {
-        localStorage.setItem(TOMBSTONE_KEY, JSON.stringify(arr));
-      } catch(e) {}
+      try { localStorage.setItem(TOMBSTONE_KEY, JSON.stringify(arr)); } catch(e) {}
     }
 
     function isDeletedTicket(ticket, delList) {
@@ -1043,9 +1373,7 @@
     }
 
     function savePendingOps(ops) {
-      try {
-        localStorage.setItem(PENDING_KEY, JSON.stringify(ops));
-      } catch(e) {}
+      try { localStorage.setItem(PENDING_KEY, JSON.stringify(ops)); } catch(e) {}
     }
 
     function registerPendingOp(actionType, ticket) {
@@ -1071,7 +1399,6 @@
       }
     }
 
-    // Limpa mutações confirmadas há mais de 15 segundos (janela de segurança contra leitura atrasada)
     function pruneConfirmedOps() {
       var ops = getPendingOps();
       var now = Date.now();
@@ -1090,14 +1417,14 @@
       var delList = getDeletedIds();
       var map = {};
 
-      // Começa com a base inicial
       RAW_INITIAL_RECORDS.forEach(function(r) {
         if (!isDeletedTicket(r, delList)) {
-          map[r.id] = Object.assign({}, r);
+          var copy = Object.assign({}, r);
+          copy.returnDate = formatOnlyDateBR(copy.returnDate);
+          map[r.id] = copy;
         }
       });
 
-      // Sobrepõe com o que está salvo localmente
       try {
         var saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
@@ -1107,6 +1434,7 @@
               if (t && t.id && !isDeletedTicket(t, delList)) {
                 t.product = normalizeProduct(t.product);
                 t.status = normalizeStatus(t.status);
+                t.returnDate = formatOnlyDateBR(t.returnDate);
                 map[t.id] = t;
               }
             });
@@ -1114,13 +1442,13 @@
         }
       } catch(e) {}
 
-      // Garante aplicação de mutações pendentes
       var ops = getPendingOps();
       Object.keys(ops).forEach(function(id) {
         var op = ops[id];
         if (op.action === "delete") {
           delete map[id];
         } else if (op.ticket && !isDeletedTicket(op.ticket, delList)) {
+          op.ticket.returnDate = formatOnlyDateBR(op.ticket.returnDate);
           map[id] = op.ticket;
         }
       });
@@ -1131,9 +1459,7 @@
     function saveStoredTickets() {
       var delList = getDeletedIds();
       var clean = allTickets.filter(function(t) { return !isDeletedTicket(t, delList); });
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
-      } catch(e) {}
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(clean)); } catch(e) {}
     }
 
     var allTickets = getStoredTickets();
@@ -1155,9 +1481,9 @@
       var dafRede = String(row.dafRede || row['Casa DAF'] || "").trim();
       var dafMuni = String(row.dafMunicipio || row['Município'] || "").trim();
       var desc = String(row.description || row['Descrição'] || "").trim();
-      var start = String(row.startDate || row['Data de início'] || "").trim();
-      var end = String(row.endDate || row['Data de término'] || "").trim();
-      var ret = String(row.returnDate || row['Data de Retorno'] || "").trim();
+      var start = formatDateDisplay(row.startDate || row['Data de início'] || "");
+      var end = formatDateDisplay(row.endDate || row['Data de término'] || "");
+      var ret = formatOnlyDateBR(row.returnDate || row['Data de Retorno'] || "");
       var dur = (row.durationDays !== undefined && row.durationDays !== null && row.durationDays !== "") ? parseFloat(row.durationDays) : null;
       var mes = normalizeMes(row.mes || row['Mês'] || start);
       var isAuto = row.isAutoReturn === true || row.isAutoReturn === "true";
@@ -1175,8 +1501,8 @@
         dafRede: dafRede,
         dafMunicipio: dafMuni,
         status: st,
-        startDate: start,
-        endDate: end,
+        startDate: start === "-" ? "" : start,
+        endDate: end === "-" ? "" : end,
         durationDays: isNaN(dur) ? null : dur,
         returnDate: ret,
         isAutoReturn: isAuto,
@@ -1208,38 +1534,41 @@
       if (!isRetry) {
         registerPendingOp(actionType, ticketData);
       }
-      setSyncBadge('syncing', '⏳ Salvando na Planilha...');
+      setSyncBadge('syncing', '⏳ Salvando...');
+
+      // Garante envio de data limpa DD/MM/AAAA
+      var cleanPayloadTicket = Object.assign({}, ticketData, {
+        returnDate: formatOnlyDateBR(ticketData.returnDate)
+      });
 
       return fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: actionType,
-          ticket: ticketData
+          ticket: cleanPayloadTicket
         })
       })
       .then(function(res) { return res.text(); })
-      .then(function(txt) {
+      .then(function() {
         confirmPendingOp(ticketData.id);
-        setSyncBadge('', '● Sincronizado');
+        setSyncBadge('', '↻ ● Sincronizado');
       })
       .catch(function(err) {
-        console.warn("Falha temporária no envio (ficará na fila para retentativa):", err);
-        setSyncBadge('offline', '● Pendente de Envio');
+        console.warn("Falha temporária no envio:", err);
+        setSyncBadge('offline', '↻ ● Pendente');
       });
     }
 
-    function syncFromGoogleSheets() {
+    function syncFromGoogleSheets(isManualClick) {
       if (isSyncingNow) return;
       isSyncingNow = true;
       setSyncBadge('syncing', '⏳ Sincronizando...');
 
-      // Primeiro reenvia qualquer alteração pendente que não tenha sido confirmada
       flushPendingOps().then(function() {
         var controller = new AbortController();
         var timeoutId = setTimeout(function() { controller.abort(); }, 10000);
 
-        // Cache-buster obrigatório (?t=...) para nunca ler resposta antiga
         return fetch(GOOGLE_SCRIPT_URL + "?t=" + Date.now(), {
           signal: controller.signal,
           cache: "no-store"
@@ -1251,11 +1580,10 @@
       .then(function(resp) {
         isSyncingNow = false;
         if (!resp || resp.status !== "success") {
-          setSyncBadge('', '● Sincronizado');
+          setSyncBadge('', '↻ ● Sincronizado');
           return;
         }
 
-        // 1. Atualiza lista global de exclusões vinda do servidor
         var delList = getDeletedIds();
         if (Array.isArray(resp.deletedIds)) {
           resp.deletedIds.forEach(function(did) {
@@ -1267,7 +1595,6 @@
           saveDeletedIds(delList);
         }
 
-        // 2. Mapeia linhas válidas da planilha
         var sheetMap = {};
         if (Array.isArray(resp.data)) {
           resp.data.map(mapSheetRowToTicket).forEach(function(t) {
@@ -1280,19 +1607,18 @@
         var activePending = pruneConfirmedOps();
         var mergedMap = {};
 
-        // A. Mantém registros iniciais que não foram excluídos (caso ainda não tenham sido editados na planilha)
         RAW_INITIAL_RECORDS.forEach(function(r) {
           if (!isDeletedTicket(r, delList)) {
-            mergedMap[r.id] = Object.assign({}, r);
+            var copy = Object.assign({}, r);
+            copy.returnDate = formatOnlyDateBR(copy.returnDate);
+            mergedMap[r.id] = copy;
           }
         });
 
-        // B. Aplica os dados da planilha como verdade absoluta (para todos os 3 operadores)
         Object.keys(sheetMap).forEach(function(id) {
           mergedMap[id] = sheetMap[id];
         });
 
-        // C. Preserva itens locais que ainda estão com mutação pendente/recente (<15s) para nunca reverter edição recente
         allTickets.forEach(function(localTicket) {
           var lid = String(localTicket.id || "").trim();
           if (!lid || isDeletedTicket(localTicket, delList)) return;
@@ -1303,13 +1629,9 @@
             } else if (activePending[lid].ticket) {
               mergedMap[lid] = activePending[lid].ticket;
             }
-          } else if (!sheetMap[lid] && !INITIAL_ID_SET[lid]) {
-            // Se era um card criado por outro colega e foi excluído da planilha Demandas, remove!
-            // (Só mantém se ainda estiver na fila pendente de envio)
           }
         });
 
-        // Ordena mantendo os mais recentes no topo
         var nextList = Object.keys(mergedMap).map(function(k) { return mergedMap[k]; });
         nextList.sort(function(a, b) {
           var da = parseDateBR(a.startDate);
@@ -1319,10 +1641,10 @@
 
         allTickets = nextList;
         saveStoredTickets();
-        setSyncBadge('', '● Sincronizado');
+        setSyncBadge('', '↻ ● Sincronizado');
         renderAll();
+        if (isManualClick) showToast("Base sincronizada com a equipe!");
 
-        // Se o drawer estiver aberto (e não estiver editando), atualiza os dados visíveis nele
         if (activeSelectedTicket) {
           var editForm = document.getElementById('drawerEditForm');
           if (!editForm || editForm.style.display !== 'flex') {
@@ -1337,21 +1659,20 @@
       })
       .catch(function(err) {
         isSyncingNow = false;
-        console.warn("Sincronização em modo offline:", err);
-        setSyncBadge('offline', '● Offline (Salvo Local)');
+        console.warn("Sincronização offline:", err);
+        setSyncBadge('offline', '↻ ● Offline');
       });
     }
 
     function manualSyncNow() {
-      syncFromGoogleSheets();
+      syncFromGoogleSheets(true);
     }
 
-    // Sincronização automática a cada 20s (pausa enquanto o usuário digita no modal ou no formulário de edição)
     setInterval(function() {
       var modalOpen = document.getElementById('modalOverlay').style.display === 'flex';
       var editOpen = document.getElementById('drawerEditForm').style.display === 'flex';
       if (!modalOpen && !editOpen) {
-        syncFromGoogleSheets();
+        syncFromGoogleSheets(false);
       }
     }, 20000);
 
@@ -1387,14 +1708,12 @@
     }
 
     function getRemainingTime(returnDateStr) {
-      if (!returnDateStr) return { text: "Sem Prazo", "class": "", isUrgent: false };
-      var s = String(returnDateStr).trim();
+      var cleanStr = formatOnlyDateBR(returnDateStr);
+      if (!cleanStr || cleanStr === "A definir") return { text: "Sem Prazo", "class": "", isUrgent: false };
       var target = null;
-      if (s.indexOf('/') !== -1) {
-        var parts = s.split('/');
+      if (cleanStr.indexOf('/') !== -1) {
+        var parts = cleanStr.split('/');
         target = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10), 23, 59);
-      } else {
-        target = new Date(s);
       }
       if (!target || isNaN(target.getTime())) return { text: "Sem Prazo", "class": "", isUrgent: false };
 
@@ -1409,6 +1728,45 @@
       var remDays = Math.floor(remHours / 24);
       if (remDays === 0) return { text: "Vence Hoje", "class": "today", isUrgent: true };
       return { text: "Faltam " + remDays + "d", "class": "", isUrgent: false };
+    }
+
+    function calcMedian(vals) {
+      if (!vals || vals.length === 0) return 0;
+      var sorted = vals.slice().sort(function(a, b) { return a - b; });
+      var mid = Math.floor(sorted.length / 2);
+      return sorted.length % 2 !== 0 ? sorted[mid] : ((sorted[mid - 1] + sorted[mid]) / 2);
+    }
+
+    // Degradê Semafórico Inteligente: Verde (<=5d) -> Amarelo (~10d) -> Vermelho (>=18d)
+    function getSlaGradientColors(days) {
+      var val = parseFloat(days);
+      if (isNaN(val)) return { color: "#9BA1B0", bg: "rgba(155,161,176,0.15)", border: "rgba(155,161,176,0.3)", pct: 0 };
+      
+      var r, g, b;
+      if (val <= 5) {
+        // Verde Esmeralda (#00D659 -> rgb(0, 214, 89))
+        r = 0; g = 214; b = 89;
+      } else if (val <= 12) {
+        // Interpola Verde (0,214,89) -> Amarelo Âmbar (245,158,11)
+        var t1 = (val - 5) / 7;
+        r = Math.round(0 + t1 * 245);
+        g = Math.round(214 + t1 * (158 - 214));
+        b = Math.round(89 + t1 * (11 - 89));
+      } else {
+        // Interpola Amarelo Âmbar (245,158,11) -> Vermelho Coral (239,68,68)
+        var t2 = Math.min(1, (val - 12) / 10);
+        r = Math.round(245 + t2 * (239 - 245));
+        g = Math.round(158 + t2 * (68 - 158));
+        b = Math.round(11 + t2 * (68 - 11));
+      }
+      var rgb = r + "," + g + "," + b;
+      var pct = Math.min(100, Math.max(8, (val / 35) * 100));
+      return {
+        color: "rgb(" + rgb + ")",
+        bg: "rgba(" + rgb + ", 0.16)",
+        border: "rgba(" + rgb + ", 0.42)",
+        pct: pct
+      };
     }
 
     function calcCurrentSlaStats() {
@@ -1434,9 +1792,7 @@
       Object.keys(map).forEach(function(s) {
         if (map[s].count > 0) {
           map[s].mean = (map[s].sum / map[s].count).toFixed(1);
-          var sorted = map[s].vals.sort(function(a,b) { return a-b; });
-          var mid = Math.floor(sorted.length / 2);
-          map[s].median = sorted.length % 2 !== 0 ? sorted[mid] : ((sorted[mid - 1] + sorted[mid]) / 2).toFixed(1);
+          map[s].median = calcMedian(map[s].vals).toFixed(1);
         }
       });
       return map;
@@ -1465,9 +1821,7 @@
       Object.keys(map).forEach(function(p) {
         if (map[p].count > 0) {
           map[p].mean = (map[p].sum / map[p].count).toFixed(1);
-          var sorted = map[p].vals.sort(function(a,b) { return a-b; });
-          var mid = Math.floor(sorted.length / 2);
-          map[p].median = sorted.length % 2 !== 0 ? sorted[mid] : ((sorted[mid - 1] + sorted[mid]) / 2).toFixed(1);
+          map[p].median = calcMedian(map[p].vals).toFixed(1);
         }
       });
       return map;
@@ -1499,6 +1853,7 @@
       if (document.getElementById('filterAgentSelect')) document.getElementById('filterAgentSelect').value = '';
       if (document.getElementById('filterProductSelect')) document.getElementById('filterProductSelect').value = '';
       if (document.getElementById('filterServiceSelect')) document.getElementById('filterServiceSelect').value = '';
+      if (document.getElementById('filterThirdSelect')) document.getElementById('filterThirdSelect').value = '';
       if (document.getElementById('searchInput')) document.getElementById('searchInput').value = '';
       renderAll();
     }
@@ -1506,19 +1861,20 @@
     function exportArchivedCSV() {
       var archived = allTickets.filter(function(t) { return t.status === 'Concluído'; });
       if (archived.length === 0) {
-        alert("Não existem demandas finalizadas para exportar.");
+        showToast("Não existem demandas finalizadas para exportar.", true);
         return;
       }
       var headers = ['Mês', 'Data Registro', 'Data Conclusão', 'Cliente', 'Produto', 'Solicitação', 'Terceiro', 'Casa DAF', 'SLA Final (Dias)', 'Agente'];
       var rows = [headers.join(';')];
       archived.forEach(function(t) {
-        rows.push([ t.mes, t.startDate, t.endDate || t.returnDate, '"' + (t.client || '') + '"', t.product, t.solicitacao, '"' + (t.terceiro || '') + '"', '"' + (t.dafRede || '') + '"', t.durationDays !== null ? t.durationDays : '', t.operator ].join(';'));
+        rows.push([ t.mes, t.startDate, t.endDate || formatOnlyDateBR(t.returnDate), '"' + (t.client || '') + '"', t.product, t.solicitacao, '"' + (t.terceiro || '') + '"', '"' + (t.dafRede || '') + '"', t.durationDays !== null ? t.durationDays : '', t.operator ].join(';'));
       });
       var blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = "Demandas_Finalizadas_TruckPag.csv";
       a.click();
+      showToast("Arquivo CSV exportado com sucesso!");
     }
 
     // =========================================================================
@@ -1529,12 +1885,12 @@
       var agent = document.getElementById('filterAgentSelect') ? document.getElementById('filterAgentSelect').value : '';
       var prod = document.getElementById('filterProductSelect') ? document.getElementById('filterProductSelect').value : '';
       var serv = document.getElementById('filterServiceSelect') ? document.getElementById('filterServiceSelect').value : '';
+      var third = document.getElementById('filterThirdSelect') ? document.getElementById('filterThirdSelect').value : '';
       var search = document.getElementById('searchInput') ? (document.getElementById('searchInput').value || '').toLowerCase().trim() : '';
 
       var th = document.getElementById('thMonthOrDate');
       if (th) th.innerText = monthVal ? 'Data de Registro' : 'Mês / Data';
 
-      // Cálculo global dos KPIs
       var allOpen = allTickets.filter(function(t) { return t.status === 'Em andamento'; });
       var urgentCount = 0;
       allOpen.forEach(function(t) {
@@ -1562,6 +1918,7 @@
         if (agent && t.operator !== agent) return false;
         if (prod && normalizeProduct(t.product) !== prod) return false;
         if (serv && t.solicitacao !== serv) return false;
+        if (third && t.terceiro !== third) return false;
         if (filterOnlyOverdue && !getRemainingTime(t.returnDate).isUrgent) return false;
         if (search) {
           var s = (String(t.client || "") + " " + String(t.contact || "") + " " + String(t.solicitacao || "") + " " + String(t.terceiro || "") + " " + String(t.dafRede || "") + " " + String(t.description || "")).toLowerCase();
@@ -1585,7 +1942,7 @@
       renderProductCardsColumn('colCardsPed', pedTickets, 'prod-pedagio');
       renderProductCardsColumn('colCardsManut', manutTickets, 'prod-manutencao');
 
-      // 2. Linha Horizontal de Registros: APENAS FINALIZADOS
+      // 2. Histórico de Demandas Finalizadas
       var finalizedTickets = allTickets.filter(function(t) {
         if (t.status !== 'Concluído') return false;
         var m = normalizeMes(t.mes);
@@ -1593,6 +1950,7 @@
         if (agent && t.operator !== agent) return false;
         if (prod && normalizeProduct(t.product) !== prod) return false;
         if (serv && t.solicitacao !== serv) return false;
+        if (third && t.terceiro !== third) return false;
         if (search) {
           var s = (String(t.client || "") + " " + String(t.contact || "") + " " + String(t.solicitacao || "") + " " + String(t.terceiro || "") + " " + String(t.dafRede || "")).toLowerCase();
           if (s.indexOf(search) === -1) return false;
@@ -1619,7 +1977,7 @@
         tr.onclick = function() { openDrawer(r); };
         
         var displayStart = formatDateDisplay(r.startDate);
-        var displayEnd = formatDateDisplay(r.endDate || r.returnDate || r.startDate);
+        var displayEnd = formatDateDisplay(r.endDate || formatOnlyDateBR(r.returnDate) || r.startDate);
         var slaText = r.durationDays !== null ? r.durationDays + 'd' : '-';
 
         var tdDate = document.createElement('td');
@@ -1627,7 +1985,7 @@
         tdDate.textContent = monthVal ? displayStart : r.mes;
 
         var tdEnd = document.createElement('td');
-        tdEnd.style.cssText = 'font-family:monospace; color:var(--text-muted);';
+        tdEnd.style.cssText = 'font-family:monospace; color:#A7F3D0;';
         tdEnd.textContent = displayEnd;
 
         var tdClient = document.createElement('td');
@@ -1645,7 +2003,7 @@
         tdTerc.textContent = r.terceiro || '-';
 
         var tdSla = document.createElement('td');
-        tdSla.innerHTML = '<span style="font-size:11.5px; font-weight:800; color:var(--tp-green);">✓ ' + escapeHtml(slaText) + '</span>';
+        tdSla.innerHTML = '<span style="font-size:11px; font-weight:800; color:var(--tp-green); background:rgba(0,214,89,0.14); padding:2px 7px; border-radius:4px;">✓ ' + escapeHtml(slaText) + '</span>';
 
         var tdOp = document.createElement('td');
         tdOp.style.cssText = 'color:var(--text-muted); font-weight:600;';
@@ -1685,9 +2043,11 @@
       }
 
       list.forEach(function(t) {
-        var rem = getRemainingTime(t.returnDate);
+        var cleanRetDate = formatOnlyDateBR(t.returnDate);
+        var rem = getRemainingTime(cleanRetDate);
         var elapsed = getElapsedTime(t.startDate);
         var returnLabel = (t.isAutoReturn === true || t.isAutoReturn === "true") ? "Retorno médio esperado" : "Retorno em";
+        var isIsencao = String(t.solicitacao || "").toLowerCase().indexOf("isen") !== -1;
 
         var card = document.createElement('div');
         card.className = 'progress-card ' + prodClass;
@@ -1698,12 +2058,13 @@
             '<span class="card-agent-pill">' + escapeHtml(t.operator || '') + '</span>' +
           '</div>' +
           '<div class="card-solicitation-line">' +
-            '<strong>' + escapeHtml(t.solicitacao || '') + '</strong> • ' + escapeHtml(t.terceiro || '') +
+            '<span><strong>' + escapeHtml(t.solicitacao || '') + '</strong> • ' + escapeHtml(t.terceiro || '') + '</span>' +
+            (isIsencao ? '<span class="cycle-alert-tag" title="Validar novamente próximo ao fechamento da fatura">⚠️ Fechamento</span>' : '') +
           '</div>' +
           '<div class="timers-box">' +
             '<div class="timer-item">' +
               '<span class="timer-label">' + returnLabel + '</span>' +
-              '<span class="timer-val ' + rem.class + '">' + escapeHtml(t.returnDate || '-') + ' <small style="font-weight:normal; font-size:10px;">(' + rem.text + ')</small></span>' +
+              '<span class="timer-val ' + rem.class + '">' + escapeHtml(cleanRetDate || '-') + ' <small style="font-weight:normal; font-size:10px;">(' + rem.text + ')</small></span>' +
             '</div>' +
             '<div class="timer-item">' +
               '<span class="timer-label">Tempo em Aberto</span>' +
@@ -1715,7 +2076,7 @@
     }
 
     // =========================================================================
-    // DRAWER LATERAL & EDIÇÃO COMPLETA
+    // DRAWER LATERAL & PRODUTIVIDADE
     // =========================================================================
     function openDrawer(ticket, keepViewMode) {
       if (!ticket) return;
@@ -1760,11 +2121,10 @@
           bitrixCell.style.display = 'none';
         }
 
-        var btnComp = document.getElementById('btnCompleteTicket');
-        btnComp.style.display = (ticket.status === 'Em andamento' ? 'block' : 'none');
-
-        var btnEdit = document.getElementById('btnToggleEdit');
-        btnEdit.style.display = (ticket.status === 'Em andamento' ? 'block' : 'none');
+        var isOpen = (ticket.status === 'Em andamento');
+        document.getElementById('btnCompleteTicket').style.display = isOpen ? 'block' : 'none';
+        document.getElementById('btnToggleEdit').style.display = isOpen ? 'block' : 'none';
+        document.getElementById('drawerQuickOpsStrip').style.display = isOpen ? 'grid' : 'none';
 
         var displayStart = formatDateDisplay(ticket.startDate);
         document.getElementById('step1Time').innerText = displayStart;
@@ -1777,9 +2137,11 @@
         var slaHighlight = document.getElementById('slaFinalHighlight');
         var clocksBox = document.getElementById('drawerProgressClocks');
 
+        var cleanRet = formatOnlyDateBR(ticket.returnDate);
+
         if (ticket.status === 'Concluído') {
           step3.style.display = 'block';
-          step3Time.innerText = formatDateDisplay(ticket.endDate || ticket.returnDate || ticket.startDate);
+          step3Time.innerText = formatDateDisplay(ticket.endDate || cleanRet || ticket.startDate);
           slaHighlight.style.display = 'block';
           var sVal = (ticket.durationDays !== null && ticket.durationDays !== undefined) ? ticket.durationDays : '-';
           slaHighlight.innerText = 'SLA Final do atendimento: ' + sVal + ' dias corridos.';
@@ -1789,10 +2151,10 @@
           slaHighlight.style.display = 'none';
           clocksBox.style.display = 'block';
 
-          var rem = getRemainingTime(ticket.returnDate);
+          var rem = getRemainingTime(cleanRet);
           var elapsed = getElapsedTime(ticket.startDate);
           var returnHeaderLabel = (ticket.isAutoReturn === true || ticket.isAutoReturn === "true") ? "Retorno Médio Esperado" : "Retorno em";
-          document.getElementById('drawerClockRem').innerText = returnHeaderLabel + ': ' + (ticket.returnDate || '-') + ' (' + rem.text + ')';
+          document.getElementById('drawerClockRem').innerText = returnHeaderLabel + ': ' + (cleanRet || '-') + ' (' + rem.text + ')';
           document.getElementById('drawerClockElapsed').innerText = 'Total em processo: ' + elapsed;
         }
 
@@ -1861,13 +2223,46 @@
 
     function appendTimestampedNote() {
       var ta = document.getElementById('editDrawerDescription');
-      var agent = document.getElementById('editDrawerOperator').value || (activeSelectedTicket ? activeSelectedTicket.operator : 'Operador');
+      var agent = getActiveOperator();
       var now = new Date();
       var stamp = '[' + String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ' - ' + agent + ']: ';
       var current = ta.value.trim();
       ta.value = current ? (stamp + '\n' + current) : stamp;
       ta.focus();
       ta.setSelectionRange(stamp.length, stamp.length);
+    }
+
+    // Automação 1 Clique: Registrar Cobrança ao Terceiro
+    function registerThirdPartyFollowup() {
+      if (!activeSelectedTicket) return;
+      var agent = getActiveOperator();
+      var now = new Date();
+      var stamp = '[' + String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ' - ' + agent + ']: Cobrança realizada junto ao terceiro (' + (activeSelectedTicket.terceiro || 'Parceiro') + ').';
+      var current = String(activeSelectedTicket.description || "").trim();
+      var newDesc = current ? (stamp + '\n' + current) : stamp;
+
+      var updatedTicket = Object.assign({}, activeSelectedTicket, {
+        description: newDesc,
+        updatedAt: now.toISOString()
+      });
+
+      allTickets = allTickets.map(function(t) { return t.id === updatedTicket.id ? updatedTicket : t; });
+      saveStoredTickets();
+      sendMutationToSheet("update", updatedTicket, false);
+      openDrawer(updatedTicket);
+      renderAll();
+      showToast("Cobrança registrada e salva no histórico!");
+    }
+
+    // Automação 1 Clique: Copiar Mensagem Pronta de Status para o Cliente
+    function copyClientStatusTemplate() {
+      if (!activeSelectedTicket) return;
+      var t = activeSelectedTicket;
+      var cleanRet = formatOnlyDateBR(t.returnDate) || "em breve";
+      var msg = "Olá! Aqui é " + getActiveOperator() + " da TruckPag. Passando para atualizar sobre a sua solicitação de *" + t.solicitacao + "* (" + t.client + "): o chamado segue em tratativa junto ao setor responsável (" + t.terceiro + "), com previsão de retorno até *" + cleanRet + "*. Assim que tivermos a devolutiva final, avisamos por aqui!";
+      navigator.clipboard.writeText(msg).then(function() {
+        showToast("Mensagem de status copiada para enviar ao cliente!");
+      });
     }
 
     function toggleEditDrawerForm() {
@@ -1879,14 +2274,15 @@
         editForm.style.display = 'none';
         detailGrid.style.display = 'grid';
       } else {
+        refreshOperatorDropdowns();
         var prod = normalizeProduct(activeSelectedTicket.product);
         document.getElementById('editDrawerClient').value = activeSelectedTicket.client || "";
         document.getElementById('editDrawerProduct').value = prod;
         populateSolicitacaoOptions(document.getElementById('editDrawerSolicitacao'), prod, activeSelectedTicket.solicitacao);
         document.getElementById('editDrawerContact').value = activeSelectedTicket.contact || "";
-        document.getElementById('editDrawerOperator').value = activeSelectedTicket.operator || "Leandro";
+        document.getElementById('editDrawerOperator').value = activeSelectedTicket.operator || getActiveOperator();
         document.getElementById('editDrawerTerceiro').value = activeSelectedTicket.terceiro || "MoveMais";
-        document.getElementById('editDrawerReturnDate').value = activeSelectedTicket.returnDate || "";
+        document.getElementById('editDrawerReturnDate').value = formatOnlyDateBR(activeSelectedTicket.returnDate);
         document.getElementById('editDrawerDescription').value = activeSelectedTicket.description || "";
 
         var dafSel = document.getElementById('editDrawerDafRede');
@@ -1925,13 +2321,13 @@
       var newContact = document.getElementById('editDrawerContact').value.trim();
       var newOp = document.getElementById('editDrawerOperator').value;
       var newTerceiro = document.getElementById('editDrawerTerceiro').value;
-      var newReturn = document.getElementById('editDrawerReturnDate').value.trim();
+      var newReturn = formatOnlyDateBR(document.getElementById('editDrawerReturnDate').value.trim());
       var newDesc = document.getElementById('editDrawerDescription').value.trim();
       var newBitrix = newSol === 'Chamado T.I' ? document.getElementById('editDrawerBitrix').value.trim() : "";
       var newDafRede = newProd === 'MANUTENÇÃO' ? document.getElementById('editDrawerDafRede').value : "";
       var newDafMuni = newProd === 'MANUTENÇÃO' ? document.getElementById('editDrawerDafMuni').value : "";
 
-      var returnChanged = newReturn !== String(activeSelectedTicket.returnDate || "").trim();
+      var returnChanged = newReturn !== formatOnlyDateBR(activeSelectedTicket.returnDate);
 
       var updatedTicket = Object.assign({}, activeSelectedTicket, {
         client: newClient || activeSelectedTicket.client,
@@ -1959,6 +2355,7 @@
       toggleEditDrawerForm();
       openDrawer(updatedTicket);
       renderAll();
+      showToast("Alterações salvas e sincronizadas!");
     }
 
     function closeDrawer(e) {
@@ -1972,11 +2369,23 @@
 
     function copyDrawerPhone() {
       if (!activeSelectedTicket || !activeSelectedTicket.contact) {
-        alert("Sem telefone informado.");
+        showToast("Sem telefone informado neste card.", true);
         return;
       }
       navigator.clipboard.writeText(String(activeSelectedTicket.contact)).then(function() {
-        alert("Número copiado com sucesso.");
+        var btn = document.getElementById('btnCopyPhoneDrawer');
+        if (btn) {
+          var orig = btn.innerText;
+          btn.innerText = "✓ Copiado!";
+          btn.style.borderColor = "var(--tp-green)";
+          btn.style.color = "var(--tp-green)";
+          setTimeout(function() {
+            btn.innerText = orig;
+            btn.style.borderColor = "";
+            btn.style.color = "";
+          }, 2000);
+        }
+        showToast("Número copiado: " + activeSelectedTicket.contact);
       });
     }
 
@@ -2009,6 +2418,7 @@
       sendMutationToSheet("update", updatedTicket, false);
       openDrawer(updatedTicket);
       renderAll();
+      showToast("Demanda finalizada (SLA: " + diffDays + " dias)!");
     }
 
     function executeDelete(ticket) {
@@ -2030,6 +2440,7 @@
       sendMutationToSheet("delete", ticket, false);
       closeDrawerDirect();
       renderAll();
+      showToast("Demanda excluída definitivamente.");
     }
 
     function deleteSelectedTicket() {
@@ -2061,6 +2472,9 @@
       document.getElementById('modalFeedbackText').innerText = '';
       modalAutoReturnFlag = false;
       
+      refreshOperatorDropdowns();
+      document.getElementById('modalOperatorSelect').value = getActiveOperator();
+
       var dafSel = document.getElementById('modalDafSelect');
       dafSel.innerHTML = '<option value="">Selecione a Casa DAF...</option>';
       Object.keys(DAF_CASA_MUNICIPALES).forEach(function(casa) {
@@ -2122,11 +2536,17 @@
       } else {
         bitrixGroup.style.display = 'none';
       }
+
+      if (serv === 'Isenção') {
+        document.getElementById('modalFeedbackText').innerText = '💡 Dica: Para Isenção, defina manualmente a data próxima ao fechamento da fatura do cliente.';
+      } else if (!modalAutoReturnFlag) {
+        document.getElementById('modalFeedbackText').innerText = '';
+      }
     }
 
     function markManualReturnDate() {
       modalAutoReturnFlag = false;
-      document.getElementById('modalFeedbackText').innerText = 'Data de retorno definida manualmente.';
+      document.getElementById('modalFeedbackText').innerText = 'Data de retorno agendada manualmente ("Retorno em").';
     }
 
     function calculateModalReturnDate() {
@@ -2154,13 +2574,13 @@
 
       if (prod === 'MANUTENÇÃO') {
         if (!f.dafRede.value || !f.dafMunicipio.value) {
-          alert("Atenção: É obrigatório selecionar a Casa DAF e o Município.");
+          showToast("Selecione a Casa DAF e o Município.", true);
           return;
         }
       }
 
       if (serv === 'Chamado T.I' && !f.bitrixLink.value.trim()) {
-        alert("Atenção: É obrigatório inserir o Link do Bitrix para Chamado T.I.");
+        showToast("Insira o Link do Bitrix para Chamado T.I.", true);
         return;
       }
 
@@ -2172,8 +2592,7 @@
       var min = String(now.getMinutes()).padStart(2, '0');
 
       var rawReturn = f.returnDate.value;
-      var parts = rawReturn ? rawReturn.split('-') : [];
-      var formattedReturn = parts.length === 3 ? (parts[2] + '/' + parts[1] + '/' + parts[0]) : 'A definir';
+      var formattedReturn = formatOnlyDateBR(rawReturn) || 'A definir';
 
       var uniqueId = "REC-" + String(Date.now()).slice(-6) + "-" + Math.floor(100 + Math.random() * 900);
 
@@ -2206,75 +2625,198 @@
       document.getElementById('modalOverlay').style.display = 'none';
       renderAll();
       openDrawer(newRec);
+      showToast("Nova demanda planilhada com sucesso!");
     }
 
     // =========================================================================
-    // RELATÓRIO DE SLA
+    // RELATÓRIO GERENCIAL EXECUTIVO DE B.I. (PARCEIROS, SETORES E DEGRADÊ)
     // =========================================================================
     function renderSlaReport() {
+      var completed = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null && !isNaN(parseFloat(t.durationDays)); });
+
+      // 1. Parceiros Externos vs. Setores Internos
+      var extVals = [];
+      var intVals = [];
+      completed.forEach(function(t) {
+        var dur = parseFloat(t.durationDays);
+        var terc = String(t.terceiro || "").toLowerCase();
+        if (terc.indexOf('movemais') !== -1 || terc.indexOf('connect') !== -1) {
+          extVals.push(dur);
+        } else {
+          intVals.push(dur);
+        }
+      });
+
+      var extMean = extVals.length ? (extVals.reduce(function(a, b) { return a + b; }, 0) / extVals.length) : 0;
+      var extMed = calcMedian(extVals);
+      var intMean = intVals.length ? (intVals.reduce(function(a, b) { return a + b; }, 0) / intVals.length) : 0;
+      var intMed = calcMedian(intVals);
+
+      var extColor = getSlaGradientColors(extMean);
+      var intColor = getSlaGradientColors(intMean);
+
+      document.getElementById('biCardExterno').style.borderTopColor = extColor.color;
+      document.getElementById('biExternoVal').style.color = extColor.color;
+      document.getElementById('biExternoVal').innerText = extVals.length ? extMean.toFixed(1).replace('.', ',') + ' dias' : '-';
+      document.getElementById('biExternoSub').innerText = extVals.length + ' chamados • Mediana: ' + extMed.toFixed(1).replace('.', ',') + 'd';
+
+      document.getElementById('biCardInterno').style.borderTopColor = intColor.color;
+      document.getElementById('biInternoVal').style.color = intColor.color;
+      document.getElementById('biInternoVal').innerText = intVals.length ? intMean.toFixed(1).replace('.', ',') + ' dias' : '-';
+      document.getElementById('biInternoSub').innerText = intVals.length + ' chamados • Mediana: ' + intMed.toFixed(1).replace('.', ',') + 'd';
+
+      document.getElementById('biTotalAuditado').innerText = completed.length + ' chamados';
+
+      // 2. Matriz Cruzada: Terceiro + Produto + Solicitação
+      var matrixMap = {};
+      completed.forEach(function(t) {
+        var terc = String(t.terceiro || 'Outros').trim();
+        var prod = normalizeProduct(t.product);
+        var sol = String(t.solicitacao || 'Outros').trim();
+        var key = terc + '||' + prod + '||' + sol;
+        if (!matrixMap[key]) {
+          matrixMap[key] = { terceiro: terc, product: prod, solicitacao: sol, vals: [], sum: 0 };
+        }
+        var d = parseFloat(t.durationDays);
+        matrixMap[key].vals.push(d);
+        matrixMap[key].sum += d;
+      });
+
+      var matrixRows = Object.keys(matrixMap).map(function(k) {
+        var item = matrixMap[k];
+        var mean = item.sum / item.vals.length;
+        var med = calcMedian(item.vals);
+        return {
+          terceiro: item.terceiro,
+          product: item.product,
+          solicitacao: item.solicitacao,
+          count: item.vals.length,
+          mean: mean,
+          median: med
+        };
+      });
+
+      // Ordena por volume e criticidade
+      matrixRows.sort(function(a, b) { return b.mean - a.mean; });
+
+      // Maior Gargalo
+      if (matrixRows.length > 0) {
+        var topGargalo = matrixRows[0];
+        var gColor = getSlaGradientColors(topGargalo.mean);
+        document.getElementById('biCardGargalo').style.borderTopColor = gColor.color;
+        document.getElementById('biGargaloVal').style.color = gColor.color;
+        document.getElementById('biGargaloVal').innerText = topGargalo.terceiro + ' • ' + topGargalo.solicitacao;
+        document.getElementById('biGargaloSub').innerText = topGargalo.product + ' • Média: ' + topGargalo.mean.toFixed(1).replace('.', ',') + 'd (' + topGargalo.count + ' vol.)';
+      }
+
+      var matrixTbody = document.getElementById('partnerMatrixTableBody');
+      if (matrixTbody) {
+        matrixTbody.innerHTML = '';
+        matrixRows.forEach(function(r) {
+          var grad = getSlaGradientColors(r.mean);
+          var ruleText = 'Retorno em ' + Math.max(1, Math.ceil(r.mean)) + ' dias corridos';
+          if (r.solicitacao.toLowerCase().indexOf('isen') !== -1) {
+            ruleText = '⚠️ Solicitar agora e revalidar no fechamento da fatura';
+          } else if (r.mean <= 3) {
+            ruleText = 'Tratativa ágil • Prazo sugerido: ' + Math.max(1, Math.ceil(r.mean)) + 'd';
+          }
+
+          var tr = document.createElement('tr');
+          tr.innerHTML = 
+            '<td style="font-weight:800; color:#38BDF8;">' + escapeHtml(r.terceiro) + '</td>' +
+            '<td style="font-weight:700; color:#fff;">' + escapeHtml(r.product) + '</td>' +
+            '<td style="font-weight:700; color:#E2E8F0;">' + escapeHtml(r.solicitacao) + '</td>' +
+            '<td>' + r.count + ' chamados</td>' +
+            '<td>' +
+              '<div style="display:flex; align-items:center; gap:8px;">' +
+                '<span class="sla-pill-gradient" style="color:' + grad.color + '; background:' + grad.bg + '; border:1px solid ' + grad.border + ';">' + r.mean.toFixed(1).replace('.', ',') + ' d</span>' +
+              '</div>' +
+              '<div class="mini-track"><div class="mini-fill" style="width:' + grad.pct + '%; background:' + grad.color + ';"></div></div>' +
+            '</td>' +
+            '<td style="color:#CBD5E1; font-family:monospace; font-weight:700;">' + r.median.toFixed(1).replace('.', ',') + ' d</td>' +
+            '<td style="color:var(--text-muted); font-size:11px; font-weight:600;">' + ruleText + '</td>';
+          matrixTbody.appendChild(tr);
+        });
+      }
+
+      // 3. SLA Consolidado por Produto
       var prodStats = calcProductSlaStats();
       var prodTbody = document.getElementById('productSlaTableBody');
       if (prodTbody) {
         prodTbody.innerHTML = '';
         Object.keys(prodStats).forEach(function(p) {
           var row = prodStats[p];
+          var grad = getSlaGradientColors(row.mean);
           var tr = document.createElement('tr');
           tr.innerHTML = 
             '<td style="font-weight:800; color:#fff;">' + p + '</td>' +
             '<td>' + row.count + ' chamados</td>' +
-            '<td style="font-weight:800; color:' + (parseFloat(row.mean) > 10 ? '#EF4444' : 'var(--tp-green)') + ';">' + (row.count > 0 ? row.mean + ' dias' : '-') + '</td>' +
-            '<td style="color:#CBD5E1;">' + (row.count > 0 ? row.median + ' dias' : '-') + '</td>';
+            '<td><span class="sla-pill-gradient" style="color:' + grad.color + '; background:' + grad.bg + '; border:1px solid ' + grad.border + ';">' + (row.count > 0 ? String(row.mean).replace('.', ',') + ' d' : '-') + '</span></td>' +
+            '<td style="color:#CBD5E1; font-family:monospace;">' + (row.count > 0 ? String(row.median).replace('.', ',') + ' d' : '-') + '</td>';
           prodTbody.appendChild(tr);
         });
       }
 
-      var container = document.getElementById('chartBarsContainer');
-      if (container) {
-        container.innerHTML = '';
-        var stats = calcCurrentSlaStats();
-
-        Object.keys(stats).forEach(function(k) {
-          if (stats[k].count > 0) {
-            var mean = parseFloat(stats[k].mean);
-            var pct = Math.min(100, (mean / 45) * 100);
-
-            var row = document.createElement('div');
-            row.className = 'chart-bar-item';
-            row.innerHTML = 
-              '<span class="bar-label" title="' + escapeHtml(k) + '">' + escapeHtml(k) + '</span>' +
-              '<div class="bar-track">' +
-                '<div class="bar-fill" style="width: ' + pct + '%;"></div>' +
-              '</div>' +
-              '<span class="bar-value">' + mean + ' d</span>';
-            container.appendChild(row);
-          }
-        });
+      // 4. Radar de Isenções em Aberto
+      var openIsencoes = allTickets.filter(function(t) {
+        return t.status === 'Em andamento' && String(t.solicitacao || '').toLowerCase().indexOf('isen') !== -1;
+      });
+      var chipsBox = document.getElementById('openIsencoesChips');
+      if (chipsBox) {
+        if (openIsencoes.length === 0) {
+          chipsBox.innerHTML = '<div style="font-size:11px; color:var(--tp-green); font-weight:700; margin-top:6px;">✓ Nenhuma isenção pendente na fila ativa no momento.</div>';
+        } else {
+          chipsBox.innerHTML = openIsencoes.map(function(t) {
+            return '<span class="cycle-ticket-chip" onclick="switchMainTab(\'records\'); openDrawer(allTickets.find(function(x){return x.id===\'' + t.id + '\';}))">📌 ' + escapeHtml(t.client) + ' (Retorno: ' + escapeHtml(formatOnlyDateBR(t.returnDate)) + ')</span>';
+          }).join('');
+        }
       }
 
-      var tbody = document.getElementById('execTableBody');
-      if (tbody) {
-        tbody.innerHTML = '';
-        var stats2 = calcCurrentSlaStats();
-        Object.keys(stats2).forEach(function(sol) {
-          if (stats2[sol].count > 0) {
-            var mean = parseFloat(stats2[sol].mean);
-            var tr = document.createElement('tr');
-            tr.innerHTML = 
-              '<td style="font-weight:800; color:#fff;">' + escapeHtml(sol) + '</td>' +
-              '<td style="color:var(--text-muted); font-weight:600;">Direto</td>' +
-              '<td>' + stats2[sol].count + ' chamados</td>' +
-              '<td style="font-weight:800; color:' + (mean > 12 ? '#EF4444' : 'var(--tp-green)') + ';">' + mean + ' dias</td>' +
-              '<td style="color:#CBD5E1;">' + stats2[sol].median + ' dias</td>' +
-              '<td style="font-weight:800; color:var(--tp-green);">' + Math.ceil(mean) + ' dias úteis</td>';
-            tbody.appendChild(tr);
-          }
+      // 5. Carga e Produtividade por Operador
+      var team = getTeamList();
+      var opTbody = document.getElementById('operatorStatsTableBody');
+      if (opTbody) {
+        opTbody.innerHTML = '';
+        team.forEach(function(op) {
+          var opOpen = allTickets.filter(function(t) { return t.status === 'Em andamento' && t.operator === op; });
+          var opLate = opOpen.filter(function(t) { return getRemainingTime(t.returnDate).isUrgent; });
+          var opDone = completed.filter(function(t) { return t.operator === op; });
+          var opMean = opDone.length ? (opDone.reduce(function(a, b) { return a + parseFloat(b.durationDays); }, 0) / opDone.length) : null;
+          var grad = opMean !== null ? getSlaGradientColors(opMean) : null;
+
+          var tr = document.createElement('tr');
+          tr.innerHTML = 
+            '<td style="font-weight:800; color:#fff;">👤 ' + escapeHtml(op) + '</td>' +
+            '<td style="font-weight:700;">' + opOpen.length + '</td>' +
+            '<td style="color:' + (opLate.length > 0 ? '#F87171' : 'var(--text-muted)') + '; font-weight:700;">' + opLate.length + '</td>' +
+            '<td style="color:var(--tp-green); font-weight:700;">' + opDone.length + '</td>' +
+            '<td>' + (grad ? '<span style="color:' + grad.color + '; font-weight:800; font-family:monospace;">' + opMean.toFixed(1).replace('.', ',') + 'd</span>' : '-') + '</td>';
+          opTbody.appendChild(tr);
         });
       }
     }
 
-    // Inicialização imediata + Sincronização em tempo real
+    // =========================================================================
+    // ATALHO GLOBAL DE TECLADO (ESC FECHA MODAL E DRAWER)
+    // =========================================================================
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' || e.keyCode === 27) {
+        var modal = document.getElementById('modalOverlay');
+        var drawer = document.getElementById('drawerOverlay');
+        if (modal && modal.style.display === 'flex') {
+          closeModalDirect(null);
+          return;
+        }
+        if (drawer && drawer.style.display === 'flex') {
+          closeDrawerDirect();
+        }
+      }
+    });
+
+    // Inicialização
+    refreshOperatorDropdowns();
     renderAll();
-    syncFromGoogleSheets();
+    syncFromGoogleSheets(false);
   </script>
 </body>
 </html>
