@@ -7,7 +7,6 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>TruckPag Backoffice • Central Operacional & B.I. de SLA</title>
-  
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -129,13 +128,7 @@
           <span class="kpi-value" style="color:#38BDF8;" id="kpiFinalizedMonth">0</span>
           <span class="kpi-sub">De acordo com o filtro</span>
         </div>
-        <div class="kpi-box">
-          <span class="kpi-title">SLA Médio Geral</span>
-          <span class="kpi-value" style="color:#E2E8F0;" id="kpiOverallSla">-</span>
-          <span class="kpi-sub">Da base filtrada</span>
-        </div>
       </div>
-
       <!-- DEMANDAS EM ABERTO: 3 COLUNAS -->
       <section class="in-progress-section">
         <div class="section-title-bar">
@@ -321,6 +314,14 @@
           <button class="btn-copy-clean" id="btnCopyPhoneDrawer" onclick="copyDrawerPhone()">Copiar Número</button>
         </div>
 
+        <div class="customer-message-box" id="drawerCustomerMessageBox" style="display:none;">
+          <div class="customer-message-head">
+            <strong>Mensagem padronizada ao cliente</strong>
+            <button type="button" class="btn-copy-clean" onclick="copyCustomerOpeningMessage()">Copiar mensagem</button>
+          </div>
+          <p id="drawerCustomerMessageText"></p>
+          <small>Texto sugerido para revisão antes do envio. Prazo configurável em js/config.js.</small>
+        </div>
         <!-- Ações do Card -->
         <div style="display:flex; gap:8px;">
           <button 
@@ -616,9 +617,9 @@
   <!-- CONTAINER DE TOAST (NOTIFICAÇÕES) -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <script src="js/config.js" defer></script>
-  <script src="js/core.js" defer></script>
-  <script src="js/ui.js" defer></script>
-  <script src="js/bootstrap.js" defer></script>
+  <script defer src="js/config.js"></script>
+  <script defer src="js/core.js"></script>
+  <script defer src="js/ui.js"></script>
+  <script defer src="js/bootstrap.js"></script>
 </body>
 </html>

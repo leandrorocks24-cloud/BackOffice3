@@ -1,6 +1,4 @@
-// INTERFACE, RENDERIZAÇÃO, FORMULÁRIOS E RELATÓRIOS
-// =========================================================================
-    // CÁLCULOS DE DATA E SLA
+// CÁLCULOS DE DATA E SLA
     // =========================================================================
     function getElapsedTime(startDateStr) {
       var start = parseDateBR(startDateStr);
@@ -176,8 +174,7 @@
       showToast("Arquivo CSV exportado com sucesso!");
     }
 
-
-// =========================================================================
+    // =========================================================================
     // RENDERIZAÇÃO: KPIS, COLUNAS E TABELA
     // =========================================================================
     function renderAll() {
@@ -215,11 +212,6 @@
       var onTimeCount = Math.max(0, allOpen.length - urgentCount);
 
       var allDone = filteredTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
-      var avgSla = "-";
-      if (allDone.length > 0) {
-        var totalDur = allDone.reduce(function(acc, cur) { return acc + (parseFloat(cur.durationDays) || 0); }, 0);
-        avgSla = (totalDur / allDone.length).toFixed(1).replace('.', ',') + "d";
-      }
 
       if (document.getElementById('kpiTotalOpen')) document.getElementById('kpiTotalOpen').innerText = allOpen.length;
       if (document.getElementById('kpiOnTime')) document.getElementById('kpiOnTime').innerText = onTimeCount;
@@ -228,7 +220,6 @@
         document.getElementById('kpiOverdueSub').innerText = filterOnlyOverdue ? "Filtro ativo (clique p/ sair)" : "Clique para filtrar críticos";
       }
       if (document.getElementById('kpiFinalizedMonth')) document.getElementById('kpiFinalizedMonth').innerText = allDone.length;
-      if (document.getElementById('kpiOverallSla')) document.getElementById('kpiOverallSla').innerText = avgSla;
 
       var inProg = allOpen.filter(function(t) {
         if (filterOnlyOverdue && !getRemainingTime(t.returnDate).isUrgent) return false;
@@ -326,6 +317,18 @@
       });
     }
 
+    function getTicketSlaRisk(ticket) {
+      var stats = calcCurrentSlaStats();
+      var row = stats[String(ticket.solicitacao || 'Outros')];
+      var mean = row && Number(row.mean) > 0 ? Number(row.mean) : 0;
+      var start = parseDateBR(ticket.startDate);
+      var elapsedDays = start ? Math.max(0, (Date.now() - start.getTime()) / 86400000) : 0;
+      var ratio = mean > 0 ? elapsedDays / mean : 0;
+      var level = !mean ? 'risk-unknown' : (ratio >= 0.90 ? 'risk-red' : (ratio >= 0.65 ? 'risk-yellow' : 'risk-green'));
+      var label = level === 'risk-red' ? 'Crítica' : (level === 'risk-yellow' ? 'Atenção' : (level === 'risk-green' ? 'No radar' : 'Sem histórico'));
+      return { mean: mean, elapsedDays: elapsedDays, ratio: ratio, percent: Math.min(100, Math.max(0, ratio * 100)), level: level, label: label };
+    }
+
     function renderProductCardsColumn(containerId, list, prodClass) {
       var container = document.getElementById(containerId);
       if (!container) return;
@@ -336,24 +339,37 @@
         return;
       }
 
+      // Ordena primeiro pelo risco relativo ao SLA histórico; em empate, pela demanda mais antiga.
+      list = list.slice().sort(function(a, b) {
+        var riskA = getTicketSlaRisk(a), riskB = getTicketSlaRisk(b);
+        if (riskA.ratio !== riskB.ratio) return riskB.ratio - riskA.ratio;
+        return riskB.elapsedDays - riskA.elapsedDays;
+      });
+
       list.forEach(function(t) {
         try {
           var cleanRetDate = formatOnlyDateBR(t.returnDate);
           var rem = getRemainingTime(cleanRetDate);
           var elapsed = getElapsedTime(t.startDate);
-          var returnLabel = (t.isAutoReturn === true || t.isAutoReturn === "true") ? "Retorno médio esperado" : "Retorno em";
+          var openedAt = formatDateDisplay(t.startDate);
+          var returnLabel = (t.isAutoReturn === true || t.isAutoReturn === "true") ? "Retorno agendado" : "Retorno em";
+          var risk = getTicketSlaRisk(t);
+          var riskClass = risk.level === 'risk-unknown' ? 'risk-neutral' : risk.level;
+          var riskWidth = risk.mean > 0 ? risk.percent : 0;
 
           var card = document.createElement('div');
           card.className = 'progress-card ' + prodClass;
           card.onclick = function() { openDrawer(t); };
-          card.innerHTML = 
+          card.innerHTML =
             '<div class="card-top-meta">' +
               '<div class="card-client-title" title="' + escapeHtml(t.client) + '">' + escapeHtml(t.client || 'Sem Nome') + '</div>' +
               '<span class="card-agent-pill">' + escapeHtml(t.operator || '') + '</span>' +
             '</div>' +
             '<div class="card-solicitation-line">' +
               '<span><strong>' + escapeHtml(t.solicitacao || '') + '</strong> • ' + escapeHtml(t.terceiro || '') + '</span>' +
+              '<span class="card-priority-pill ' + riskClass + '">' + risk.label + '</span>' +
             '</div>' +
+            '<div class="card-opened-at">Abertura: ' + escapeHtml(openedAt) + '</div>' +
             '<div class="timers-box">' +
               '<div class="timer-item">' +
                 '<span class="timer-label">' + returnLabel + '</span>' +
@@ -361,14 +377,36 @@
               '</div>' +
               '<div class="timer-item">' +
                 '<span class="timer-label">Tempo em Aberto</span>' +
-                '<span class="timer-val" style="color:var(--tp-green);">' + elapsed + '</span>' +
+                '<span class="timer-val ' + riskClass + '">' + escapeHtml(elapsed) + '</span>' +
               '</div>' +
+            '</div>' +
+            '<div class="sla-risk-track" title="Indicador visual baseado na média histórica da solicitação; a média numérica fica no Relatório Gerencial">' +
+              '<div class="sla-risk-fill ' + riskClass + '" style="width:' + riskWidth.toFixed(1) + '%"></div>' +
             '</div>';
           container.appendChild(card);
         } catch(errCard) {
           console.warn("Erro ao renderizar card:", errCard);
         }
       });
+    }
+
+    function buildCustomerOpeningMessage(ticket) {
+      var opened = formatDateDisplay(ticket.startDate);
+      var service = String(ticket.solicitacao || 'solicitação').toLowerCase();
+      var client = String(ticket.client || 'sua empresa');
+      var partner = String(ticket.terceiro || 'área responsável');
+      return 'Olá! Sua solicitação de ' + service + ' para ' + client + ' foi registrada em ' + opened + '.\n\nA tratativa já está em andamento junto a ' + partner + '. O prazo estimado de retorno é de até ' + CUSTOMER_MESSAGE_ESTIMATED_DAYS + ' dias corridos, podendo variar conforme a análise e o retorno do responsável. Assim que houver uma atualização, entraremos em contato.\n\nAgradecemos a compreensão.';
+    }
+
+    function copyCustomerOpeningMessage() {
+      var text = document.getElementById('drawerCustomerMessageText');
+      if (!text) return;
+      var message = text.innerText || text.textContent || '';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(message).then(function() { showToast('Mensagem copiada para a área de transferência!'); }).catch(function() { showToast('Não foi possível copiar automaticamente. Selecione o texto e copie.', true); });
+      } else {
+        showToast('Seu navegador não permite cópia automática neste contexto. Selecione o texto e copie.', true);
+      }
     }
 
     // =========================================================================
@@ -393,6 +431,12 @@
         document.getElementById('drawerAgentVal').innerText = String(ticket.operator || "-");
         document.getElementById('drawerThirdVal').innerText = String(ticket.terceiro || "-");
         document.getElementById('drawerDescVal').innerText = String(ticket.description || "Nenhum relato ou informação adicional informada.");
+        var customerMessageBox = document.getElementById('drawerCustomerMessageBox');
+        var customerMessageText = document.getElementById('drawerCustomerMessageText');
+        if (customerMessageBox && customerMessageText) {
+          customerMessageText.innerText = buildCustomerOpeningMessage(ticket);
+          customerMessageBox.style.display = ticket.status === 'Em andamento' ? 'block' : 'none';
+        }
 
         var phoneDisplay = document.getElementById('drawerPhoneDisplay');
         var rawPhone = ticket.contact !== undefined && ticket.contact !== null ? String(ticket.contact).trim() : "";
@@ -450,7 +494,7 @@
 
           var rem = getRemainingTime(cleanRet);
           var elapsed = getElapsedTime(ticket.startDate);
-          var returnHeaderLabel = (ticket.isAutoReturn === true || ticket.isAutoReturn === "true") ? "Retorno Médio Esperado" : "Retorno em";
+          var returnHeaderLabel = (ticket.isAutoReturn === true || ticket.isAutoReturn === "true") ? "Retorno agendado" : "Retorno em";
           document.getElementById('drawerClockRem').innerText = returnHeaderLabel + ': ' + (cleanRet || '-') + ' (' + rem.text + ')';
           document.getElementById('drawerClockElapsed').innerText = 'Total em processo: ' + elapsed;
         }
@@ -857,7 +901,7 @@
 
       document.getElementById('modalReturnDateInput').value = y + '-' + m + '-' + d;
       modalAutoReturnFlag = true;
-      document.getElementById('modalFeedbackText').innerText = 'Retorno médio esperado calculado: +' + Math.ceil(mean) + ' dias.';
+      document.getElementById('modalFeedbackText').innerText = 'Data de retorno sugerida: +' + Math.ceil(mean) + ' dias.';
     }
 
     function handleSaveDemandForm(e) {
@@ -1053,4 +1097,3 @@
         });
       }
     }
-

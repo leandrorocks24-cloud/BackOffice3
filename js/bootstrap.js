@@ -1,4 +1,3 @@
-// INICIALIZAÇÃO E EVENTOS GLOBAIS
 // Atalho global (ESC fechar modais)
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' || e.keyCode === 27) {
@@ -17,4 +16,6 @@
     // Inicialização direta e imediata
     refreshOperatorDropdowns();
     renderAll();
+    // Atualiza tempo em aberto e semáforo sem exigir recarregar a página.
+    window.setInterval(renderAll, 60000);
     syncFromGoogleSheets(false);

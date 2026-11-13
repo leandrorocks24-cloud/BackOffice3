@@ -1,6 +1,4 @@
-// REGRAS CENTRAIS, ESTADO, PERSISTÊNCIA E SINCRONIZAÇÃO
-// =========================================================================
-    // TOAST NOTIFICATION (AVISO DISCRETO E NÃO-BLOQUEANTE)
+// TOAST NOTIFICATION (AVISO DISCRETO E NÃO-BLOQUEANTE)
     // =========================================================================
     function showToast(message, isWarn) {
       var container = document.getElementById('toastContainer');
@@ -576,3 +574,5 @@
         syncFromGoogleSheets(false);
       }
     }, 20000);
+
+    // =========================================================================

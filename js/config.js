@@ -1,4 +1,3 @@
-// CONFIGURAÇÕES E DADOS ESTÁTICOS
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1wsXSNLRwiKqSwj9BFQEO7RYgg6T-N5w_peFTzMiyLDH31NsASLM35bL/exec";
     const STORAGE_KEY = "truckpag_demandas_persistent_v27";
     const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v27";
@@ -228,3 +227,8 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1w
 
     var INITIAL_ID_SET = {};
     RAW_INITIAL_RECORDS.forEach(function(r) { INITIAL_ID_SET[r.id] = true; });
+
+    // =========================================================================
+
+// Prazo informativo usado no texto sugerido ao cliente. Ajuste somente conforme política aprovada.
+const CUSTOMER_MESSAGE_ESTIMATED_DAYS = 30;
