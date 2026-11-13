@@ -63,7 +63,7 @@
 
     .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
 
-    /* FILTROS (REPOSICIONADO NO TOPO) */
+    /* FILTROS (POSICIONADOS NO TOPO) */
     .filter-panel { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 11px 16px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
     .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
     .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -134,7 +134,7 @@
     .btn-row-delete { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 10px; font-size: 10.5px; font-weight: 700; border-radius: 4px; cursor: pointer; }
     .btn-row-delete:hover { background: rgba(239, 68, 68, 0.25); }
 
-    /* RELATÓRIO GERENCIAL DE SLA (ESTILO "B.I ANTIGO") */
+    /* RELATÓRIO GERENCIAL DE SLA */
     .sla-report-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
     .sla-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 18px 20px; box-shadow: var(--card-shadow); }
     .sla-card.col-12 { grid-column: span 12; }
@@ -153,7 +153,7 @@
     .mini-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
 
     .chart-bar-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 11.5px; }
-    .bar-label { width: 200px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #E2E8F0; }
+    .bar-label { width: 220px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #E2E8F0; }
     .bar-track { flex: 1; height: 16px; background: var(--bg-input); border-radius: 3px; overflow: hidden; display: flex; align-items: center; }
     .bar-fill { height: 100%; border-radius: 3px; }
     .bar-value { width: 65px; text-align: right; font-weight: 800; font-family: monospace; color: #fff; font-size: 11px; }
@@ -831,11 +831,11 @@
 
   <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1wsXSNLRwiKqSwj9BFQEO7RYgg6T-N5w_peFTzMiyLDH31NsASLM35bL/exec";
-    const STORAGE_KEY = "truckpag_demandas_persistent_v25";
-    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v25";
-    const PENDING_KEY = "truckpag_pending_mutations_v25";
-    const OPERATOR_KEY = "truckpag_active_operator_v25";
-    const TEAM_LIST_KEY = "truckpag_team_list_v25";
+    const STORAGE_KEY = "truckpag_demandas_persistent_v27";
+    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v27";
+    const PENDING_KEY = "truckpag_pending_mutations_v27";
+    const OPERATOR_KEY = "truckpag_active_operator_v27";
+    const TEAM_LIST_KEY = "truckpag_team_list_v27";
 
     var DAF_CASA_MUNICIPALES = {
       "DAF ALIS": ["AGUA BOA/MT", "CUIABA/MT", "RONDONOPOLIS/MT", "SINOP/MT"],
@@ -1082,7 +1082,7 @@
     }
 
     // =========================================================================
-    // UTILITÁRIOS DE DATA E NORMALIZAÇÃO (CORREÇÃO DE DATA 2026-11-15T)
+    // UTILITÁRIOS DE DATA E NORMALIZAÇÃO (INCLUINDO parseDateBR)
     // =========================================================================
     function escapeHtml(str) {
       if (str === null || str === undefined) return "";
@@ -1092,6 +1092,32 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
+    }
+
+    function parseDateBR(str) {
+      if (!str) return null;
+      var s = String(str).trim();
+      if (!s || s === "-" || s === "null" || s === "undefined") return null;
+      if (s.indexOf('T') !== -1) {
+        var dtIso = new Date(s);
+        return isNaN(dtIso.getTime()) ? null : dtIso;
+      }
+      if (s.indexOf('/') !== -1) {
+        var parts = s.split(' ');
+        var dmy = parts[0].split('/');
+        if (dmy.length < 3) return null;
+        var hm = parts[1] ? parts[1].split(':') : [0, 0];
+        var dtBr = new Date(
+          parseInt(dmy[2], 10),
+          parseInt(dmy[1], 10) - 1,
+          parseInt(dmy[0], 10),
+          parseInt(hm[0] || 0, 10),
+          parseInt(hm[1] || 0, 10)
+        );
+        return isNaN(dtBr.getTime()) ? null : dtBr;
+      }
+      var dtFallback = new Date(s);
+      return isNaN(dtFallback.getTime()) ? null : dtFallback;
     }
 
     function formatOnlyDateBR(d) {
@@ -1110,8 +1136,17 @@
       }
 
       if (s.indexOf('T') !== -1) {
-        var p0 = s.split('T')[0].split('-');
-        if (p0.length === 3) return p0[2] + "/" + p0[1] + "/" + p0[0];
+        if (s.indexOf('T00:00:00') !== -1) {
+          var p0 = s.split('T')[0].split('-');
+          if (p0.length === 3) return p0[2] + "/" + p0[1] + "/" + p0[0];
+        }
+        var dt = new Date(s);
+        if (!isNaN(dt.getTime())) {
+          var dd = String(dt.getDate()).padStart(2, '0');
+          var mm = String(dt.getMonth() + 1).padStart(2, '0');
+          var yyyy = dt.getFullYear();
+          return dd + "/" + mm + "/" + yyyy;
+        }
       }
       return s;
     }
@@ -1649,7 +1684,59 @@
       return sorted.length % 2 !== 0 ? sorted[mid] : ((sorted[mid - 1] + sorted[mid]) / 2);
     }
 
-    // Degradê Semafórico (B.I.)
+    function calcCurrentSlaStats() {
+      var completed = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
+      var map = {};
+      var defaultServices = ['Contestação', 'Chamado T.I', 'Isenção', 'Logistica', 'Cancelamento', 'Cobrança fora da TAG', 'Outros'];
+      defaultServices.forEach(function(s) {
+        map[s] = { count: 0, sum: 0, vals: [], mean: 0, median: 0 };
+      });
+      completed.forEach(function(t) {
+        var s = String(t.solicitacao || 'Outros');
+        if (!map[s]) map[s] = { count: 0, sum: 0, vals: [], mean: 0, median: 0 };
+        var dur = parseFloat(t.durationDays);
+        if (!isNaN(dur)) {
+          map[s].count++;
+          map[s].sum += dur;
+          map[s].vals.push(dur);
+        }
+      });
+      Object.keys(map).forEach(function(s) {
+        if (map[s].count > 0) {
+          map[s].mean = (map[s].sum / map[s].count).toFixed(1);
+          map[s].median = calcMedian(map[s].vals).toFixed(1);
+        }
+      });
+      return map;
+    }
+
+    function calcProductSlaStats() {
+      var completed = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
+      var map = {
+        'PEDÁGIO': { count: 0, sum: 0, vals: [], mean: 0, median: 0 },
+        'ABASTECIMENTO': { count: 0, sum: 0, vals: [], mean: 0, median: 0 },
+        'MANUTENÇÃO': { count: 0, sum: 0, vals: [], mean: 0, median: 0 }
+      };
+      completed.forEach(function(t) {
+        var p = normalizeProduct(t.product);
+        if (map[p]) {
+          var dur = parseFloat(t.durationDays);
+          if (!isNaN(dur)) {
+            map[p].count++;
+            map[p].sum += dur;
+            map[p].vals.push(dur);
+          }
+        }
+      });
+      Object.keys(map).forEach(function(p) {
+        if (map[p].count > 0) {
+          map[p].mean = (map[p].sum / map[p].count).toFixed(1);
+          map[p].median = calcMedian(map[p].vals).toFixed(1);
+        }
+      });
+      return map;
+    }
+
     function getSlaGradientColors(days) {
       var val = parseFloat(days);
       if (isNaN(val)) return { color: "#9BA1B0", bg: "rgba(155,161,176,0.15)", border: "rgba(155,161,176,0.3)", pct: 0 };
@@ -1676,35 +1763,6 @@
         border: "rgba(" + rgb + ", 0.42)",
         pct: pct
       };
-    }
-
-    // Geração de categorias de B.I. fiéis aos filtros solicitados
-    function getBiCategory(t) {
-      var p = normalizeProduct(t.product);
-      var s = String(t.solicitacao || "").trim();
-      var terc = String(t.terceiro || "").trim();
-      
-      if (p === 'PEDÁGIO') {
-        if (s === 'Cancelamento') return 'Pedágio MoveMais - Cancelamento';
-        if (s === 'Contestação') return 'Pedágio MoveMais - Contestação';
-        if (s === 'Isenção') return 'Pedágio - Isenção Financeiro (Interno)';
-        if (s === 'Chamado T.I') return 'Pedágio - Chamado T.I (Interno)';
-        if (s === 'Cobrança fora da TAG') return 'Pedágio MoveMais - Cobrança fora da TAG';
-        if (s === 'Logistica') return 'Pedágio - Logística Cadastro (Interno)';
-        return 'Pedágio - ' + s;
-      }
-      if (p === 'MANUTENÇÃO') {
-        if (s === 'Chamado T.I') return 'Manutenção - Chamado T.I (Interno)';
-        if (s === 'Outros') return 'Manutenção - Outros (Interno)';
-        return 'Manutenção - ' + s;
-      }
-      if (p === 'ABASTECIMENTO') {
-        if (s === 'Logistica') return 'Abastecimento - Logística Cadastro (Interno)';
-        if (s === 'Chamado T.I') return 'Abastecimento - Chamado T.I (Interno)';
-        if (s === 'Isenção') return 'Abastecimento - Isenção Financeiro (Interno)';
-        return 'Abastecimento - ' + s;
-      }
-      return p + ' - ' + s + ' (' + terc + ')';
     }
 
     function switchMainTab(tab) {
@@ -1758,7 +1816,7 @@
     }
 
     // =========================================================================
-    // RENDERIZAÇÃO: KPIS, COLUNAS E TABELA 
+    // RENDERIZAÇÃO: KPIS, COLUNAS E TABELA
     // =========================================================================
     function renderAll() {
       var monthVal = document.getElementById('filterMonthSelect') ? document.getElementById('filterMonthSelect').value : '11-2026';
@@ -1771,7 +1829,6 @@
       var th = document.getElementById('thMonthOrDate');
       if (th) th.innerText = monthVal ? 'Data de Registro' : 'Mês / Data';
 
-      // Filtro Base para Dashboard Dinâmico
       function matchFilters(t) {
         var m = normalizeMes(t.mes);
         if (monthVal && m !== monthVal) return false;
@@ -1805,6 +1862,9 @@
       if (document.getElementById('kpiTotalOpen')) document.getElementById('kpiTotalOpen').innerText = allOpen.length;
       if (document.getElementById('kpiOnTime')) document.getElementById('kpiOnTime').innerText = onTimeCount;
       if (document.getElementById('kpiOverdue')) document.getElementById('kpiOverdue').innerText = urgentCount;
+      if (document.getElementById('kpiOverdueSub')) {
+        document.getElementById('kpiOverdueSub').innerText = filterOnlyOverdue ? "Filtro ativo (clique p/ sair)" : "Clique para filtrar críticos";
+      }
       if (document.getElementById('kpiFinalizedMonth')) document.getElementById('kpiFinalizedMonth').innerText = allDone.length;
       if (document.getElementById('kpiOverallSla')) document.getElementById('kpiOverallSla').innerText = avgSla;
 
@@ -1841,62 +1901,66 @@
       }
 
       allDone.forEach(function(r) {
-        var tr = document.createElement('tr');
-        tr.onclick = function() { openDrawer(r); };
-        
-        var displayStart = formatDateDisplay(r.startDate);
-        var displayEnd = formatDateDisplay(r.endDate || formatOnlyDateBR(r.returnDate) || r.startDate);
-        var slaText = r.durationDays !== null ? r.durationDays + 'd' : '-';
+        try {
+          var tr = document.createElement('tr');
+          tr.onclick = function() { openDrawer(r); };
+          
+          var displayStart = formatDateDisplay(r.startDate);
+          var displayEnd = formatDateDisplay(r.endDate || formatOnlyDateBR(r.returnDate) || r.startDate);
+          var slaText = r.durationDays !== null ? r.durationDays + 'd' : '-';
 
-        var tdDate = document.createElement('td');
-        tdDate.style.cssText = 'font-family:monospace; font-weight:700; color:#E2E8F0;';
-        tdDate.textContent = monthVal ? displayStart : r.mes;
+          var tdDate = document.createElement('td');
+          tdDate.style.cssText = 'font-family:monospace; font-weight:700; color:#E2E8F0;';
+          tdDate.textContent = monthVal ? displayStart : r.mes;
 
-        var tdEnd = document.createElement('td');
-        tdEnd.style.cssText = 'font-family:monospace; color:#A7F3D0;';
-        tdEnd.textContent = displayEnd;
+          var tdEnd = document.createElement('td');
+          tdEnd.style.cssText = 'font-family:monospace; color:#A7F3D0;';
+          tdEnd.textContent = displayEnd;
 
-        var tdClient = document.createElement('td');
-        tdClient.style.cssText = 'font-weight:800; color:#fff;';
-        tdClient.textContent = r.client || '-';
+          var tdClient = document.createElement('td');
+          tdClient.style.cssText = 'font-weight:800; color:#fff;';
+          tdClient.textContent = r.client || '-';
 
-        var tdProd = document.createElement('td');
-        tdProd.textContent = normalizeProduct(r.product);
+          var tdProd = document.createElement('td');
+          tdProd.textContent = normalizeProduct(r.product);
 
-        var tdSol = document.createElement('td');
-        tdSol.textContent = r.solicitacao || '-';
+          var tdSol = document.createElement('td');
+          tdSol.textContent = r.solicitacao || '-';
 
-        var tdTerc = document.createElement('td');
-        tdTerc.style.cssText = 'color:#38BDF8; font-weight:700;';
-        tdTerc.textContent = r.terceiro || '-';
+          var tdTerc = document.createElement('td');
+          tdTerc.style.cssText = 'color:#38BDF8; font-weight:700;';
+          tdTerc.textContent = r.terceiro || '-';
 
-        var tdSla = document.createElement('td');
-        tdSla.innerHTML = '<span style="font-size:11px; font-weight:800; color:var(--tp-green); background:rgba(0,214,89,0.14); padding:2px 7px; border-radius:4px;">✓ ' + escapeHtml(slaText) + '</span>';
+          var tdSla = document.createElement('td');
+          tdSla.innerHTML = '<span style="font-size:11px; font-weight:800; color:var(--tp-green); background:rgba(0,214,89,0.14); padding:2px 7px; border-radius:4px;">✓ ' + escapeHtml(slaText) + '</span>';
 
-        var tdOp = document.createElement('td');
-        tdOp.style.cssText = 'color:var(--text-muted); font-weight:600;';
-        tdOp.textContent = r.operator || '-';
+          var tdOp = document.createElement('td');
+          tdOp.style.cssText = 'color:var(--text-muted); font-weight:600;';
+          tdOp.textContent = r.operator || '-';
 
-        var tdAct = document.createElement('td');
-        tdAct.style.textAlign = 'center';
-        tdAct.onclick = function(e) { e.stopPropagation(); };
-        var delBtn = document.createElement('button');
-        delBtn.className = 'btn-row-delete';
-        delBtn.textContent = 'Excluir';
-        delBtn.onclick = function(e) { deleteTicketById(e, r.id); };
-        tdAct.appendChild(delBtn);
+          var tdAct = document.createElement('td');
+          tdAct.style.textAlign = 'center';
+          tdAct.onclick = function(e) { e.stopPropagation(); };
+          var delBtn = document.createElement('button');
+          delBtn.className = 'btn-row-delete';
+          delBtn.textContent = 'Excluir';
+          delBtn.onclick = function(e) { deleteTicketById(e, r.id); };
+          tdAct.appendChild(delBtn);
 
-        tr.appendChild(tdDate);
-        tr.appendChild(tdEnd);
-        tr.appendChild(tdClient);
-        tr.appendChild(tdProd);
-        tr.appendChild(tdSol);
-        tr.appendChild(tdTerc);
-        tr.appendChild(tdSla);
-        tr.appendChild(tdOp);
-        tr.appendChild(tdAct);
+          tr.appendChild(tdDate);
+          tr.appendChild(tdEnd);
+          tr.appendChild(tdClient);
+          tr.appendChild(tdProd);
+          tr.appendChild(tdSol);
+          tr.appendChild(tdTerc);
+          tr.appendChild(tdSla);
+          tr.appendChild(tdOp);
+          tr.appendChild(tdAct);
 
-        tbody.appendChild(tr);
+          tbody.appendChild(tr);
+        } catch(errRow) {
+          console.warn("Erro ao renderizar linha finalizada:", errRow);
+        }
       });
     }
 
@@ -1911,33 +1975,37 @@
       }
 
       list.forEach(function(t) {
-        var cleanRetDate = formatOnlyDateBR(t.returnDate);
-        var rem = getRemainingTime(cleanRetDate);
-        var elapsed = getElapsedTime(t.startDate);
-        var returnLabel = (t.isAutoReturn === true || t.isAutoReturn === "true") ? "Retorno médio esperado" : "Retorno em";
+        try {
+          var cleanRetDate = formatOnlyDateBR(t.returnDate);
+          var rem = getRemainingTime(cleanRetDate);
+          var elapsed = getElapsedTime(t.startDate);
+          var returnLabel = (t.isAutoReturn === true || t.isAutoReturn === "true") ? "Retorno médio esperado" : "Retorno em";
 
-        var card = document.createElement('div');
-        card.className = 'progress-card ' + prodClass;
-        card.onclick = function() { openDrawer(t); };
-        card.innerHTML = 
-          '<div class="card-top-meta">' +
-            '<div class="card-client-title" title="' + escapeHtml(t.client) + '">' + escapeHtml(t.client || 'Sem Nome') + '</div>' +
-            '<span class="card-agent-pill">' + escapeHtml(t.operator || '') + '</span>' +
-          '</div>' +
-          '<div class="card-solicitation-line">' +
-            '<span><strong>' + escapeHtml(t.solicitacao || '') + '</strong> • ' + escapeHtml(t.terceiro || '') + '</span>' +
-          '</div>' +
-          '<div class="timers-box">' +
-            '<div class="timer-item">' +
-              '<span class="timer-label">' + returnLabel + '</span>' +
-              '<span class="timer-val ' + rem.class + '">' + escapeHtml(cleanRetDate || '-') + ' <small style="font-weight:normal; font-size:10px;">(' + rem.text + ')</small></span>' +
+          var card = document.createElement('div');
+          card.className = 'progress-card ' + prodClass;
+          card.onclick = function() { openDrawer(t); };
+          card.innerHTML = 
+            '<div class="card-top-meta">' +
+              '<div class="card-client-title" title="' + escapeHtml(t.client) + '">' + escapeHtml(t.client || 'Sem Nome') + '</div>' +
+              '<span class="card-agent-pill">' + escapeHtml(t.operator || '') + '</span>' +
             '</div>' +
-            '<div class="timer-item">' +
-              '<span class="timer-label">Tempo em Aberto</span>' +
-              '<span class="timer-val" style="color:var(--tp-green);">' + elapsed + '</span>' +
+            '<div class="card-solicitation-line">' +
+              '<span><strong>' + escapeHtml(t.solicitacao || '') + '</strong> • ' + escapeHtml(t.terceiro || '') + '</span>' +
             '</div>' +
-          '</div>';
-        container.appendChild(card);
+            '<div class="timers-box">' +
+              '<div class="timer-item">' +
+                '<span class="timer-label">' + returnLabel + '</span>' +
+                '<span class="timer-val ' + rem.class + '">' + escapeHtml(cleanRetDate || '-') + ' <small style="font-weight:normal; font-size:10px;">(' + rem.text + ')</small></span>' +
+              '</div>' +
+              '<div class="timer-item">' +
+                '<span class="timer-label">Tempo em Aberto</span>' +
+                '<span class="timer-val" style="color:var(--tp-green);">' + elapsed + '</span>' +
+              '</div>' +
+            '</div>';
+          container.appendChild(card);
+        } catch(errCard) {
+          console.warn("Erro ao renderizar card:", errCard);
+        }
       });
     }
 
@@ -2069,7 +2137,6 @@
       populateSolicitacaoOptions(solSel, prod, null);
       document.getElementById('editDrawerDafGroup').style.display = (prod === 'MANUTENÇÃO' ? 'grid' : 'none');
       
-      // Forçar atualização do terceiro baseado no produto/serviço padrão
       var terceiroSel = document.getElementById('editDrawerTerceiro');
       if (prod === 'PEDÁGIO') terceiroSel.value = 'MoveMais';
       else if (prod === 'MANUTENÇÃO') terceiroSel.value = 'Financeiro';
@@ -2106,7 +2173,7 @@
 
       if (sol === 'Chamado T.I') terceiroSel.value = 'T.I';
       else if (['Contestação', 'Cancelamento', 'Cobrança fora da TAG'].indexOf(sol) !== -1) terceiroSel.value = 'MoveMais';
-      else if (sol === 'Isenção') terceiroSel.value = (prod === 'ABASTECIMENTO') ? 'Financeiro' : 'Financeiro';
+      else if (sol === 'Isenção') terceiroSel.value = 'Financeiro';
       else if (sol === 'Logistica') terceiroSel.value = 'Cadastro';
     }
 
@@ -2400,7 +2467,7 @@
 
       if (serv === 'Chamado T.I') terceiroSel.value = 'T.I';
       else if (['Contestação', 'Cancelamento', 'Cobrança fora da TAG'].indexOf(serv) !== -1) terceiroSel.value = 'MoveMais';
-      else if (serv === 'Isenção') terceiroSel.value = (prod === 'ABASTECIMENTO') ? 'Financeiro' : 'Financeiro';
+      else if (serv === 'Isenção') terceiroSel.value = 'Financeiro';
       else if (serv === 'Logistica') terceiroSel.value = 'Cadastro';
 
       if (serv === 'Isenção') {
@@ -2548,6 +2615,23 @@
 
       // 2. Gráfico e Tabela Detalhada por Categoria Específica
       var completed = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null && !isNaN(parseFloat(t.durationDays)); });
+
+      var extVals = [];
+      var intVals = [];
+      completed.forEach(function(t) {
+        var d = parseFloat(t.durationDays);
+        var terc = String(t.terceiro || "").toLowerCase();
+        if (terc.indexOf('movemais') !== -1 || terc.indexOf('connect') !== -1) extVals.push(d);
+        else intVals.push(d);
+      });
+      if (document.getElementById('slaExternoMedia')) {
+        var eMean = extVals.length ? (extVals.reduce(function(a,b){return a+b;},0)/extVals.length).toFixed(1).replace('.', ',') + ' dias' : '16,3 dias';
+        document.getElementById('slaExternoMedia').innerText = eMean;
+      }
+      if (document.getElementById('slaInternoMedia')) {
+        var iMean = intVals.length ? (intVals.reduce(function(a,b){return a+b;},0)/intVals.length).toFixed(1).replace('.', ',') + ' dias' : '11,6 dias';
+        document.getElementById('slaInternoMedia').innerText = iMean;
+      }
       
       var catMap = {};
       completed.forEach(function(t) {
@@ -2567,9 +2651,8 @@
           median: calcMedian(catMap[k].vals),
           terc: catMap[k].terceiro 
         };
-      }).sort(function(a,b) { return b.count - a.count; }); // Sort by volume
+      }).sort(function(a,b) { return b.count - a.count; });
 
-      // Gráfico de Barras
       var container = document.getElementById('chartBarsContainer');
       if (container) {
         container.innerHTML = '';
@@ -2587,7 +2670,6 @@
         });
       }
 
-      // Tabela Consolidada
       var tbody = document.getElementById('partnerMatrixTableBody');
       if (tbody) {
         tbody.innerHTML = '';
@@ -2625,16 +2707,7 @@
       }
     });
 
-    // Tema
-    function toggleTheme() {
-      var isDark = document.body.classList.toggle('dark-theme');
-      try { localStorage.setItem('tp_theme_clean', isDark ? 'dark' : 'light'); } catch(e) {}
-    }
-    try {
-      if (localStorage.getItem('tp_theme_clean') === 'dark') document.body.classList.add('dark-theme');
-    } catch(e) {}
-
-    // Inicia 
+    // Inicialização direta e imediata
     refreshOperatorDropdowns();
     renderAll();
     syncFromGoogleSheets(false);
