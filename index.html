@@ -29,9 +29,6 @@
       --text-muted: #9BA1B0;
       --text-subtle: #686E7D;
 
-      --badge-done-bg: rgba(0, 214, 89, 0.15);
-      --badge-done-text: #00E664;
-
       --card-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     }
 
@@ -39,7 +36,7 @@
     body { background-color: var(--bg-base); color: var(--text-main); font-size: 12.5px; line-height: 1.45; overflow-x: hidden; }
 
     /* Topbar Oficial TruckPag */
-    .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); }
+    .topbar { background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--card-shadow); gap: 12px; flex-wrap: wrap; }
     .brand-section { display: flex; align-items: center; gap: 12px; }
     .brand-logo-text { font-size: 19px; font-weight: 900; letter-spacing: -0.5px; color: var(--tp-green); display: flex; align-items: center; gap: 4px; }
     .brand-logo-text span { color: #fff; font-weight: 400; font-size: 13px; margin-left: 8px; border-left: 1px solid var(--border-subtle); padding-left: 10px; }
@@ -48,17 +45,31 @@
     .tab-btn { padding: 6px 14px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
     .tab-btn.active { background: var(--bg-card); color: var(--tp-green); font-weight: 700; }
 
-    .topbar-actions { display: flex; align-items: center; gap: 10px; }
-    .sync-status { font-size: 11px; font-weight: 600; color: var(--tp-green); display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 4px; background: var(--tp-green-subtle); border: 1px solid var(--tp-green-border); }
-    .btn-action { padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 5px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .sync-status { font-size: 11px; font-weight: 700; color: var(--tp-green); display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 4px; background: var(--tp-green-subtle); border: 1px solid var(--tp-green-border); cursor: pointer; }
+    .sync-status.syncing { color: #FBBF24; background: rgba(251, 191, 36, 0.12); border-color: rgba(251, 191, 36, 0.35); }
+    .sync-status.offline { color: #F87171; background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.35); }
+
+    .btn-action { padding: 6px 13px; font-size: 12px; font-weight: 700; border-radius: 5px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
     .btn-action:hover { border-color: var(--text-subtle); }
     .btn-action.primary { background: var(--tp-green); color: #0E1013; border: none; font-weight: 800; }
     .btn-action.primary:hover { background: var(--tp-green-hover); }
 
-    .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 20px 24px; }
+    .main-wrapper { max-width: 1440px; margin: 0 auto; padding: 18px 24px; }
 
-    /* FILTROS (POSICIONADOS ACIMA DE DEMANDAS EM ABERTO) */
-    .filter-panel { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; box-shadow: var(--card-shadow); }
+    /* KPI EXECUTIVE BAR (BI) */
+    .kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+    @media (max-width: 1024px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-box { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 11px 14px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--card-shadow); transition: border-color 0.15s; }
+    .kpi-box.clickable { cursor: pointer; }
+    .kpi-box.clickable:hover { border-color: var(--border-focus); }
+    .kpi-box.active-kpi { border-color: #F87171; background: rgba(248, 113, 113, 0.06); }
+    .kpi-title { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .kpi-value { font-size: 20px; font-weight: 900; color: #fff; margin-top: 3px; font-variant-numeric: tabular-nums; }
+    .kpi-sub { font-size: 10.5px; color: var(--text-subtle); margin-top: 2px; }
+
+    /* FILTROS */
+    .filter-panel { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 11px 16px; margin-bottom: 18px; box-shadow: var(--card-shadow); }
     .filter-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
     .filter-items { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .filter-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -82,15 +93,17 @@
     .col-count-badge { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-subtle); color: #fff; font-weight: 800; }
     .column-cards-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
 
-    /* Cards Limpos sem Badge de Produto */
-    .progress-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 6px; border-left: 4px solid transparent; }
+    /* Cards Limpos */
+    .progress-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; gap: 6px; border-left: 4px solid transparent; position: relative; }
     .progress-card:hover { transform: translateY(-2px); border-color: var(--border-focus); box-shadow: 0 6px 16px rgba(0,0,0,0.4); }
 
     .progress-card.prod-pedagio { border-left-color: #0284C7; }
     .progress-card.prod-abastecimento { border-left-color: #D97706; }
     .progress-card.prod-manutencao { border-left-color: var(--tp-green); }
 
+    .card-top-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .card-client-title { font-weight: 800; font-size: 13.5px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-agent-pill { font-size: 10px; font-weight: 700; color: var(--text-muted); background: var(--bg-input); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border-subtle); flex-shrink: 0; }
     .card-solicitation-line { font-size: 11.5px; color: var(--text-muted); }
     .card-solicitation-line strong { color: #E2E8F0; }
 
@@ -138,8 +151,8 @@
     .exec-table td { padding: 9px 12px; border-bottom: 1px solid var(--border-subtle); }
 
     /* DRAWER LATERAL */
-    .drawer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(2px); }
-    .drawer-content { width: 480px; max-width: 95vw; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border-subtle); display: flex; flex-direction: column; box-shadow: -8px 0 30px rgba(0,0,0,0.5); }
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.72); z-index: 200; display: none; justify-content: flex-end; backdrop-filter: blur(2px); }
+    .drawer-content { width: 500px; max-width: 95vw; background: var(--bg-surface); height: 100vh; border-left: 1px solid var(--border-subtle); display: flex; flex-direction: column; box-shadow: -8px 0 30px rgba(0,0,0,0.5); }
     .drawer-header { padding: 18px 22px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: flex-start; background: var(--bg-card); }
     .drawer-header-left { flex: 1; }
     .drawer-client-title { font-size: 17px; font-weight: 900; color: #fff; line-height: 1.2; word-break: break-word; }
@@ -164,10 +177,11 @@
     .complementary-text { background: var(--bg-input); border-radius: 6px; padding: 10px 12px; border: 1px solid var(--border-subtle); color: #E2E8F0; font-size: 12px; white-space: pre-wrap; line-height: 1.45; }
 
     /* Formulário de Edição no Drawer */
-    .drawer-edit-form { display: none; flex-direction: column; gap: 11px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; }
-    .edit-label { font-size: 10.5px; font-weight: 800; color: #E2E8F0; margin-bottom: 2px; display: block; }
+    .drawer-edit-form { display: none; flex-direction: column; gap: 11px; background: var(--bg-card); border: 1px solid var(--border-focus); border-radius: 8px; padding: 14px; }
+    .edit-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .edit-label { font-size: 10.5px; font-weight: 800; color: #E2E8F0; margin-bottom: 3px; display: block; }
     .edit-input, .edit-select, .edit-textarea { width: 100%; padding: 7px 10px; font-size: 12px; border-radius: 4px; border: 1px solid var(--border-subtle); background: var(--bg-input); color: #fff; outline: none; }
-    .edit-input:focus, .edit-textarea:focus { border-color: var(--border-focus); }
+    .edit-input:focus, .edit-select:focus, .edit-textarea:focus { border-color: var(--border-focus); }
 
     .pareceres-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; }
     .pareceres-header { font-size: 12px; font-weight: 800; color: #fff; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px; margin-bottom: 10px; }
@@ -210,8 +224,11 @@
     </nav>
 
     <div class="topbar-actions">
-      <span class="sync-status" id="syncStatusIndicator">● Conectado</span>
-      <button class="btn-action export-archived" onclick="exportArchivedCSV()" title="Exportar demandas finalizadas">
+      <span class="sync-status" id="syncStatusIndicator" onclick="manualSyncNow()" title="Clique para sincronizar agora com a planilha">● Sincronizado</span>
+      <button class="btn-action" onclick="manualSyncNow()" title="Atualizar dados da equipe">
+        ↻ Sincronizar
+      </button>
+      <button class="btn-action" onclick="exportArchivedCSV()" title="Exportar demandas finalizadas">
         Exportar Finalizadas
       </button>
       <button class="btn-action primary" onclick="openNewModal()">
@@ -224,8 +241,37 @@
     
     <!-- TELA 1: FILA OPERACIONAL E REGISTROS -->
     <div id="viewPaneRecords">
+
+      <!-- PAINEL EXECUTIVO DE KPIS (BI) -->
+      <div class="kpi-strip">
+        <div class="kpi-box">
+          <span class="kpi-title">Demandas em Aberto</span>
+          <span class="kpi-value" id="kpiTotalOpen">0</span>
+          <span class="kpi-sub">Fila ativa da equipe</span>
+        </div>
+        <div class="kpi-box">
+          <span class="kpi-title">Dentro do Prazo</span>
+          <span class="kpi-value" style="color:var(--tp-green);" id="kpiOnTime">0</span>
+          <span class="kpi-sub">Retorno futuro</span>
+        </div>
+        <div class="kpi-box clickable" id="kpiOverdueBox" onclick="toggleOverdueFilter()" title="Clique para filtrar apenas demandas atrasadas ou vencendo hoje">
+          <span class="kpi-title">Atenção / Atrasados</span>
+          <span class="kpi-value" style="color:#F87171;" id="kpiOverdue">0</span>
+          <span class="kpi-sub" id="kpiOverdueSub">Clique para filtrar críticos</span>
+        </div>
+        <div class="kpi-box">
+          <span class="kpi-title">Finalizados (Filtro Mês)</span>
+          <span class="kpi-value" style="color:#38BDF8;" id="kpiFinalizedMonth">0</span>
+          <span class="kpi-sub">Chamados concluídos</span>
+        </div>
+        <div class="kpi-box">
+          <span class="kpi-title">SLA Médio Geral</span>
+          <span class="kpi-value" style="color:#E2E8F0;" id="kpiOverallSla">-</span>
+          <span class="kpi-sub">Base histórica real</span>
+        </div>
+      </div>
       
-      <!-- FILTROS GERAIS (POSICIONADOS ACIMA DE DEMANDAS EM ABERTO) -->
+      <!-- FILTROS GERAIS -->
       <div class="filter-panel">
         <div class="filter-row">
           <div class="filter-items">
@@ -274,7 +320,7 @@
         </div>
       </div>
 
-      <!-- DEMANDAS EM ABERTO: 3 COLUNAS (CARDS SEM O NOME DO PRODUTO AO LADO) -->
+      <!-- DEMANDAS EM ABERTO: 3 COLUNAS -->
       <section class="in-progress-section">
         <div class="section-title-bar">
           <h2>
@@ -415,7 +461,7 @@
 
   </main>
 
-  <!-- DRAWER LATERAL REFINADO -->
+  <!-- DRAWER LATERAL -->
   <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
     <div class="drawer-content" onclick="event.stopPropagation()">
       <div class="drawer-header">
@@ -431,7 +477,7 @@
 
       <div class="drawer-body">
         
-        <!-- Telefone em Formato Corporativo Limpo -->
+        <!-- Telefone -->
         <div class="contact-clean-box">
           <div>
             <div class="contact-clean-label">Telefone de Retorno</div>
@@ -440,7 +486,7 @@
           <button class="btn-copy-clean" onclick="copyDrawerPhone()">Copiar Número</button>
         </div>
 
-        <!-- Ações do Card: Finalizar, Editar ou Excluir -->
+        <!-- Ações do Card -->
         <div style="display:flex; gap:8px;">
           <button 
             class="btn-action primary" 
@@ -469,31 +515,77 @@
           </button>
         </div>
 
-        <!-- FORMULÁRIO DE EDIÇÃO NO DRAWER -->
+        <!-- FORMULÁRIO DE EDIÇÃO COMPLETA NO DRAWER -->
         <form class="drawer-edit-form" id="drawerEditForm" onsubmit="handleSaveDrawerEdit(event)">
-          <div style="font-weight:800; font-size:12px; color:#fff; border-bottom:1px solid var(--border-subtle); padding-bottom:6px;">
-            Editar Informações da Demanda
-          </div>
-          
-          <div>
-            <label class="edit-label">Telefone / Contato</label>
-            <input class="edit-input" type="text" id="editDrawerContact" />
+          <div style="font-weight:800; font-size:12px; color:var(--tp-green); border-bottom:1px solid var(--border-subtle); padding-bottom:6px;">
+            Editar Demanda (Salva na Planilha e em Toda a Equipe)
           </div>
 
           <div>
-            <label class="edit-label">Terceiro / Setor</label>
-            <select class="edit-select" id="editDrawerTerceiro">
-              <option value="MoveMais">MoveMais</option>
-              <option value="ConnectCar">ConnectCar</option>
-              <option value="Financeiro">Financeiro</option>
-              <option value="T.I">T.I</option>
-              <option value="Cadastro">Cadastro</option>
-            </select>
+            <label class="edit-label">Cliente / Transportadora *</label>
+            <input class="edit-input" type="text" id="editDrawerClient" required />
           </div>
 
-          <div>
-            <label class="edit-label">Data Prevista para Retorno</label>
-            <input class="edit-input" type="text" id="editDrawerReturnDate" placeholder="DD/MM/AAAA" />
+          <div class="edit-grid-2">
+            <div>
+              <label class="edit-label">Produto</label>
+              <select class="edit-select" id="editDrawerProduct" onchange="onEditDrawerProductChange()">
+                <option value="PEDÁGIO">Pedágio</option>
+                <option value="MANUTENÇÃO">Manutenção</option>
+                <option value="ABASTECIMENTO">Abastecimento</option>
+              </select>
+            </div>
+            <div>
+              <label class="edit-label">Solicitação</label>
+              <select class="edit-select" id="editDrawerSolicitacao" onchange="onEditDrawerSolicitacaoChange()"></select>
+            </div>
+          </div>
+
+          <div class="edit-grid-2">
+            <div>
+              <label class="edit-label">Telefone / Contato</label>
+              <input class="edit-input" type="text" id="editDrawerContact" />
+            </div>
+            <div>
+              <label class="edit-label">Agente</label>
+              <select class="edit-select" id="editDrawerOperator">
+                <option value="Leandro">Leandro</option>
+                <option value="Mirian">Mirian</option>
+                <option value="Isabelli">Isabelli</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="edit-grid-2">
+            <div>
+              <label class="edit-label">Terceiro / Setor</label>
+              <select class="edit-select" id="editDrawerTerceiro">
+                <option value="MoveMais">MoveMais</option>
+                <option value="ConnectCar">ConnectCar</option>
+                <option value="Financeiro">Financeiro</option>
+                <option value="T.I">T.I</option>
+                <option value="Cadastro">Cadastro</option>
+              </select>
+            </div>
+            <div>
+              <label class="edit-label">Data Prevista Retorno (DD/MM/AAAA)</label>
+              <input class="edit-input" type="text" id="editDrawerReturnDate" placeholder="DD/MM/AAAA" />
+            </div>
+          </div>
+
+          <div id="editDrawerDafGroup" style="display:none;" class="edit-grid-2">
+            <div>
+              <label class="edit-label" style="color:var(--tp-green);">Casa DAF</label>
+              <select class="edit-select" id="editDrawerDafRede" onchange="onEditDrawerDafChange()">
+                <option value="">Selecione...</option>
+              </select>
+            </div>
+            <div>
+              <label class="edit-label" style="color:var(--tp-green);">Município DAF</label>
+              <select class="edit-select" id="editDrawerDafMuni">
+                <option value="">Selecione...</option>
+              </select>
+            </div>
           </div>
 
           <div id="editDrawerBitrixGroup" style="display:none;">
@@ -502,8 +594,13 @@
           </div>
 
           <div>
-            <label class="edit-label">Informações Complementares / Atualizações</label>
-            <textarea class="edit-textarea" id="editDrawerDescription" rows="4" placeholder="Adicione relatos, pareceres e atualizações complementares..."></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <label class="edit-label" style="margin:0;">Informações Complementares / Pareceres</label>
+              <button type="button" onclick="appendTimestampedNote()" style="background:var(--bg-input); color:var(--tp-green); border:1px solid var(--tp-green-border); border-radius:4px; padding:2px 7px; font-size:10px; font-weight:700; cursor:pointer;">
+                + Inserir Carimbo Data/Hora
+              </button>
+            </div>
+            <textarea class="edit-textarea" id="editDrawerDescription" rows="5" placeholder="Adicione relatos, pareceres e atualizações complementares..."></textarea>
           </div>
 
           <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:4px;">
@@ -512,7 +609,7 @@
           </div>
         </form>
 
-        <!-- GRID DE DETALHES DE ALTA LEITURA -->
+        <!-- GRID DE DETALHES -->
         <div class="detail-grid" id="drawerDetailGrid">
           <div class="detail-cell">
             <div class="detail-cell-label">Status</div>
@@ -691,8 +788,9 @@
 
   <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1wsXSNLRwiKqSwj9BFQEO7RYgg6T-N5w_peFTzMiyLDH31NsASLM35bL/exec";
-    const STORAGE_KEY = "truckpag_demandas_persistent_v18";
-    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v18";
+    const STORAGE_KEY = "truckpag_demandas_persistent_v20";
+    const TOMBSTONE_KEY = "truckpag_deleted_tombstones_v20";
+    const PENDING_KEY = "truckpag_pending_mutations_v20";
 
     var DAF_CASA_MUNICIPALES = {
       "DAF ALIS": ["AGUA BOA/MT", "CUIABA/MT", "RONDONOPOLIS/MT", "SINOP/MT"],
@@ -712,9 +810,7 @@
       "DAF VITORIA": ["FEIRA DE SANTANA/BA", "SIMOES FILHO/BA", "VIANA/ES", "VITORIA DA CONQUISTA/BA"]
     };
 
-    // BASE REAL APURADA DA PLANILHA (SEM KNBEI, COM OS 5 NOVOS CARDS RETROATIVOS)
     var RAW_INITIAL_RECORDS = [
-      // 1. Novos Cards Retroativos Ativos (com datas retroativas e retorno médio esperado)
       {
         "id": "REC-RETRO-001",
         "mes": "11-2026",
@@ -815,8 +911,6 @@
         "isAutoReturn": true,
         "description": "Contestação de pedágio."
       },
-
-      // Demandas Ativas em Aberto do Mês 11-2026
       {"id": "REC-089", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Rapido Igrejinha", "contact": "(51) 98112-9045", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "06/11/2026 17:02", "endDate": "", "durationDays": null, "returnDate": "22/11/2026", "isAutoReturn": true, "description": "Contestação de passagem de pedágio."},
       {"id": "REC-087", "mes": "11-2026", "operator": "Mirian", "product": "MANUTENÇÃO", "client": "DAF ALIS - CUIABA | 60506 |", "contact": "(65) 99665-6898", "solicitacao": "Chamado T.I", "terceiro": "T.I", "bitrixLink": "https://truckpag.bitrix24.com.br/workgroups/group/12/tasks/task/view/4087/", "dafRede": "DAF ALIS", "dafMunicipio": "CUIABA/MT", "status": "Em andamento", "startDate": "05/11/2026 16:16", "endDate": "", "durationDays": null, "returnDate": "13/11/2026", "isAutoReturn": true, "description": "Erro de layout xml na emissão DealerNet."},
       {"id": "REC-086", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "RMK TRANSPORTES E LOGISTICA", "contact": "(51) 98015-6189", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "05/11/2026 15:21", "endDate": "", "durationDays": null, "returnDate": "21/11/2026", "isAutoReturn": true, "description": "Exclusão da placa no contrato ativo e estorno de taxa."},
@@ -825,7 +919,6 @@
       {"id": "REC-082", "mes": "11-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "COESUL-CONSTRUTORA EXTREMO SUL", "contact": "(51) 99883-7068", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "04/11/2026 17:23", "endDate": "", "durationDays": null, "returnDate": "20/11/2026", "isAutoReturn": true, "description": "Transferência de cobrança free flow."},
       {"id": "REC-081-O", "mes": "11-2026", "operator": "Leandro", "product": "PEDÁGIO", "client": "Holdi Transportes", "contact": "(47) 99122-3344", "solicitacao": "Contestação", "terceiro": "MoveMais", "bitrixLink": "", "dafRede": "", "dafMunicipio": "", "status": "Em andamento", "startDate": "10/11/2026 12:01", "endDate": "", "durationDays": null, "returnDate": "26/11/2026", "isAutoReturn": true, "description": "Contestação de evasão de pedágio."},
 
-      // Concluídos Reais (Para Histórico da Tabela e Cálculo Preciso de SLA)
       {"id": "REC-088", "mes": "11-2026", "operator": "Leandro", "product": "ABASTECIMENTO", "client": "HB TRANSPORTE", "contact": "(47) 99245-0912", "solicitacao": "Chamado T.I", "terceiro": "T.I", "status": "Concluído", "startDate": "05/11/2026 16:54", "endDate": "06/11/2026 11:07", "durationDays": 0.8, "returnDate": "06/11/2026", "description": "Erro de integração e relatório no aplicativo."},
       {"id": "REC-085", "mes": "11-2026", "operator": "Isabelli", "product": "PEDÁGIO", "client": "Daniel Ludovico", "contact": "(49) 98834-6580", "solicitacao": "Isenção", "terceiro": "Cadastro", "status": "Concluído", "startDate": "05/11/2026 15:14", "endDate": "09/11/2026 08:29", "durationDays": 3.7, "returnDate": "09/11/2026", "description": "Isenção de mensalidade faturas (Novembro)."},
       {"id": "REC-H01", "mes": "10-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "Cristina - Bucker Log", "contact": "(49) 99812-4012", "solicitacao": "Contestação", "terceiro": "MoveMais", "status": "Concluído", "startDate": "29/10/2026 14:15", "endDate": "31/10/2026 14:15", "durationDays": 2.0, "returnDate": "31/10/2026", "description": "Contestação de evasão"},
@@ -842,69 +935,36 @@
       {"id": "REC-H12", "mes": "08-2026", "operator": "Mirian", "product": "PEDÁGIO", "client": "DE BASTIANI", "contact": "(49) 99123-4567", "solicitacao": "Isenção", "terceiro": "MoveMais", "status": "Concluído", "startDate": "01/08/2026 09:00", "endDate": "12/09/2026 08:00", "durationDays": 41.9, "returnDate": "12/09/2026", "description": "Isenção mensalidade"}
     ];
 
+    var INITIAL_ID_SET = {};
+    RAW_INITIAL_RECORDS.forEach(function(r) { INITIAL_ID_SET[r.id] = true; });
+
     // =========================================================================
-    // BLACKLIST E TOMBSTONES (KNBEI NUNCA MAIS VOLTA)
+    // UTILITÁRIOS DE SEGURANÇA & NORMALIZAÇÃO
     // =========================================================================
-    function isBlacklisted(ticket) {
-      if (!ticket) return false;
-      var id = String(ticket.id || ticket['id'] || ticket['ID'] || "").trim();
-      var client = String(ticket.client || ticket['Cliente'] || "").trim().toLowerCase();
-      if (id === "REC-090" || client.indexOf("knbei") !== -1) {
-        return true;
-      }
-      return false;
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
-    function getDeletedIds() {
-      try {
-        var raw = localStorage.getItem(TOMBSTONE_KEY);
-        if (raw) {
-          var arr = JSON.parse(raw);
-          if (Array.isArray(arr)) return arr;
-        }
-      } catch(e) {}
-      return ["REC-090", "knbei", "knbei lucas"];
+    function normalizeProduct(p) {
+      var raw = String(p || "").trim().toUpperCase();
+      if (raw.indexOf("ABAST") !== -1) return "ABASTECIMENTO";
+      if (raw.indexOf("MANUT") !== -1) return "MANUTENÇÃO";
+      if (raw.indexOf("PED") !== -1) return "PEDÁGIO";
+      return raw || "PEDÁGIO";
     }
 
-    function saveDeletedIds(arr) {
-      try {
-        localStorage.setItem(TOMBSTONE_KEY, JSON.stringify(arr));
-      } catch(e) {}
+    function normalizeStatus(st) {
+      var raw = String(st || "").trim().toLowerCase();
+      if (raw.indexOf("concl") !== -1) return "Concluído";
+      if (raw.indexOf("canc") !== -1) return "Cancelado";
+      return "Em andamento";
     }
-
-    function isDeletedTicket(ticket, delList) {
-      if (!ticket) return false;
-      if (isBlacklisted(ticket)) return true;
-      if (!delList || delList.length === 0) return false;
-      var tid = String(ticket.id || ticket['id'] || ticket['ID'] || "").trim();
-      return tid ? (delList.indexOf(tid) !== -1) : false;
-    }
-
-    function getStoredTickets() {
-      var delList = getDeletedIds();
-      try {
-        var saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          var parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.filter(function(t) { return !isDeletedTicket(t, delList); });
-          }
-        }
-      } catch(e) {}
-      return RAW_INITIAL_RECORDS.filter(function(t) { return !isDeletedTicket(t, delList); });
-    }
-
-    function saveStoredTickets() {
-      var delList = getDeletedIds();
-      var clean = allTickets.filter(function(t) { return !isDeletedTicket(t, delList); });
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
-      } catch(e) {}
-    }
-
-    var allTickets = getStoredTickets();
-    var activeSelectedTicket = null;
-    var modalAutoReturnFlag = false;
 
     function normalizeMes(m) {
       if (!m) return "11-2026";
@@ -931,23 +991,162 @@
       return s;
     }
 
+    function isBlacklisted(ticket) {
+      if (!ticket) return false;
+      var id = String(ticket.id || ticket['id'] || ticket['ID'] || "").trim();
+      var client = String(ticket.client || ticket['Cliente'] || "").trim().toLowerCase();
+      return (id === "REC-090" || client.indexOf("knbei") !== -1);
+    }
+
+    // =========================================================================
+    // PERSISTÊNCIA À PROVA DE FALHAS (TOMBSTONES + FILA DE MUTAÇÕES PENDENTES)
+    // =========================================================================
+    function getDeletedIds() {
+      var base = ["REC-090", "knbei", "knbei lucas"];
+      try {
+        var raw = localStorage.getItem(TOMBSTONE_KEY);
+        if (raw) {
+          var arr = JSON.parse(raw);
+          if (Array.isArray(arr)) {
+            arr.forEach(function(item) {
+              if (base.indexOf(item) === -1) base.push(item);
+            });
+          }
+        }
+      } catch(e) {}
+      return base;
+    }
+
+    function saveDeletedIds(arr) {
+      try {
+        localStorage.setItem(TOMBSTONE_KEY, JSON.stringify(arr));
+      } catch(e) {}
+    }
+
+    function isDeletedTicket(ticket, delList) {
+      if (!ticket) return false;
+      if (isBlacklisted(ticket)) return true;
+      var list = delList || getDeletedIds();
+      var tid = String(ticket.id || ticket['id'] || ticket['ID'] || "").trim();
+      return tid ? (list.indexOf(tid) !== -1) : false;
+    }
+
+    function getPendingOps() {
+      try {
+        var raw = localStorage.getItem(PENDING_KEY);
+        if (raw) {
+          var obj = JSON.parse(raw);
+          if (obj && typeof obj === "object") return obj;
+        }
+      } catch(e) {}
+      return {};
+    }
+
+    function savePendingOps(ops) {
+      try {
+        localStorage.setItem(PENDING_KEY, JSON.stringify(ops));
+      } catch(e) {}
+    }
+
+    function registerPendingOp(actionType, ticket) {
+      if (!ticket || !ticket.id) return;
+      var ops = getPendingOps();
+      ops[String(ticket.id).trim()] = {
+        action: actionType,
+        ticket: ticket,
+        timestamp: Date.now(),
+        confirmed: false
+      };
+      savePendingOps(ops);
+    }
+
+    function confirmPendingOp(ticketId) {
+      if (!ticketId) return;
+      var ops = getPendingOps();
+      var key = String(ticketId).trim();
+      if (ops[key]) {
+        ops[key].confirmed = true;
+        ops[key].confirmedAt = Date.now();
+        savePendingOps(ops);
+      }
+    }
+
+    // Limpa mutações confirmadas há mais de 15 segundos (janela de segurança contra leitura atrasada)
+    function pruneConfirmedOps() {
+      var ops = getPendingOps();
+      var now = Date.now();
+      var changed = false;
+      Object.keys(ops).forEach(function(k) {
+        if (ops[k].confirmed && (now - (ops[k].confirmedAt || ops[k].timestamp) > 15000)) {
+          delete ops[k];
+          changed = true;
+        }
+      });
+      if (changed) savePendingOps(ops);
+      return ops;
+    }
+
+    function getStoredTickets() {
+      var delList = getDeletedIds();
+      var map = {};
+
+      // Começa com a base inicial
+      RAW_INITIAL_RECORDS.forEach(function(r) {
+        if (!isDeletedTicket(r, delList)) {
+          map[r.id] = Object.assign({}, r);
+        }
+      });
+
+      // Sobrepõe com o que está salvo localmente
+      try {
+        var saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          var parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            parsed.forEach(function(t) {
+              if (t && t.id && !isDeletedTicket(t, delList)) {
+                t.product = normalizeProduct(t.product);
+                t.status = normalizeStatus(t.status);
+                map[t.id] = t;
+              }
+            });
+          }
+        }
+      } catch(e) {}
+
+      // Garante aplicação de mutações pendentes
+      var ops = getPendingOps();
+      Object.keys(ops).forEach(function(id) {
+        var op = ops[id];
+        if (op.action === "delete") {
+          delete map[id];
+        } else if (op.ticket && !isDeletedTicket(op.ticket, delList)) {
+          map[id] = op.ticket;
+        }
+      });
+
+      return Object.keys(map).map(function(k) { return map[k]; });
+    }
+
+    function saveStoredTickets() {
+      var delList = getDeletedIds();
+      var clean = allTickets.filter(function(t) { return !isDeletedTicket(t, delList); });
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
+      } catch(e) {}
+    }
+
+    var allTickets = getStoredTickets();
+    var activeSelectedTicket = null;
+    var modalAutoReturnFlag = false;
+    var filterOnlyOverdue = false;
+    var isSyncingNow = false;
+
     function mapSheetRowToTicket(row) {
       var tid = String(row.id || row['ID'] || row['Código'] || "").trim();
       var client = String(row.client || row['Cliente'] || "").trim();
-      
-      var prodRaw = String(row.product || row['Produto'] || "").trim().toUpperCase();
-      var prod = "PEDÁGIO";
-      if (prodRaw.indexOf("ABAST") !== -1) prod = "ABASTECIMENTO";
-      else if (prodRaw.indexOf("MANUT") !== -1) prod = "MANUTENÇÃO";
-      else if (prodRaw.indexOf("PED") !== -1) prod = "PEDÁGIO";
-      else if (prodRaw) prod = prodRaw;
-
-      var stRaw = String(row.status || row['Status'] || "").trim().toLowerCase();
-      var st = "Em andamento";
-      if (stRaw.indexOf("concl") !== -1) st = "Concluído";
-      else if (stRaw.indexOf("canc") !== -1) st = "Cancelado";
-      else st = "Em andamento";
-
+      var prod = normalizeProduct(row.product || row['Produto'] || "PEDÁGIO");
+      var st = normalizeStatus(row.status || row['Status'] || "Em andamento");
       var sol = String(row.solicitacao || row['Solicitação'] || "Contestação").trim();
       var terceiro = String(row.terceiro || row['Terceiro'] || "MoveMais").trim();
       var op = String(row.operator || row['Responsável'] || "Leandro").trim();
@@ -981,78 +1180,37 @@
         durationDays: isNaN(dur) ? null : dur,
         returnDate: ret,
         isAutoReturn: isAuto,
-        description: desc
+        description: desc,
+        updatedAt: String(row.updatedAt || "")
       };
     }
 
-    function syncFromGoogleSheets() {
+    function setSyncBadge(state, text) {
       var ind = document.getElementById('syncStatusIndicator');
-      if (ind) ind.innerText = "⏳ Conectando...";
-
-      var controller = new AbortController();
-      var timeoutId = setTimeout(function() { controller.abort(); }, 8000);
-
-      fetch(GOOGLE_SCRIPT_URL, { signal: controller.signal })
-        .then(function(res) {
-          clearTimeout(timeoutId);
-          return res.json();
-        })
-        .then(function(resp) {
-          if (resp && resp.status === "success" && Array.isArray(resp.data) && resp.data.length > 0) {
-            var delList = getDeletedIds();
-            var sheetMap = {};
-
-            var validRows = resp.data.map(mapSheetRowToTicket).filter(function(t) {
-              return t.id && !isDeletedTicket(t, delList) && !isBlacklisted(t);
-            });
-
-            validRows.forEach(function(row) {
-              sheetMap[row.id] = row;
-            });
-
-            allTickets = allTickets.map(function(t) {
-              return sheetMap[t.id] ? Object.assign({}, t, sheetMap[t.id]) : t;
-            });
-
-            validRows.forEach(function(row) {
-              var exists = allTickets.some(function(t) { return String(t.id).trim() === String(row.id).trim(); });
-              if (!exists) {
-                allTickets.unshift(row);
-              }
-            });
-
-            allTickets = allTickets.filter(function(t) {
-              return !isDeletedTicket(t, delList) && !isBlacklisted(t);
-            });
-
-            saveStoredTickets();
-            if (ind) {
-              ind.innerText = "● Conectado";
-              ind.classList.add('online');
-            }
-            renderAll();
-          } else {
-            if (ind) {
-              ind.innerText = "● Conectado";
-              ind.classList.add('online');
-            }
-          }
-        })
-        .catch(function(err) {
-          clearTimeout(timeoutId);
-          console.warn("Offline ou resposta lenta:", err);
-          if (ind) {
-            ind.innerText = "● Armazenamento Local";
-            ind.classList.remove('online');
-          }
-        });
+      if (!ind) return;
+      ind.className = 'sync-status' + (state ? ' ' + state : '');
+      ind.innerText = text;
     }
 
-    function saveToGoogleSheets(actionType, ticketData) {
-      var ind = document.getElementById('syncStatusIndicator');
-      if (ind) ind.innerText = "⏳ Gravando na Planilha...";
+    function flushPendingOps() {
+      var ops = pruneConfirmedOps();
+      var unconfirmedIds = Object.keys(ops).filter(function(id) { return !ops[id].confirmed; });
+      if (unconfirmedIds.length === 0) return Promise.resolve();
 
-      fetch(GOOGLE_SCRIPT_URL, {
+      var promises = unconfirmedIds.map(function(id) {
+        var op = ops[id];
+        return sendMutationToSheet(op.action, op.ticket, true);
+      });
+      return Promise.all(promises);
+    }
+
+    function sendMutationToSheet(actionType, ticketData, isRetry) {
+      if (!isRetry) {
+        registerPendingOp(actionType, ticketData);
+      }
+      setSyncBadge('syncing', '⏳ Salvando na Planilha...');
+
+      return fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
@@ -1060,18 +1218,146 @@
           ticket: ticketData
         })
       })
-      .then(function() {
-        if (ind) {
-          ind.innerText = "● Conectado";
-          ind.classList.add('online');
-        }
+      .then(function(res) { return res.text(); })
+      .then(function(txt) {
+        confirmPendingOp(ticketData.id);
+        setSyncBadge('', '● Sincronizado');
       })
       .catch(function(err) {
-        console.warn("Erro no envio:", err);
-        if (ind) ind.innerText = "● Salvo Localmente";
+        console.warn("Falha temporária no envio (ficará na fila para retentativa):", err);
+        setSyncBadge('offline', '● Pendente de Envio');
       });
     }
 
+    function syncFromGoogleSheets() {
+      if (isSyncingNow) return;
+      isSyncingNow = true;
+      setSyncBadge('syncing', '⏳ Sincronizando...');
+
+      // Primeiro reenvia qualquer alteração pendente que não tenha sido confirmada
+      flushPendingOps().then(function() {
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function() { controller.abort(); }, 10000);
+
+        // Cache-buster obrigatório (?t=...) para nunca ler resposta antiga
+        return fetch(GOOGLE_SCRIPT_URL + "?t=" + Date.now(), {
+          signal: controller.signal,
+          cache: "no-store"
+        }).then(function(res) {
+          clearTimeout(timeoutId);
+          return res.json();
+        });
+      })
+      .then(function(resp) {
+        isSyncingNow = false;
+        if (!resp || resp.status !== "success") {
+          setSyncBadge('', '● Sincronizado');
+          return;
+        }
+
+        // 1. Atualiza lista global de exclusões vinda do servidor
+        var delList = getDeletedIds();
+        if (Array.isArray(resp.deletedIds)) {
+          resp.deletedIds.forEach(function(did) {
+            var cleanDid = String(did || "").trim();
+            if (cleanDid && delList.indexOf(cleanDid) === -1) {
+              delList.push(cleanDid);
+            }
+          });
+          saveDeletedIds(delList);
+        }
+
+        // 2. Mapeia linhas válidas da planilha
+        var sheetMap = {};
+        if (Array.isArray(resp.data)) {
+          resp.data.map(mapSheetRowToTicket).forEach(function(t) {
+            if (t.id && !isDeletedTicket(t, delList)) {
+              sheetMap[t.id] = t;
+            }
+          });
+        }
+
+        var activePending = pruneConfirmedOps();
+        var mergedMap = {};
+
+        // A. Mantém registros iniciais que não foram excluídos (caso ainda não tenham sido editados na planilha)
+        RAW_INITIAL_RECORDS.forEach(function(r) {
+          if (!isDeletedTicket(r, delList)) {
+            mergedMap[r.id] = Object.assign({}, r);
+          }
+        });
+
+        // B. Aplica os dados da planilha como verdade absoluta (para todos os 3 operadores)
+        Object.keys(sheetMap).forEach(function(id) {
+          mergedMap[id] = sheetMap[id];
+        });
+
+        // C. Preserva itens locais que ainda estão com mutação pendente/recente (<15s) para nunca reverter edição recente
+        allTickets.forEach(function(localTicket) {
+          var lid = String(localTicket.id || "").trim();
+          if (!lid || isDeletedTicket(localTicket, delList)) return;
+
+          if (activePending[lid]) {
+            if (activePending[lid].action === "delete") {
+              delete mergedMap[lid];
+            } else if (activePending[lid].ticket) {
+              mergedMap[lid] = activePending[lid].ticket;
+            }
+          } else if (!sheetMap[lid] && !INITIAL_ID_SET[lid]) {
+            // Se era um card criado por outro colega e foi excluído da planilha Demandas, remove!
+            // (Só mantém se ainda estiver na fila pendente de envio)
+          }
+        });
+
+        // Ordena mantendo os mais recentes no topo
+        var nextList = Object.keys(mergedMap).map(function(k) { return mergedMap[k]; });
+        nextList.sort(function(a, b) {
+          var da = parseDateBR(a.startDate);
+          var db = parseDateBR(b.startDate);
+          return (db ? db.getTime() : 0) - (da ? da.getTime() : 0);
+        });
+
+        allTickets = nextList;
+        saveStoredTickets();
+        setSyncBadge('', '● Sincronizado');
+        renderAll();
+
+        // Se o drawer estiver aberto (e não estiver editando), atualiza os dados visíveis nele
+        if (activeSelectedTicket) {
+          var editForm = document.getElementById('drawerEditForm');
+          if (!editForm || editForm.style.display !== 'flex') {
+            var refreshed = allTickets.find(function(x) { return x.id === activeSelectedTicket.id; });
+            if (refreshed) {
+              openDrawer(refreshed, true);
+            } else {
+              closeDrawerDirect();
+            }
+          }
+        }
+      })
+      .catch(function(err) {
+        isSyncingNow = false;
+        console.warn("Sincronização em modo offline:", err);
+        setSyncBadge('offline', '● Offline (Salvo Local)');
+      });
+    }
+
+    function manualSyncNow() {
+      syncFromGoogleSheets();
+    }
+
+    // Sincronização automática a cada 20s (pausa enquanto o usuário digita no modal ou no formulário de edição)
+    setInterval(function() {
+      var modalOpen = document.getElementById('modalOverlay').style.display === 'flex';
+      var editOpen = document.getElementById('drawerEditForm').style.display === 'flex';
+      if (!modalOpen && !editOpen) {
+        syncFromGoogleSheets();
+      }
+    }, 20000);
+
+    // =========================================================================
+    // CÁLCULOS DE DATA E SLA
+    // =========================================================================
     function parseDateBR(str) {
       if (!str) return null;
       var s = String(str).trim();
@@ -1087,7 +1373,6 @@
       return new Date(s);
     }
 
-    // Calcula tempo decorrido desde a data de inclusão/início real até o momento atual
     function getElapsedTime(startDateStr) {
       var start = parseDateBR(startDateStr);
       if (!start || isNaN(start.getTime())) return '-';
@@ -1102,7 +1387,7 @@
     }
 
     function getRemainingTime(returnDateStr) {
-      if (!returnDateStr) return { text: "Sem Prazo", "class": "" };
+      if (!returnDateStr) return { text: "Sem Prazo", "class": "", isUrgent: false };
       var s = String(returnDateStr).trim();
       var target = null;
       if (s.indexOf('/') !== -1) {
@@ -1111,19 +1396,19 @@
       } else {
         target = new Date(s);
       }
-      if (!target || isNaN(target.getTime())) return { text: "Sem Prazo", "class": "" };
+      if (!target || isNaN(target.getTime())) return { text: "Sem Prazo", "class": "", isUrgent: false };
 
       var now = new Date();
       var diffMs = target - now;
 
       if (diffMs < 0) {
         var lateDays = Math.ceil(Math.abs(diffMs) / (1000 * 60 * 60 * 24));
-        return { text: "Atrasado " + lateDays + "d", "class": "late" };
+        return { text: "Atrasado " + lateDays + "d", "class": "late", isUrgent: true };
       }
       var remHours = Math.floor(diffMs / (1000 * 60 * 60));
       var remDays = Math.floor(remHours / 24);
-      if (remDays === 0) return { text: "Vence Hoje", "class": "today" };
-      return { text: "Faltam " + remDays + "d", "class": "" };
+      if (remDays === 0) return { text: "Vence Hoje", "class": "today", isUrgent: true };
+      return { text: "Faltam " + remDays + "d", "class": "", isUrgent: false };
     }
 
     function calcCurrentSlaStats() {
@@ -1166,7 +1451,7 @@
       };
 
       completed.forEach(function(t) {
-        var p = String(t.product || '').toUpperCase();
+        var p = normalizeProduct(t.product);
         if (map[p]) {
           var dur = parseFloat(t.durationDays);
           if (!isNaN(dur)) {
@@ -1196,7 +1481,20 @@
       if (tab === 'report') renderSlaReport();
     }
 
+    function toggleOverdueFilter() {
+      filterOnlyOverdue = !filterOnlyOverdue;
+      var box = document.getElementById('kpiOverdueBox');
+      if (box) {
+        if (filterOnlyOverdue) box.classList.add('active-kpi');
+        else box.classList.remove('active-kpi');
+      }
+      renderAll();
+    }
+
     function clearFilters() {
+      filterOnlyOverdue = false;
+      var box = document.getElementById('kpiOverdueBox');
+      if (box) box.classList.remove('active-kpi');
       if (document.getElementById('filterMonthSelect')) document.getElementById('filterMonthSelect').value = '11-2026';
       if (document.getElementById('filterAgentSelect')) document.getElementById('filterAgentSelect').value = '';
       if (document.getElementById('filterProductSelect')) document.getElementById('filterProductSelect').value = '';
@@ -1214,7 +1512,7 @@
       var headers = ['Mês', 'Data Registro', 'Data Conclusão', 'Cliente', 'Produto', 'Solicitação', 'Terceiro', 'Casa DAF', 'SLA Final (Dias)', 'Agente'];
       var rows = [headers.join(';')];
       archived.forEach(function(t) {
-        rows.push([ t.mes, t.startDate, t.endDate || t.returnDate, '"' + t.client + '"', t.product, t.solicitacao, '"' + t.terceiro + '"', '"' + (t.dafRede || '') + '"', t.durationDays !== null ? t.durationDays : '', t.operator ].join(';'));
+        rows.push([ t.mes, t.startDate, t.endDate || t.returnDate, '"' + (t.client || '') + '"', t.product, t.solicitacao, '"' + (t.terceiro || '') + '"', '"' + (t.dafRede || '') + '"', t.durationDays !== null ? t.durationDays : '', t.operator ].join(';'));
       });
       var blob = new Blob(["\uFEFF" + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
       var a = document.createElement('a');
@@ -1224,7 +1522,7 @@
     }
 
     // =========================================================================
-    // RENDERIZAÇÃO: COLUNAS (EM ABERTO) & TABELA (APENAS FINALIZADOS)
+    // RENDERIZAÇÃO: KPIS, COLUNAS (EM ABERTO) & TABELA (FINALIZADOS)
     // =========================================================================
     function renderAll() {
       var monthVal = document.getElementById('filterMonthSelect') ? document.getElementById('filterMonthSelect').value : '11-2026';
@@ -1236,14 +1534,37 @@
       var th = document.getElementById('thMonthOrDate');
       if (th) th.innerText = monthVal ? 'Data de Registro' : 'Mês / Data';
 
-      // 1. Demandas Em Aberto (Fila Ativa Permanente do Backlog)
-      var inProg = allTickets.filter(function(t) {
-        if (t.status !== 'Em andamento') return false;
+      // Cálculo global dos KPIs
+      var allOpen = allTickets.filter(function(t) { return t.status === 'Em andamento'; });
+      var urgentCount = 0;
+      allOpen.forEach(function(t) {
+        if (getRemainingTime(t.returnDate).isUrgent) urgentCount++;
+      });
+      var onTimeCount = Math.max(0, allOpen.length - urgentCount);
+
+      var allDone = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
+      var avgSla = "-";
+      if (allDone.length > 0) {
+        var totalDur = allDone.reduce(function(acc, cur) { return acc + (parseFloat(cur.durationDays) || 0); }, 0);
+        avgSla = (totalDur / allDone.length).toFixed(1).replace('.', ',') + "d";
+      }
+
+      if (document.getElementById('kpiTotalOpen')) document.getElementById('kpiTotalOpen').innerText = allOpen.length;
+      if (document.getElementById('kpiOnTime')) document.getElementById('kpiOnTime').innerText = onTimeCount;
+      if (document.getElementById('kpiOverdue')) document.getElementById('kpiOverdue').innerText = urgentCount;
+      if (document.getElementById('kpiOverdueSub')) {
+        document.getElementById('kpiOverdueSub').innerText = filterOnlyOverdue ? "Filtro ativo (clique p/ sair)" : "Clique para filtrar críticos";
+      }
+      if (document.getElementById('kpiOverallSla')) document.getElementById('kpiOverallSla').innerText = avgSla;
+
+      // 1. Demandas Em Aberto (Fila Ativa)
+      var inProg = allOpen.filter(function(t) {
         if (agent && t.operator !== agent) return false;
-        if (prod && t.product !== prod) return false;
+        if (prod && normalizeProduct(t.product) !== prod) return false;
         if (serv && t.solicitacao !== serv) return false;
+        if (filterOnlyOverdue && !getRemainingTime(t.returnDate).isUrgent) return false;
         if (search) {
-          var s = (String(t.client || "") + " " + String(t.contact || "") + " " + String(t.solicitacao || "") + " " + String(t.terceiro || "") + " " + String(t.dafRede || "")).toLowerCase();
+          var s = (String(t.client || "") + " " + String(t.contact || "") + " " + String(t.solicitacao || "") + " " + String(t.terceiro || "") + " " + String(t.dafRede || "") + " " + String(t.description || "")).toLowerCase();
           if (s.indexOf(search) === -1) return false;
         }
         return true;
@@ -1252,9 +1573,9 @@
       var lbl = document.getElementById('inProgressCountLabel');
       if (lbl) lbl.innerText = '(' + inProg.length + ' em aberto)';
 
-      var abastTickets = inProg.filter(function(t) { return t.product === 'ABASTECIMENTO'; });
-      var pedTickets = inProg.filter(function(t) { return t.product === 'PEDÁGIO'; });
-      var manutTickets = inProg.filter(function(t) { return t.product === 'MANUTENÇÃO'; });
+      var abastTickets = inProg.filter(function(t) { return normalizeProduct(t.product) === 'ABASTECIMENTO'; });
+      var pedTickets = inProg.filter(function(t) { return normalizeProduct(t.product) === 'PEDÁGIO'; });
+      var manutTickets = inProg.filter(function(t) { return normalizeProduct(t.product) === 'MANUTENÇÃO'; });
 
       if (document.getElementById('countColAbast')) document.getElementById('countColAbast').innerText = abastTickets.length;
       if (document.getElementById('countColPed')) document.getElementById('countColPed').innerText = pedTickets.length;
@@ -1264,13 +1585,13 @@
       renderProductCardsColumn('colCardsPed', pedTickets, 'prod-pedagio');
       renderProductCardsColumn('colCardsManut', manutTickets, 'prod-manutencao');
 
-      // 2. Linha Horizontal de Registros: APENAS FINALIZADOS (CONCLUÍDOS)
+      // 2. Linha Horizontal de Registros: APENAS FINALIZADOS
       var finalizedTickets = allTickets.filter(function(t) {
         if (t.status !== 'Concluído') return false;
         var m = normalizeMes(t.mes);
         if (monthVal && m !== monthVal) return false;
         if (agent && t.operator !== agent) return false;
-        if (prod && t.product !== prod) return false;
+        if (prod && normalizeProduct(t.product) !== prod) return false;
         if (serv && t.solicitacao !== serv) return false;
         if (search) {
           var s = (String(t.client || "") + " " + String(t.contact || "") + " " + String(t.solicitacao || "") + " " + String(t.terceiro || "") + " " + String(t.dafRede || "")).toLowerCase();
@@ -1278,6 +1599,8 @@
         }
         return true;
       });
+
+      if (document.getElementById('kpiFinalizedMonth')) document.getElementById('kpiFinalizedMonth').innerText = finalizedTickets.length;
 
       var finalizedLbl = document.getElementById('finalizedCountLabel');
       if (finalizedLbl) finalizedLbl.innerText = finalizedTickets.length + ' demandas finalizadas';
@@ -1299,23 +1622,58 @@
         var displayEnd = formatDateDisplay(r.endDate || r.returnDate || r.startDate);
         var slaText = r.durationDays !== null ? r.durationDays + 'd' : '-';
 
-        tr.innerHTML = 
-          '<td style="font-family:monospace; font-weight:700; color:#E2E8F0;">' + (monthVal ? displayStart : r.mes) + '</td>' +
-          '<td style="font-family:monospace; color:var(--text-muted);">' + displayEnd + '</td>' +
-          '<td style="font-weight:800; color:#fff;">' + (r.client || '-') + '</td>' +
-          '<td>' + (r.product || '-') + '</td>' +
-          '<td>' + (r.solicitacao || '-') + '</td>' +
-          '<td style="color:#38BDF8; font-weight:700;">' + (r.terceiro || '-') + '</td>' +
-          '<td><span style="font-size:11.5px; font-weight:800; color:var(--tp-green);">✓ ' + slaText + '</span></td>' +
-          '<td style="color:var(--text-muted); font-weight:600;">' + (r.operator || '-') + '</td>' +
-          '<td style="text-align:center;" onclick="event.stopPropagation()">' +
-            '<button class="btn-row-delete" onclick="deleteTicketDirect(event, \'' + (r.id || '') + '\', \'' + (r.client || '') + '\')">Excluir</button>' +
-          '</td>';
+        var tdDate = document.createElement('td');
+        tdDate.style.cssText = 'font-family:monospace; font-weight:700; color:#E2E8F0;';
+        tdDate.textContent = monthVal ? displayStart : r.mes;
+
+        var tdEnd = document.createElement('td');
+        tdEnd.style.cssText = 'font-family:monospace; color:var(--text-muted);';
+        tdEnd.textContent = displayEnd;
+
+        var tdClient = document.createElement('td');
+        tdClient.style.cssText = 'font-weight:800; color:#fff;';
+        tdClient.textContent = r.client || '-';
+
+        var tdProd = document.createElement('td');
+        tdProd.textContent = normalizeProduct(r.product);
+
+        var tdSol = document.createElement('td');
+        tdSol.textContent = r.solicitacao || '-';
+
+        var tdTerc = document.createElement('td');
+        tdTerc.style.cssText = 'color:#38BDF8; font-weight:700;';
+        tdTerc.textContent = r.terceiro || '-';
+
+        var tdSla = document.createElement('td');
+        tdSla.innerHTML = '<span style="font-size:11.5px; font-weight:800; color:var(--tp-green);">✓ ' + escapeHtml(slaText) + '</span>';
+
+        var tdOp = document.createElement('td');
+        tdOp.style.cssText = 'color:var(--text-muted); font-weight:600;';
+        tdOp.textContent = r.operator || '-';
+
+        var tdAct = document.createElement('td');
+        tdAct.style.textAlign = 'center';
+        tdAct.onclick = function(e) { e.stopPropagation(); };
+        var delBtn = document.createElement('button');
+        delBtn.className = 'btn-row-delete';
+        delBtn.textContent = 'Excluir';
+        delBtn.onclick = function(e) { deleteTicketById(e, r.id); };
+        tdAct.appendChild(delBtn);
+
+        tr.appendChild(tdDate);
+        tr.appendChild(tdEnd);
+        tr.appendChild(tdClient);
+        tr.appendChild(tdProd);
+        tr.appendChild(tdSol);
+        tr.appendChild(tdTerc);
+        tr.appendChild(tdSla);
+        tr.appendChild(tdOp);
+        tr.appendChild(tdAct);
+
         tbody.appendChild(tr);
       });
     }
 
-    // Renderiza Cards das Colunas (SEM A BADGE REPETIDA DO PRODUTO AO LADO)
     function renderProductCardsColumn(containerId, list, prodClass) {
       var container = document.getElementById(containerId);
       if (!container) return;
@@ -1329,22 +1687,23 @@
       list.forEach(function(t) {
         var rem = getRemainingTime(t.returnDate);
         var elapsed = getElapsedTime(t.startDate);
-        
-        // Rótulo dinâmico solicitado
         var returnLabel = (t.isAutoReturn === true || t.isAutoReturn === "true") ? "Retorno médio esperado" : "Retorno em";
 
         var card = document.createElement('div');
         card.className = 'progress-card ' + prodClass;
         card.onclick = function() { openDrawer(t); };
         card.innerHTML = 
-          '<div class="card-client-title" title="' + (t.client || '') + '">' + (t.client || 'Sem Nome') + '</div>' +
+          '<div class="card-top-meta">' +
+            '<div class="card-client-title" title="' + escapeHtml(t.client) + '">' + escapeHtml(t.client || 'Sem Nome') + '</div>' +
+            '<span class="card-agent-pill">' + escapeHtml(t.operator || '') + '</span>' +
+          '</div>' +
           '<div class="card-solicitation-line">' +
-            '<strong>' + (t.solicitacao || '') + '</strong> • ' + (t.terceiro || '') +
+            '<strong>' + escapeHtml(t.solicitacao || '') + '</strong> • ' + escapeHtml(t.terceiro || '') +
           '</div>' +
           '<div class="timers-box">' +
             '<div class="timer-item">' +
               '<span class="timer-label">' + returnLabel + '</span>' +
-              '<span class="timer-val ' + rem.class + '">' + (t.returnDate || '-') + ' <small style="font-weight:normal; font-size:10px;">(' + rem.text + ')</small></span>' +
+              '<span class="timer-val ' + rem.class + '">' + escapeHtml(t.returnDate || '-') + ' <small style="font-weight:normal; font-size:10px;">(' + rem.text + ')</small></span>' +
             '</div>' +
             '<div class="timer-item">' +
               '<span class="timer-label">Tempo em Aberto</span>' +
@@ -1356,90 +1715,62 @@
     }
 
     // =========================================================================
-    // DRAWER LATERAL & CONTATOS (REDESENHADO + EDIÇÃO EM TEMPO REAL)
+    // DRAWER LATERAL & EDIÇÃO COMPLETA
     // =========================================================================
-    function openDrawer(ticket) {
+    function openDrawer(ticket, keepViewMode) {
       if (!ticket) return;
       activeSelectedTicket = ticket;
 
-      var editForm = document.getElementById('drawerEditForm');
-      if (editForm) editForm.style.display = 'none';
-      var detailGrid = document.getElementById('drawerDetailGrid');
-      if (detailGrid) detailGrid.style.display = 'grid';
+      if (!keepViewMode) {
+        var editForm = document.getElementById('drawerEditForm');
+        if (editForm) editForm.style.display = 'none';
+        var detailGrid = document.getElementById('drawerDetailGrid');
+        if (detailGrid) detailGrid.style.display = 'grid';
+      }
 
       try {
-        var clientTitle = document.getElementById('drawerClientTitle');
-        if (clientTitle) clientTitle.innerText = String(ticket.client || "Cliente");
-
-        var prodBadge = document.getElementById('drawerProductBadge');
-        if (prodBadge) prodBadge.innerText = String(ticket.product || "PRODUTO");
-
-        var solBadge = document.getElementById('drawerSolicitationBadge');
-        if (solBadge) solBadge.innerText = String(ticket.solicitacao || "SOLICITAÇÃO");
-
-        var statusVal = document.getElementById('drawerStatusVal');
-        if (statusVal) statusVal.innerText = String(ticket.status || "-");
-
-        var agentVal = document.getElementById('drawerAgentVal');
-        if (agentVal) agentVal.innerText = String(ticket.operator || "-");
-
-        var thirdVal = document.getElementById('drawerThirdVal');
-        if (thirdVal) thirdVal.innerText = String(ticket.terceiro || "-");
-
-        var descVal = document.getElementById('drawerDescVal');
-        if (descVal) descVal.innerText = String(ticket.description || "Nenhum relato ou informação adicional informada.");
+        document.getElementById('drawerClientTitle').innerText = String(ticket.client || "Cliente");
+        document.getElementById('drawerProductBadge').innerText = normalizeProduct(ticket.product);
+        document.getElementById('drawerSolicitationBadge').innerText = String(ticket.solicitacao || "SOLICITAÇÃO");
+        document.getElementById('drawerStatusVal').innerText = String(ticket.status || "-");
+        document.getElementById('drawerAgentVal').innerText = String(ticket.operator || "-");
+        document.getElementById('drawerThirdVal').innerText = String(ticket.terceiro || "-");
+        document.getElementById('drawerDescVal').innerText = String(ticket.description || "Nenhum relato ou informação adicional informada.");
 
         var phoneDisplay = document.getElementById('drawerPhoneDisplay');
         var rawPhone = ticket.contact !== undefined && ticket.contact !== null ? String(ticket.contact).trim() : "";
-        if (rawPhone && rawPhone !== "null" && rawPhone !== "undefined") {
-          if (phoneDisplay) phoneDisplay.innerText = rawPhone;
-        } else {
-          if (phoneDisplay) phoneDisplay.innerText = "Sem telefone informado";
-        }
+        phoneDisplay.innerText = (rawPhone && rawPhone !== "null" && rawPhone !== "undefined") ? rawPhone : "Sem telefone informado";
 
         var dafCell = document.getElementById('drawerDafCell');
         var dafVal = document.getElementById('drawerDafVal');
         if (ticket.dafRede) {
-          if (dafCell) dafCell.style.display = 'block';
+          dafCell.style.display = 'block';
           var muniText = ticket.dafMunicipio ? ' (' + ticket.dafMunicipio + ')' : '';
-          if (dafVal) dafVal.innerText = String(ticket.dafRede) + muniText;
+          dafVal.innerText = String(ticket.dafRede) + muniText;
         } else {
-          if (dafCell) dafCell.style.display = 'none';
+          dafCell.style.display = 'none';
         }
 
         var bitrixCell = document.getElementById('drawerBitrixCell');
         var bitrixLink = document.getElementById('drawerBitrixLink');
         if (ticket.bitrixLink) {
-          if (bitrixCell) bitrixCell.style.display = 'block';
-          if (bitrixLink) bitrixLink.href = String(ticket.bitrixLink);
+          bitrixCell.style.display = 'block';
+          bitrixLink.href = String(ticket.bitrixLink);
         } else {
-          if (bitrixCell) bitrixCell.style.display = 'none';
+          bitrixCell.style.display = 'none';
         }
 
         var btnComp = document.getElementById('btnCompleteTicket');
-        if (btnComp) {
-          btnComp.style.display = (ticket.status === 'Em andamento' ? 'block' : 'none');
-        }
+        btnComp.style.display = (ticket.status === 'Em andamento' ? 'block' : 'none');
 
         var btnEdit = document.getElementById('btnToggleEdit');
-        if (btnEdit) {
-          btnEdit.style.display = (ticket.status === 'Em andamento' ? 'block' : 'none');
-        }
+        btnEdit.style.display = (ticket.status === 'Em andamento' ? 'block' : 'none');
 
         var displayStart = formatDateDisplay(ticket.startDate);
-        var step1 = document.getElementById('step1Time');
-        if (step1) step1.innerText = displayStart;
-
-        var step2 = document.getElementById('step2Time');
-        if (step2) step2.innerText = displayStart;
-
-        var step2Title = document.getElementById('step2Title');
-        if (step2Title) step2Title.innerText = 'Acionado ' + String(ticket.terceiro || 'Terceiro');
-
-        var step2Desc = document.getElementById('step2Desc');
-        if (step2Desc) {
-          step2Desc.innerText = ticket.product === 'PEDÁGIO' ? 'Aguardando parecer técnico / laudo de rodovia.' : 'Aguardando validação técnica e retorno do terceiro.';
-        }
+        document.getElementById('step1Time').innerText = displayStart;
+        document.getElementById('step2Time').innerText = displayStart;
+        document.getElementById('step2Title').innerText = 'Acionado ' + String(ticket.terceiro || 'Terceiro');
+        document.getElementById('step2Desc').innerText = normalizeProduct(ticket.product) === 'PEDÁGIO' ? 'Aguardando parecer técnico / laudo de rodovia.' : 'Aguardando validação técnica e retorno do terceiro.';
 
         var step3 = document.getElementById('step3Container');
         var step3Time = document.getElementById('step3Time');
@@ -1447,33 +1778,96 @@
         var clocksBox = document.getElementById('drawerProgressClocks');
 
         if (ticket.status === 'Concluído') {
-          if (step3) step3.style.display = 'block';
-          if (step3Time) step3Time.innerText = formatDateDisplay(ticket.endDate || ticket.returnDate || ticket.startDate);
-          if (slaHighlight) {
-            slaHighlight.style.display = 'block';
-            var sVal = (ticket.durationDays !== null && ticket.durationDays !== undefined) ? ticket.durationDays : '-';
-            slaHighlight.innerText = 'SLA Final do atendimento: ' + sVal + ' dias corridos.';
-          }
-          if (clocksBox) clocksBox.style.display = 'none';
+          step3.style.display = 'block';
+          step3Time.innerText = formatDateDisplay(ticket.endDate || ticket.returnDate || ticket.startDate);
+          slaHighlight.style.display = 'block';
+          var sVal = (ticket.durationDays !== null && ticket.durationDays !== undefined) ? ticket.durationDays : '-';
+          slaHighlight.innerText = 'SLA Final do atendimento: ' + sVal + ' dias corridos.';
+          clocksBox.style.display = 'none';
         } else {
-          if (step3) step3.style.display = 'none';
-          if (slaHighlight) slaHighlight.style.display = 'none';
-          if (clocksBox) clocksBox.style.display = 'block';
+          step3.style.display = 'none';
+          slaHighlight.style.display = 'none';
+          clocksBox.style.display = 'block';
 
           var rem = getRemainingTime(ticket.returnDate);
           var elapsed = getElapsedTime(ticket.startDate);
-          var clockRem = document.getElementById('drawerClockRem');
           var returnHeaderLabel = (ticket.isAutoReturn === true || ticket.isAutoReturn === "true") ? "Retorno Médio Esperado" : "Retorno em";
-          if (clockRem) clockRem.innerText = returnHeaderLabel + ': ' + (ticket.returnDate || '-') + ' (' + rem.text + ')';
-          var clockElapsed = document.getElementById('drawerClockElapsed');
-          if (clockElapsed) clockElapsed.innerText = 'Total em processo: ' + elapsed;
+          document.getElementById('drawerClockRem').innerText = returnHeaderLabel + ': ' + (ticket.returnDate || '-') + ' (' + rem.text + ')';
+          document.getElementById('drawerClockElapsed').innerText = 'Total em processo: ' + elapsed;
         }
 
-        var overlay = document.getElementById('drawerOverlay');
-        if (overlay) overlay.style.display = 'flex';
+        document.getElementById('drawerOverlay').style.display = 'flex';
       } catch (err) {
         console.error("Erro no drawer:", err);
       }
+    }
+
+    function populateSolicitacaoOptions(selectEl, product, selectedValue) {
+      var prod = normalizeProduct(product);
+      var options = [];
+      if (prod === 'PEDÁGIO') {
+        options = [
+          { v: 'Contestação', l: 'Contestação' },
+          { v: 'Chamado T.I', l: 'Chamado T.I' },
+          { v: 'Isenção', l: 'Isenção' },
+          { v: 'Logistica', l: 'Logística' },
+          { v: 'Cancelamento', l: 'Cancelamento' },
+          { v: 'Cobrança fora da TAG', l: 'Cobrança fora da TAG' }
+        ];
+      } else if (prod === 'MANUTENÇÃO') {
+        options = [
+          { v: 'Chamado T.I', l: 'Chamado T.I' },
+          { v: 'Outros', l: 'Outros' }
+        ];
+      } else {
+        options = [
+          { v: 'Logistica', l: 'Logística' },
+          { v: 'Chamado T.I', l: 'Chamado T.I' },
+          { v: 'Isenção', l: 'Isenção' }
+        ];
+      }
+      selectEl.innerHTML = options.map(function(o) {
+        return '<option value="' + o.v + '">' + o.l + '</option>';
+      }).join('');
+      if (selectedValue) {
+        selectEl.value = selectedValue;
+      }
+    }
+
+    function onEditDrawerProductChange() {
+      var prod = document.getElementById('editDrawerProduct').value;
+      var solSel = document.getElementById('editDrawerSolicitacao');
+      populateSolicitacaoOptions(solSel, prod, null);
+      document.getElementById('editDrawerDafGroup').style.display = (prod === 'MANUTENÇÃO' ? 'grid' : 'none');
+      onEditDrawerSolicitacaoChange();
+    }
+
+    function onEditDrawerSolicitacaoChange() {
+      var sol = document.getElementById('editDrawerSolicitacao').value;
+      document.getElementById('editDrawerBitrixGroup').style.display = (sol === 'Chamado T.I' ? 'block' : 'none');
+    }
+
+    function onEditDrawerDafChange(selectedMuni) {
+      var casa = document.getElementById('editDrawerDafRede').value;
+      var muniSel = document.getElementById('editDrawerDafMuni');
+      muniSel.innerHTML = '<option value="">Selecione...</option>';
+      if (casa && DAF_CASA_MUNICIPALES[casa]) {
+        DAF_CASA_MUNICIPALES[casa].forEach(function(m) {
+          muniSel.innerHTML += '<option value="' + m + '">' + m + '</option>';
+        });
+      }
+      if (selectedMuni) muniSel.value = selectedMuni;
+    }
+
+    function appendTimestampedNote() {
+      var ta = document.getElementById('editDrawerDescription');
+      var agent = document.getElementById('editDrawerOperator').value || (activeSelectedTicket ? activeSelectedTicket.operator : 'Operador');
+      var now = new Date();
+      var stamp = '[' + String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ' - ' + agent + ']: ';
+      var current = ta.value.trim();
+      ta.value = current ? (stamp + '\n' + current) : stamp;
+      ta.focus();
+      ta.setSelectionRange(stamp.length, stamp.length);
     }
 
     function toggleEditDrawerForm() {
@@ -1485,10 +1879,28 @@
         editForm.style.display = 'none';
         detailGrid.style.display = 'grid';
       } else {
+        var prod = normalizeProduct(activeSelectedTicket.product);
+        document.getElementById('editDrawerClient').value = activeSelectedTicket.client || "";
+        document.getElementById('editDrawerProduct').value = prod;
+        populateSolicitacaoOptions(document.getElementById('editDrawerSolicitacao'), prod, activeSelectedTicket.solicitacao);
         document.getElementById('editDrawerContact').value = activeSelectedTicket.contact || "";
+        document.getElementById('editDrawerOperator').value = activeSelectedTicket.operator || "Leandro";
         document.getElementById('editDrawerTerceiro').value = activeSelectedTicket.terceiro || "MoveMais";
         document.getElementById('editDrawerReturnDate').value = activeSelectedTicket.returnDate || "";
         document.getElementById('editDrawerDescription').value = activeSelectedTicket.description || "";
+
+        var dafSel = document.getElementById('editDrawerDafRede');
+        dafSel.innerHTML = '<option value="">Selecione...</option>';
+        Object.keys(DAF_CASA_MUNICIPALES).forEach(function(c) {
+          dafSel.innerHTML += '<option value="' + c + '">' + c + '</option>';
+        });
+        if (prod === 'MANUTENÇÃO') {
+          document.getElementById('editDrawerDafGroup').style.display = 'grid';
+          dafSel.value = activeSelectedTicket.dafRede || "";
+          onEditDrawerDafChange(activeSelectedTicket.dafMunicipio || "");
+        } else {
+          document.getElementById('editDrawerDafGroup').style.display = 'none';
+        }
 
         var bitrixGroup = document.getElementById('editDrawerBitrixGroup');
         if (activeSelectedTicket.solicitacao === 'Chamado T.I') {
@@ -1507,34 +1919,46 @@
       e.preventDefault();
       if (!activeSelectedTicket) return;
 
+      var newClient = document.getElementById('editDrawerClient').value.trim();
+      var newProd = normalizeProduct(document.getElementById('editDrawerProduct').value);
+      var newSol = document.getElementById('editDrawerSolicitacao').value;
       var newContact = document.getElementById('editDrawerContact').value.trim();
+      var newOp = document.getElementById('editDrawerOperator').value;
       var newTerceiro = document.getElementById('editDrawerTerceiro').value;
       var newReturn = document.getElementById('editDrawerReturnDate').value.trim();
       var newDesc = document.getElementById('editDrawerDescription').value.trim();
-      var newBitrix = activeSelectedTicket.solicitacao === 'Chamado T.I' ? document.getElementById('editDrawerBitrix').value.trim() : activeSelectedTicket.bitrixLink;
+      var newBitrix = newSol === 'Chamado T.I' ? document.getElementById('editDrawerBitrix').value.trim() : "";
+      var newDafRede = newProd === 'MANUTENÇÃO' ? document.getElementById('editDrawerDafRede').value : "";
+      var newDafMuni = newProd === 'MANUTENÇÃO' ? document.getElementById('editDrawerDafMuni').value : "";
+
+      var returnChanged = newReturn !== String(activeSelectedTicket.returnDate || "").trim();
+
+      var updatedTicket = Object.assign({}, activeSelectedTicket, {
+        client: newClient || activeSelectedTicket.client,
+        product: newProd,
+        solicitacao: newSol,
+        contact: newContact,
+        operator: newOp,
+        terceiro: newTerceiro,
+        returnDate: newReturn,
+        description: newDesc,
+        bitrixLink: newBitrix,
+        dafRede: newDafRede,
+        dafMunicipio: newDafMuni,
+        isAutoReturn: returnChanged ? false : activeSelectedTicket.isAutoReturn,
+        updatedAt: new Date().toISOString()
+      });
 
       allTickets = allTickets.map(function(t) {
-        if (t.id === activeSelectedTicket.id) {
-          return Object.assign({}, t, {
-            contact: newContact,
-            terceiro: newTerceiro,
-            returnDate: newReturn,
-            description: newDesc,
-            bitrixLink: newBitrix,
-            isAutoReturn: false // Edição manual
-          });
-        }
-        return t;
+        return t.id === updatedTicket.id ? updatedTicket : t;
       });
 
       saveStoredTickets();
-      var updated = allTickets.find(function(x) { return x.id === activeSelectedTicket.id; });
-      saveToGoogleSheets("update", updated);
+      sendMutationToSheet("update", updatedTicket, false);
       
       toggleEditDrawerForm();
-      openDrawer(updated);
+      openDrawer(updatedTicket);
       renderAll();
-      alert("Informações da demanda atualizadas com sucesso!");
     }
 
     function closeDrawer(e) {
@@ -1567,25 +1991,23 @@
       var nowStr = d + '/' + m + '/' + y + ' ' + h + ':' + min;
 
       var start = parseDateBR(activeSelectedTicket.startDate);
-      var end = now;
-      var diffDays = start ? ((end - start) / (1000 * 60 * 60 * 24)).toFixed(1) : "1.0";
+      var diffDays = start ? Math.max(0.1, (now - start) / (1000 * 60 * 60 * 24)).toFixed(1) : "1.0";
+
+      var updatedTicket = Object.assign({}, activeSelectedTicket, {
+        status: "Concluído",
+        endDate: nowStr,
+        durationDays: parseFloat(diffDays),
+        returnDate: d + '/' + m + '/' + y,
+        updatedAt: now.toISOString()
+      });
 
       allTickets = allTickets.map(function(t) {
-        if (t.id === activeSelectedTicket.id) {
-          return Object.assign({}, t, {
-            status: "Concluído",
-            endDate: nowStr,
-            durationDays: parseFloat(diffDays),
-            returnDate: d + '/' + m + '/' + y
-          });
-        }
-        return t;
+        return t.id === updatedTicket.id ? updatedTicket : t;
       });
 
       saveStoredTickets();
-      var updated = allTickets.find(function(x) { return x.id === activeSelectedTicket.id; });
-      saveToGoogleSheets("update", updated);
-      openDrawer(updated);
+      sendMutationToSheet("update", updatedTicket, false);
+      openDrawer(updatedTicket);
       renderAll();
     }
 
@@ -1605,7 +2027,7 @@
       });
 
       saveStoredTickets();
-      saveToGoogleSheets("delete", ticket);
+      sendMutationToSheet("delete", ticket, false);
       closeDrawerDirect();
       renderAll();
     }
@@ -1613,32 +2035,21 @@
     function deleteSelectedTicket() {
       if (!activeSelectedTicket) return;
       var clientName = activeSelectedTicket.client || "esta demanda";
-      if (!confirm("Tem certeza que deseja excluir " + clientName + " definitivamente?")) {
+      if (!confirm("Tem certeza que deseja excluir " + clientName + " definitivamente para toda a equipe?")) {
         return;
       }
       executeDelete(activeSelectedTicket);
     }
 
-    function deleteTicketDirect(e, id, client) {
+    function deleteTicketById(e, id) {
       if (e) e.stopPropagation();
-      var clientName = client || "esta demanda";
+      var ticket = allTickets.find(function(t) { return String(t.id).trim() === String(id).trim(); });
+      var clientName = ticket ? ticket.client : "esta demanda";
       if (!confirm("Deseja excluir " + clientName + " definitivamente?")) {
         return;
       }
-      var ticket = allTickets.find(function(t) {
-        return id && String(t.id).trim() === String(id).trim();
-      });
       if (ticket) {
         executeDelete(ticket);
-      } else if (id) {
-        var delList = getDeletedIds();
-        if (delList.indexOf(String(id).trim()) === -1) {
-          delList.push(String(id).trim());
-          saveDeletedIds(delList);
-        }
-        allTickets = allTickets.filter(function(t) { return String(t.id).trim() !== String(id).trim(); });
-        saveStoredTickets();
-        renderAll();
       }
     }
 
@@ -1672,27 +2083,15 @@
       var dafGroup = document.getElementById('modalDafGroup');
       var terceiroSel = document.getElementById('modalTerceiroSelect');
 
+      populateSolicitacaoOptions(servSel, prod, null);
+
       if (prod === 'PEDÁGIO') {
-        servSel.innerHTML = 
-          '<option value="Contestação">Contestação</option>' +
-          '<option value="Chamado T.I">Chamado T.I</option>' +
-          '<option value="Isenção">Isenção</option>' +
-          '<option value="Logistica">Logística</option>' +
-          '<option value="Cancelamento">Cancelamento</option>' +
-          '<option value="Cobrança fora da TAG">Cobrança fora da TAG</option>';
         dafGroup.style.display = 'none';
         terceiroSel.value = 'MoveMais';
       } else if (prod === 'MANUTENÇÃO') {
-        servSel.innerHTML = 
-          '<option value="Chamado T.I">Chamado T.I</option>' +
-          '<option value="Outros">Outros</option>';
         dafGroup.style.display = 'block';
         terceiroSel.value = 'Financeiro';
       } else {
-        servSel.innerHTML = 
-          '<option value="Logistica">Logística</option>' +
-          '<option value="Chamado T.I">Chamado T.I</option>' +
-          '<option value="Isenção">Isenção</option>';
         dafGroup.style.display = 'none';
         terceiroSel.value = 'Cadastro';
       }
@@ -1750,7 +2149,7 @@
     function handleSaveDemandForm(e) {
       e.preventDefault();
       var f = e.target;
-      var prod = document.getElementById('modalProductSelect').value;
+      var prod = normalizeProduct(document.getElementById('modalProductSelect').value);
       var serv = document.getElementById('modalServiceSelect').value;
 
       if (prod === 'MANUTENÇÃO') {
@@ -1776,18 +2175,18 @@
       var parts = rawReturn ? rawReturn.split('-') : [];
       var formattedReturn = parts.length === 3 ? (parts[2] + '/' + parts[1] + '/' + parts[0]) : 'A definir';
 
-      var uniqueId = "REC-" + String(Date.now()).slice(-4) + Math.floor(10 + Math.random() * 90);
+      var uniqueId = "REC-" + String(Date.now()).slice(-6) + "-" + Math.floor(100 + Math.random() * 900);
 
       var newRec = {
         id: uniqueId,
-        mes: "11-2026",
+        mes: m + "-" + y,
         operator: f.operator.value,
         product: prod,
-        client: f.client.value,
-        contact: f.contact.value || "",
+        client: f.client.value.trim(),
+        contact: f.contact.value.trim(),
         solicitacao: serv,
         terceiro: f.terceiro.value,
-        bitrixLink: f.bitrixLink ? f.bitrixLink.value : "",
+        bitrixLink: f.bitrixLink ? f.bitrixLink.value.trim() : "",
         dafRede: prod === 'MANUTENÇÃO' ? f.dafRede.value : "",
         dafMunicipio: prod === 'MANUTENÇÃO' ? f.dafMunicipio.value : "",
         status: "Em andamento",
@@ -1796,12 +2195,13 @@
         durationDays: null,
         returnDate: formattedReturn,
         isAutoReturn: modalAutoReturnFlag,
-        description: f.desc.value
+        description: f.desc.value.trim(),
+        updatedAt: now.toISOString()
       };
 
       allTickets.unshift(newRec);
       saveStoredTickets();
-      saveToGoogleSheets("create", newRec);
+      sendMutationToSheet("create", newRec, false);
 
       document.getElementById('modalOverlay').style.display = 'none';
       renderAll();
@@ -1809,7 +2209,7 @@
     }
 
     // =========================================================================
-    // RELATÓRIO DE SLA (EXATO COM BASE NOS 67 CONCLUÍDOS HISTÓRICOS)
+    // RELATÓRIO DE SLA
     // =========================================================================
     function renderSlaReport() {
       var prodStats = calcProductSlaStats();
@@ -1841,7 +2241,7 @@
             var row = document.createElement('div');
             row.className = 'chart-bar-item';
             row.innerHTML = 
-              '<span class="bar-label" title="' + k + '">' + k + '</span>' +
+              '<span class="bar-label" title="' + escapeHtml(k) + '">' + escapeHtml(k) + '</span>' +
               '<div class="bar-track">' +
                 '<div class="bar-fill" style="width: ' + pct + '%;"></div>' +
               '</div>' +
@@ -1860,7 +2260,7 @@
             var mean = parseFloat(stats2[sol].mean);
             var tr = document.createElement('tr');
             tr.innerHTML = 
-              '<td style="font-weight:800; color:#fff;">' + sol + '</td>' +
+              '<td style="font-weight:800; color:#fff;">' + escapeHtml(sol) + '</td>' +
               '<td style="color:var(--text-muted); font-weight:600;">Direto</td>' +
               '<td>' + stats2[sol].count + ' chamados</td>' +
               '<td style="font-weight:800; color:' + (mean > 12 ? '#EF4444' : 'var(--tp-green)') + ';">' + mean + ' dias</td>' +
@@ -1872,7 +2272,7 @@
       }
     }
 
-    // Inicialização direta e imediata
+    // Inicialização imediata + Sincronização em tempo real
     renderAll();
     syncFromGoogleSheets();
   </script>
