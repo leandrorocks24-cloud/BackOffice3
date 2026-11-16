@@ -633,3 +633,27 @@ body.theme-light .kpi-box.active-kpi .kpi-filter-tag {
   color: #FFFFFF;
   border-color: #DC2626;
 }
+
+/* Botão Editar na tabela de Registros */
+.btn-row-edit { background: rgba(56, 189, 248, 0.14); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.32); padding: 4px 10px; font-size: 10.5px; font-weight: 700; border-radius: 4px; cursor: pointer; margin-right: 6px; }
+.btn-row-edit:hover { background: rgba(56, 189, 248, 0.25); }
+body.theme-light .btn-row-edit { background: rgba(2, 132, 199, 0.1); color: #0284C7; border-color: rgba(2, 132, 199, 0.3); }
+
+/* Scroll horizontal seguro na tabela de Registros para não cortar coluna Ações */
+.table-scroll-wrap { width: 100%; overflow-x: auto; }
+.table-scroll-wrap table.dense-table { min-width: 1060px; }
+
+/* Destaque do botão Editar Demanda no Drawer quando card estiver finalizado */
+.btn-edit-highlight {
+  background: rgba(56, 189, 248, 0.14) !important;
+  color: #38BDF8 !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+}
+.btn-edit-highlight:hover {
+  background: rgba(56, 189, 248, 0.24) !important;
+}
+body.theme-light .btn-edit-highlight {
+  background: rgba(2, 132, 199, 0.1) !important;
+  color: #0284C7 !important;
+  border-color: rgba(2, 132, 199, 0.35) !important;
+}

@@ -409,12 +409,17 @@ tdProd.innerHTML = '<span class="badge-product ' + prodClass + '">' + prodStr + 
           tdOp.textContent = r.operator || '-';
 
           var tdAct = document.createElement('td');
-          tdAct.style.textAlign = 'center';
+          tdAct.style.cssText = 'text-align:center; white-space:nowrap;';
           tdAct.onclick = function(e) { e.stopPropagation(); };
+          var editBtn = document.createElement('button');
+          editBtn.className = 'btn-row-edit';
+          editBtn.innerHTML = '✎ Editar';
+          editBtn.onclick = function(e) { editTicketById(e, r.id); };
           var delBtn = document.createElement('button');
           delBtn.className = 'btn-row-delete';
           delBtn.textContent = 'Excluir';
           delBtn.onclick = function(e) { deleteTicketById(e, r.id); };
+          tdAct.appendChild(editBtn);
           tdAct.appendChild(delBtn);
 
           tr.appendChild(tdDate);
@@ -592,7 +597,15 @@ container.appendChild(card);
 
         var isOpen = (ticket.status === 'Em andamento');
         document.getElementById('btnCompleteTicket').style.display = isOpen ? 'block' : 'none';
-        document.getElementById('btnToggleEdit').style.display = isOpen ? 'block' : 'none';
+        var btnEdit = document.getElementById('btnToggleEdit');
+        if (btnEdit) {
+          btnEdit.style.display = 'inline-flex';
+          btnEdit.style.alignItems = 'center';
+          btnEdit.style.justifyContent = 'center';
+          btnEdit.style.flex = isOpen ? '0 0 auto' : '1';
+          btnEdit.innerHTML = '✎ Editar Demanda';
+          btnEdit.classList.toggle('btn-edit-highlight', !isOpen);
+        }
         
         var displayStart = formatDateDisplay(ticket.startDate);
         var openedAtNode = document.getElementById('drawerOpenedAt');
@@ -675,6 +688,9 @@ container.appendChild(card);
           { v: 'Chamado T.I', l: 'Chamado T.I' },
           { v: 'Isenção', l: 'Isenção' }
         ];
+      }
+      if (selectedValue && !options.some(function(o) { return o.v === selectedValue; })) {
+        options.push({ v: selectedValue, l: selectedValue });
       }
       selectEl.innerHTML = options.map(function(o) {
         return '<option value="' + o.v + '">' + o.l + '</option>';
@@ -771,10 +787,13 @@ container.appendChild(card);
       var editForm = document.getElementById('drawerEditForm');
       var detailGrid = document.getElementById('drawerDetailGrid');
 
+      var btnEdit = document.getElementById('btnToggleEdit');
       if (editForm.style.display === 'flex') {
         editForm.style.display = 'none';
         detailGrid.style.display = 'grid';
+        if (btnEdit) btnEdit.innerHTML = '✎ Editar Demanda';
       } else {
+        if (btnEdit) btnEdit.innerHTML = '✕ Cancelar Edição';
         refreshOperatorDropdowns();
         var prod = normalizeProduct(activeSelectedTicket.product);
         document.getElementById('editDrawerClient').value = activeSelectedTicket.client || "";
@@ -823,13 +842,14 @@ container.appendChild(card);
       var newOp = document.getElementById('editDrawerOperator').value;
       var newTerceiro = document.getElementById('editDrawerTerceiro').value;
       var newReturn = formatOnlyDateBR(document.getElementById('editDrawerReturnDate').value.trim());
+      var isFinalizedTicket = activeSelectedTicket.status === 'Concluído';
       var fixedEditSla = getFixedPartnerSla(newProd, newSol);
       var manualEditExemption = newSol === 'Isenção' && (newProd === 'PEDÁGIO' || newProd === 'ABASTECIMENTO');
-      if (fixedEditSla) {
+      if (fixedEditSla && !isFinalizedTicket) {
         var openedAtForDeadline = parseDateBR(activeSelectedTicket.startDate) || new Date();
         newReturn = formatOnlyDateBR(formatDateInput(addCalendarDays(openedAtForDeadline, fixedEditSla)));
       }
-      if (manualEditExemption && !newReturn) {
+      if (manualEditExemption && !newReturn && !isFinalizedTicket) {
         showToast('Agende a data obrigatória de retorno ao Financeiro para Isenção.', true);
         return;
       }
@@ -840,7 +860,7 @@ container.appendChild(card);
 
       var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I', 'Layout XML'].indexOf(newSol) !== -1 ||
         (newProd === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(newSol) !== -1);
-      if (needsLink && !newLink) {
+      if (needsLink && !newLink && activeSelectedTicket.status !== 'Concluído') {
         showToast("O Link Externo (E-mail ou Bitrix) é obrigatório.", true);
         return;
       }
@@ -952,6 +972,17 @@ container.appendChild(card);
         return;
       }
       executeDelete(activeSelectedTicket);
+    }
+
+    function editTicketById(e, id) {
+      if (e) e.stopPropagation();
+      var ticket = allTickets.find(function(t) { return String(t.id).trim() === String(id).trim(); });
+      if (!ticket) return;
+      openDrawer(ticket);
+      var editForm = document.getElementById('drawerEditForm');
+      if (editForm && editForm.style.display !== 'flex') {
+        toggleEditDrawerForm();
+      }
     }
 
     function deleteTicketById(e, id) {
