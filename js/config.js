@@ -230,5 +230,3 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCW7VUUuUm1w
 
     // =========================================================================
 
-// Prazo informativo usado no texto sugerido ao cliente. Ajuste somente conforme política aprovada.
-const CUSTOMER_MESSAGE_ESTIMATED_DAYS = 30;

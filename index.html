@@ -11,6 +11,22 @@
 </head>
 <body>
 
+  <aside class="app-sidebar" id="appSidebar">
+    <div class="sidebar-brand">truckpag <span>Backoffice</span></div>
+    <button class="sidebar-toggle" type="button" onclick="toggleSidebar()" aria-label="Expandir ou recolher menu"><span id="sidebarToggleIcon">‹</span><span class="sidebar-toggle-label">Recolher menu</span></button>
+    <nav class="sidebar-nav" aria-label="Navegação principal">
+      <button class="tab-btn active" id="btnTabQueue" onclick="switchMainTab('queue')"><span class="side-icon">▤</span><span class="side-label">Fila</span></button>
+      <button class="tab-btn" id="btnTabRecords" onclick="switchMainTab('records')"><span class="side-icon">▣</span><span class="side-label">Registros</span></button>
+      <button class="tab-btn" id="btnTabReport" onclick="switchMainTab('report')"><span class="side-icon">▥</span><span class="side-label">Visão</span></button>
+      <button class="tab-btn" id="btnTabProjection" onclick="switchMainTab('projection')"><span class="side-icon">◷</span><span class="side-label">Projeção</span></button>
+    </nav>
+    <div class="sidebar-tools">
+      <div class="sidebar-tools-label">DADOS</div>
+      <button type="button" class="sidebar-tool-btn" onclick="exportFullBackup()" title="Backup de dados"><span>⬇</span><span class="side-label">Backup de dados</span></button>
+      <button type="button" class="sidebar-tool-btn" onclick="exportArchivedCSV()" title="Exportar finalizadas"><span>⇩</span><span class="side-label">Exportar finalizadas</span></button>
+    </div>
+  </aside>
+
   <!-- Topbar -->
   <header class="topbar">
     <div class="brand-section">
@@ -19,16 +35,10 @@
       </div>
     </div>
 
-    <nav class="nav-tabs">
-      <button class="tab-btn active" id="btnTabRecords" onclick="switchMainTab('records')">
-        Fila Operacional & Registros
-      </button>
-      <button class="tab-btn" id="btnTabReport" onclick="switchMainTab('report')">
-        Relatório Gerencial (B.I. SLA)
-      </button>
-    </nav>
 
-    <div class="topbar-actions">
+
+    <div class="topbar-actions" id="operationalTopbarActions">
+      <button type="button" class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema"><span id="themeToggleIcon">☀</span></button>
       <div class="operator-pill" title="Sessão atual (preenchimento automático)">
         <span>👤 Operador:</span>
         <select id="activeOperatorSelect" onchange="handleActiveOperatorChange()"></select>
@@ -38,9 +48,6 @@
         ↻ ● Sincronizado
       </span>
 
-      <button class="btn-action" onclick="exportArchivedCSV()" title="Exportar demandas finalizadas em CSV">
-        Exportar Finalizadas
-      </button>
       <button class="btn-action primary" onclick="openNewModal()">
         + Nova Demanda
       </button>
@@ -50,91 +57,72 @@
   <main class="main-wrapper">
     
     <!-- TELA 1: FILA OPERACIONAL E REGISTROS -->
-    <div id="viewPaneRecords">
+    <div id="viewPaneQueue">
 
       <!-- FILTROS GERAIS (POSICIONADOS NO TOPO) -->
       <div class="filter-panel">
-        <div class="filter-row">
-          <div class="filter-items">
-            <span class="filter-label">Filtros da Fila:</span>
-            
-            <select class="input-compact" id="filterMonthSelect" onchange="renderAll()">
-              <option value="11-2026" selected>Mês: 11-2026 (Vigente)</option>
-              <option value="10-2026">Mês: 10-2026</option>
-              <option value="09-2026">Mês: 09-2026</option>
-              <option value="08-2026">Mês: 08-2026</option>
-              <option value="07-2026">Mês: 07-2026</option>
-              <option value="">Mês: Todos</option>
-            </select>
-
-            <select class="input-compact" id="filterAgentSelect" onchange="renderAll()">
-              <option value="">Agente: Todos</option>
-            </select>
-
-            <select class="input-compact" id="filterProductSelect" onchange="renderAll()">
-              <option value="">Produto: Todos</option>
-              <option value="PEDÁGIO">Pedágio</option>
-              <option value="ABASTECIMENTO">Abastecimento</option>
-              <option value="MANUTENÇÃO">Manutenção</option>
-            </select>
-
-            <select class="input-compact" id="filterServiceSelect" onchange="renderAll()">
-              <option value="">Solicitação: Todas</option>
-              <option value="Contestação">Contestação</option>
-              <option value="Chamado T.I">Chamado T.I</option>
-              <option value="Isenção">Isenção</option>
-              <option value="Logistica">Logística</option>
-              <option value="Cancelamento">Cancelamento</option>
-              <option value="Cobrança fora da TAG">Cobrança fora da TAG</option>
-              <option value="Outros">Outros</option>
-            </select>
-
-            <select class="input-compact" id="filterThirdSelect" onchange="renderAll()">
-              <option value="">Terceiro: Todos</option>
-              <option value="MoveMais">MoveMais</option>
-              <option value="T.I">T.I</option>
-              <option value="Financeiro">Financeiro</option>
-              <option value="Cadastro">Cadastro</option>
-            </select>
-
-            <button type="button" class="btn-clear-filters" onclick="clearFilters()" title="Redefinir filtros para o padrão">
-              Limpar Filtros
-            </button>
+        <div class="filter-primary-row">
+          <div class="filter-primary-controls">
+            <span class="filter-label">Fila:</span>
+            <input type="text" class="input-compact filter-search" id="searchInput" placeholder="Pesquisar cliente, protocolo..." onkeyup="renderAll()" />
+            <label class="queue-operator-filter"><span>Operador</span><select class="input-compact" id="filterAgentSelect" onchange="renderAll()"><option value="">Todos</option></select></label>
+            <button type="button" class="filter-more-toggle" id="advancedFiltersToggle" onclick="toggleAdvancedFilters()" aria-expanded="false">Mais filtros <span>⌄</span></button>
+            <button type="button" class="btn-clear-filters" onclick="clearFilters()" title="Redefinir filtros para o padrão">Limpar</button>
           </div>
-
-          <input type="text" class="input-compact" id="searchInput" placeholder="Pesquisar cliente, protocolo..." style="width:240px;" onkeyup="renderAll()" />
+        </div>
+        <div class="filter-advanced-row" id="advancedFiltersPanel" style="display:none;">
+          <label class="filter-advanced-item"><span>Produto</span><select class="input-compact" id="filterProductSelect" onchange="renderAll()"><option value="">Todos os produtos</option><option value="PEDÁGIO">Pedágio</option><option value="ABASTECIMENTO">Abastecimento</option><option value="MANUTENÇÃO">Manutenção</option></select></label>
+          <label class="filter-advanced-item"><span>Mês</span>
+            <select class="input-compact" id="filterMonthSelect" onchange="renderAll()">
+              <option value="11-2026" selected>11-2026 (Vigente)</option><option value="10-2026">10-2026</option><option value="09-2026">09-2026</option><option value="08-2026">08-2026</option><option value="07-2026">07-2026</option><option value="">Todos</option>
+            </select>
+          </label>
+          <label class="filter-advanced-item"><span>Solicitação</span>
+            <select class="input-compact" id="filterServiceSelect" onchange="renderAll()">
+              <option value="">Todas</option><option value="Contestação">Contestação</option><option value="Integração API">Integração API</option><option value="Exceção VPO">Exceção VPO</option><option value="Chamado T.I">Chamado T.I</option><option value="Layout XML">Layout XML</option><option value="Isenção">Isenção</option><option value="Logistica">Logística</option><option value="Cancelamento">Cancelamento</option><option value="Cobrança fora da TAG">Cobrança fora da TAG</option><option value="Outros">Outros</option>
+            </select>
+          </label>
+          <label class="filter-advanced-item"><span>Terceiro</span>
+            <select class="input-compact" id="filterThirdSelect" onchange="renderAll()">
+              <option value="">Todos</option><option value="MoveMais">MoveMais</option><option value="T.I">T.I</option><option value="Financeiro">Financeiro</option><option value="Cadastro">Cadastro</option><option value="Outros">Outros</option>
+            </select>
+          </label>
         </div>
       </div>
 
       <!-- PAINEL EXECUTIVO DE KPIS (RESPONDE AOS FILTROS) -->
       <div class="kpi-strip">
         <div class="kpi-box">
-          <span class="kpi-title">Demandas em Aberto</span>
+          <div class="kpi-head-row">
+            <span class="kpi-title">Em aberto</span>
+          </div>
           <span class="kpi-value" id="kpiTotalOpen">0</span>
-          <span class="kpi-sub">De acordo com o filtro</span>
         </div>
         <div class="kpi-box">
-          <span class="kpi-title">Dentro do Prazo</span>
+          <div class="kpi-head-row">
+            <span class="kpi-title">Dentro do prazo</span>
+          </div>
           <span class="kpi-value" style="color:var(--tp-green);" id="kpiOnTime">0</span>
-          <span class="kpi-sub">Retorno futuro seguro</span>
         </div>
         <div class="kpi-box clickable" id="kpiOverdueBox" onclick="toggleOverdueFilter()" title="Clique para filtrar apenas demandas atrasadas ou vencendo hoje">
-          <span class="kpi-title">Atenção / Atrasados</span>
+          <div class="kpi-head-row">
+            <span class="kpi-title">Atrasados/Críticos</span>
+            <span class="kpi-filter-tag" id="kpiOverdueSub">Filtrar</span>
+          </div>
           <span class="kpi-value" style="color:#F87171;" id="kpiOverdue">0</span>
-          <span class="kpi-sub" id="kpiOverdueSub">Clique para filtrar críticos</span>
         </div>
         <div class="kpi-box">
-          <span class="kpi-title">Finalizados</span>
+          <div class="kpi-head-row">
+            <span class="kpi-title">Finalizados</span>
+          </div>
           <span class="kpi-value" style="color:#38BDF8;" id="kpiFinalizedMonth">0</span>
-          <span class="kpi-sub">De acordo com o filtro</span>
         </div>
       </div>
       <!-- DEMANDAS EM ABERTO: 3 COLUNAS -->
       <section class="in-progress-section">
         <div class="section-title-bar">
           <h2>
-            Demandas Em Aberto por Produto
-            <span style="font-size:11px; color:var(--text-muted); font-weight:normal;" id="inProgressCountLabel"></span>
+            <button type="button" class="sort-toggle-btn" id="openSortToggle" onclick="toggleOpenSortMode()" title="Alternar ordenação da fila" aria-label="Ordenar demandas mais antigas primeiro">↑ Mais antigas</button>
           </h2>
           <span style="font-size:11px; color:var(--text-subtle);">
             Clique no card para abrir detalhes, editar ou finalizar
@@ -142,14 +130,6 @@
         </div>
 
         <div class="product-columns-grid">
-          <div class="product-column">
-            <div class="product-column-head" style="color:#D97706;">
-              Abastecimento
-              <span class="col-count-badge" id="countColAbast">0</span>
-            </div>
-            <div class="column-cards-list" id="colCardsAbast"></div>
-          </div>
-
           <div class="product-column">
             <div class="product-column-head" style="color:#38BDF8;">
               Pedágio
@@ -159,19 +139,42 @@
           </div>
 
           <div class="product-column">
-            <div class="product-column-head" style="color:var(--tp-green);">
+            <div class="product-column-head" style="color:#8B5CF6;">
               Manutenção
               <span class="col-count-badge" id="countColManut">0</span>
             </div>
             <div class="column-cards-list" id="colCardsManut"></div>
           </div>
+
+          <div class="product-column">
+            <div class="product-column-head" style="color:#10B981;">
+              Abastecimento
+              <span class="col-count-badge" id="countColAbast">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsAbast"></div>
+          </div>
         </div>
       </section>
 
+    </div>
+
+    <!-- REGISTROS: SOMENTE DEMANDAS FINALIZADAS -->
+    <div id="viewPaneRecords" style="display:none;">
+      <div class="records-heading"><h2>Registros finalizados</h2><p>Histórico das demandas concluídas.</p></div>
+      <div class="records-filter-bar">
+        <input class="input-compact" id="recordsSearch" type="search" placeholder="Buscar cliente, placa ou protocolo" oninput="renderAll()">
+        <select class="input-compact" id="recordsProduct" onchange="renderAll()"><option value="">Todos os produtos</option><option value="PEDÁGIO">Pedágio</option><option value="ABASTECIMENTO">Abastecimento</option><option value="MANUTENÇÃO">Manutenção</option></select>
+        <select class="input-compact" id="recordsService" onchange="renderAll()"><option value="">Todas as solicitações</option><option>Cancelamento</option><option>Contestação</option><option>Isenção</option><option>Integração API</option><option>Exceção VPO</option><option>Cobrança fora da TAG</option><option>Layout XML</option><option>Logistica</option><option>Chamado T.I</option><option>Outros</option></select>
+        <select class="input-compact" id="recordsThird" onchange="renderAll()"><option value="">Todos os terceiros</option><option>MoveMais</option><option>Financeiro</option><option>T.I</option><option>Cadastro</option><option>Outros</option></select>
+        <select class="input-compact" id="recordsAgent" onchange="renderAll()"><option value="">Todos os operadores</option></select>
+        <input class="input-compact" id="recordsFrom" type="date" aria-label="Conclusão a partir de" onchange="renderAll()">
+        <input class="input-compact" id="recordsTo" type="date" aria-label="Conclusão até" onchange="renderAll()">
+        <button type="button" class="btn-clear-filters" onclick="clearRecordsFilters()">Limpar filtros</button>
+      </div>
       <!-- TABELA DE REGISTROS FINALIZADOS -->
       <div class="table-card">
         <div class="table-card-header">
-          <h3>✓ Histórico de Demandas Finalizadas (Concluídas)</h3>
+          <h3>✓ Demandas concluídas</h3>
           <span style="font-size:11px; color:#A7F3D0; font-weight:700;" id="finalizedCountLabel">0 demandas finalizadas</span>
         </div>
         <table class="dense-table">
@@ -184,6 +187,8 @@
               <th>Solicitação</th>
               <th>Terceiro Acionado</th>
               <th>SLA Final</th>
+              <th>SLA médio da solicitação</th>
+              <th>SLA oficial</th>
               <th>Agente</th>
               <th style="text-align:center;">Ações</th>
             </tr>
@@ -194,97 +199,38 @@
 
     </div>
 
-    <!-- ======================================================================
-         TELA 2: RELATÓRIO GERENCIAL EXECUTIVO DE B.I.
-         ====================================================================== -->
+    <!-- VISÃO GERENCIAL -->
     <div id="viewPaneReport" style="display:none;">
-      
-      <div class="sla-report-grid">
-        
-        <!-- CARD 1: SLA POR PRODUTO -->
-        <div class="sla-card col-6">
-          <div class="headline-box">
-            <div>
-              <div class="action-headline">SLA Médio por Produto (Tempo Real)</div>
-              <div class="action-sub">Consolidado com base no histórico integral da planilha</div>
-            </div>
-          </div>
-          <table class="exec-table">
-            <thead>
-              <tr>
-                <th>Produto</th>
-                <th>Volume Concluído</th>
-                <th>SLA Médio</th>
-                <th>Mediana</th>
-              </tr>
-            </thead>
-            <tbody id="productSlaTableBody"></tbody>
-          </table>
-        </div>
-
-        <!-- CARD 2: GRÁFICO DINÂMICO -->
-        <div class="sla-card col-6">
-          <div class="headline-box">
-            <div>
-              <div class="action-headline">Acompanhamento Dinâmico de SLA Operacional</div>
-              <div class="action-sub">Médias apuradas pelas categorias especificadas</div>
-            </div>
-          </div>
-          <div id="chartBarsContainer"></div>
-        </div>
-
-        <!-- CARD 3: COMPARATIVO DIRETO EXTERNO VS INTERNO -->
-        <div class="sla-card col-12">
-          <div class="headline-box" style="margin-bottom:8px;">
-            <div>
-              <div class="action-headline">Apropriação de Prazos por Categoria de Responsável</div>
-              <div class="action-sub">Comparativo de tempo para definição de SLAs sugeridos ao cliente</div>
-            </div>
-          </div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-            <div style="background:var(--bg-card); padding:16px 20px; border-radius:6px; border:1px solid var(--border-subtle); border-left:4px solid #EF4444;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:800; font-size:13px; color:#fff;">Parceiros Externos - Média</span>
-                <span style="color:#EF4444; font-size:16px; font-weight:900;" id="slaExternoMedia">16,3 dias</span>
-              </div>
-            </div>
-            <div style="background:var(--bg-card); padding:16px 20px; border-radius:6px; border:1px solid var(--border-subtle); border-left:4px solid var(--tp-green);">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:800; font-size:13px; color:#fff;">Setores Internos - Média</span>
-                <span style="color:var(--tp-green); font-size:16px; font-weight:900;" id="slaInternoMedia">11,6 dias</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 4: MATRIZ COMPLETA DETALHADA -->
-        <div class="sla-card col-12">
-          <div class="headline-box">
-            <div>
-              <div class="action-headline">Matriz Consolidada de SLA por Solicitação & Responsável</div>
-              <div class="action-sub">Visão granular apurada a partir de todos os chamados finalizados</div>
-            </div>
-            <div class="gradient-legend">
-              <span>Ágil (≤5d)</span>
-              <div class="gradient-bar-sample"></div>
-              <span>Crítico (≥15d)</span>
-            </div>
-          </div>
-          <table class="exec-table">
-            <thead>
-              <tr>
-                <th>Segmento / Solicitação Especificada</th>
-                <th>Terceiro Responsável</th>
-                <th>Volume Concluído</th>
-                <th style="width:170px;">SLA Médio (Semáforo)</th>
-                <th>Mediana</th>
-              </tr>
-            </thead>
-            <tbody id="partnerMatrixTableBody"></tbody>
-          </table>
-        </div>
-
+      <div class="bi-page-heading"><div><span class="bi-eyebrow">INTELIGÊNCIA OPERACIONAL</span><h1>Visão</h1><p>Desempenho das demandas concluídas por produto, parceiro e solicitação.</p></div><div class="bi-period-chip" id="biPeriodCaption">Todo o histórico</div></div>
+      <div class="bi-filter-bar bi-filter-bar-premium">
+        <label>Período de conclusão <div class="bi-date-filter"><input id="biDateFrom" type="date" onchange="applyBiFilters()" aria-label="Data inicial"><span>até</span><input id="biDateTo" type="date" onchange="applyBiFilters()" aria-label="Data final"></div></label>
+        <label>Produto <select id="biFilterProduct" onchange="applyBiFilters()"><option value="">Todos os produtos</option><option value="PEDÁGIO">Pedágio</option><option value="ABASTECIMENTO">Abastecimento</option><option value="MANUTENÇÃO">Manutenção</option></select></label>
+        <label>Parceiro <select id="biFilterThird" onchange="applyBiFilters()"><option value="">Todos os parceiros</option><option value="MoveMais">MoveMais</option><option value="Financeiro">Financeiro</option><option value="T.I">T.I</option><option value="Cadastro">Cadastro</option><option value="Outros">Outros</option></select></label>
+        <button type="button" class="bi-clear-btn" onclick="clearBiFilters()">Limpar filtros</button>
       </div>
+      <section class="bi-section bi-section-macro">
+        <div class="bi-section-heading"><div><span class="bi-step">01</span><div><h2>Resultado por produto</h2><p>Visão executiva do volume concluído e do SLA médio.</p></div></div><span class="bi-section-note">MACRO</span></div>
+        <div class="bi-product-grid" id="biProductCards"></div>
+      </section>
+      <section class="bi-section">
+        <div class="bi-section-heading"><div><span class="bi-step bi-step-blue">02</span><div><h2>Desempenho por parceiro</h2><p>Volume concluído e SLA médio por área responsável.</p></div></div><span class="bi-section-note">GESTÃO DE TERCEIROS</span></div>
+        
+        <div class="bi-compact-table-wrap"><table class="bi-data-table"><thead><tr><th>Parceiro</th><th>Volume concluído</th><th>SLA médio</th></tr></thead><tbody id="biPartnerBody"></tbody></table></div>
+      </section>
+      <section class="bi-section">
+        <div class="bi-section-heading"><div><span class="bi-step bi-step-purple">03</span><div><h2>Detalhamento por solicitação</h2><p>Volume, tempo médio realizado e prazo oficial quando definido.</p></div></div><span class="bi-section-note">VISÃO ANALÍTICA</span></div>
+        <div class="bi-micro-toolbar"><span id="biSolicitationCount">—</span><span>O SLA oficial é exibido somente nas solicitações com prazo formal.</span></div>
+        <div class="bi-compact-table-wrap"><table class="bi-data-table"><thead><tr><th>Solicitação</th><th>Produto</th><th>Parceiro</th><th>Volume concluído</th><th class="th-sla-medio">SLA médio</th><th class="th-sla-oficial">SLA oficial</th></tr></thead><tbody id="biSolicitationBody"></tbody></table></div>
+      </section>
+      <div class="bi-footnote">SLA médio calculado a partir das demandas concluídas com duração registrada. O SLA oficial é o prazo formal do parceiro; não representa o SLA do operador da ferramenta.</div>
+    </div>
+
+    <div id="viewPaneProjection" style="display:none;">
+      <section class="bi-section bi-projection-section projection-page-section">
+        <div class="bi-page-heading"><div><span class="bi-eyebrow">ACOMPANHAMENTO OPERACIONAL</span><h1>Projeção da fila atual</h1><p>Distribuição das demandas que ainda aguardam conclusão.</p></div></div>
+        <div class="bi-projection-grid"><div><h3>Demandas por parceiro</h3><div id="projectionVolumeChart" class="bi-horizontal-chart"></div></div><div><h3>Demandas por solicitação</h3><div id="projectionServiceChart" class="bi-horizontal-chart"></div></div></div>
+        <div class="bi-compact-table-wrap"><table class="bi-data-table"><thead><tr><th>Parceiro</th><th>Solicitação</th><th>Produto</th><th>Em aberto</th></tr></thead><tbody id="projectionBody"></tbody></table></div>
+      </section>
     </div>
 
   </main>
@@ -391,16 +337,18 @@
           <div class="edit-grid-2">
             <div>
               <label class="edit-label">Terceiro / Setor</label>
-              <select class="edit-select" id="editDrawerTerceiro">
+              <select class="edit-select" id="editDrawerTerceiro" required>
+                <option value="">Selecione o responsável...</option>
                 <option value="MoveMais">MoveMais</option>
                 <option value="ConnectCar">ConnectCar</option>
                 <option value="Financeiro">Financeiro</option>
                 <option value="T.I">T.I</option>
                 <option value="Cadastro">Cadastro</option>
+                <option value="Outros">Outros</option>
               </select>
             </div>
             <div>
-              <label class="edit-label">Data Prevista Retorno (DD/MM/AAAA)</label>
+              <label class="edit-label" id="editDrawerReturnLabel">Data Prevista Retorno (DD/MM/AAAA)</label>
               <input class="edit-input" type="text" id="editDrawerReturnDate" placeholder="DD/MM/AAAA" />
             </div>
           </div>
@@ -455,6 +403,10 @@
             <div class="detail-cell-label">Terceiro / Setor Acionado</div>
             <div class="detail-cell-val" style="color:#38BDF8;" id="drawerThirdVal">-</div>
           </div>
+          <div class="detail-cell full" id="drawerHistoricalSla" style="display:none;">
+            <div class="detail-cell-label">Indicador de SLA da Solicitação</div>
+            <div class="detail-cell-val" id="drawerHistoricalSlaValue">-</div>
+          </div>
           <div class="detail-cell full" id="drawerDafCell" style="display:none;">
             <div class="detail-cell-label">Concessionária DAF & Município</div>
             <div class="detail-cell-val" id="drawerDafVal">-</div>
@@ -500,11 +452,11 @@
         </div>
 
         <div id="drawerProgressClocks" style="background:var(--bg-card); padding:10px 14px; border-radius:6px; border:1px solid var(--border-subtle); font-size:11.5px;">
-          <div style="font-weight:800; margin-bottom:3px; color:#fff;">Acompanhamento de Prazos</div>
-          <div id="drawerClockRem" style="font-weight:700;">-</div>
-          <div style="color:var(--tp-green); font-weight:800; margin-top:2px;" id="drawerClockElapsed">
-            Total em processo: -
-          </div>
+          <div style="font-weight:800; margin-bottom:7px; color:#fff;">Acompanhamento da demanda</div>
+          <div class="drawer-clock-row"><span>Data de abertura</span><strong id="drawerOpenedAt">-</strong></div>
+          <div class="drawer-clock-row"><span>Tempo em aberto</span><strong id="drawerClockElapsed">-</strong></div>
+          <div class="drawer-clock-row official-deadline-row"><span>Prazo oficial</span><strong id="drawerClockRem">Sem prazo oficial</strong></div>
+
         </div>
 
       </div>
@@ -553,11 +505,13 @@
         <div class="form-col-full">
           <label class="field-label">Terceiro / Setor *</label>
           <select class="field-select" name="terceiro" id="modalTerceiroSelect" required>
+            <option value="">Selecione o responsável...</option>
             <option value="MoveMais">MoveMais</option>
             <option value="ConnectCar">ConnectCar</option>
             <option value="Financeiro">Financeiro</option>
             <option value="T.I">T.I</option>
             <option value="Cadastro">Cadastro</option>
+            <option value="Outros">Outros</option>
           </select>
         </div>
 
@@ -588,16 +542,17 @@
 
         <div class="form-col-full" style="background:var(--bg-input); padding:10px; border-radius:6px; border:1px solid var(--border-subtle);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-            <label class="field-label" style="color:var(--tp-green); margin:0;">Data para Retorno ao Cliente *</label>
-            <button 
-              type="button" 
+            <label class="field-label" id="modalReturnDateLabel" style="color:var(--tp-green); margin:0;">Data para Retorno ao Cliente</label>
+            <button
+              id="btnCalculateReturnDate"
+              type="button"
               onclick="calculateModalReturnDate()"
               style="background:var(--bg-card); color:#fff; border:1px solid var(--border-subtle); border-radius:4px; padding:3px 8px; font-size:10.5px; font-weight:700; cursor:pointer;"
             >
               Calcular Prazo Estimado
             </button>
           </div>
-          <input class="field-input" type="date" name="returnDate" id="modalReturnDateInput" oninput="markManualReturnDate()" required />
+          <input class="field-input" type="date" name="returnDate" id="modalReturnDateInput" oninput="markManualReturnDate()" />
           <div style="font-size:10.5px; color:var(--tp-green); font-weight:700; margin-top:4px;" id="modalFeedbackText"></div>
         </div>
 

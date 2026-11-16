@@ -13,6 +13,13 @@
       return mins + 'm';
     }
 
+    function isManualReturnPastDue(returnDateStr) {
+      var clean = formatOnlyDateBR(returnDateStr);
+      if (!clean || clean === 'A definir' || clean.indexOf('/') === -1) return false;
+      var parts = clean.split('/');
+      var end = new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]), 23, 59, 59, 999);
+      return end.getTime() < Date.now();
+    }
     function getRemainingTime(returnDateStr) {
       var cleanStr = formatOnlyDateBR(returnDateStr);
       if (!cleanStr || cleanStr === "A definir") return { text: "Sem Prazo", "class": "", isUrgent: false };
@@ -43,22 +50,25 @@
       return sorted.length % 2 !== 0 ? sorted[mid] : ((sorted[mid - 1] + sorted[mid]) / 2);
     }
 
-    function calcCurrentSlaStats() {
-      var completed = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
+    function calcCurrentSlaStats(useBiFilters) {
+      var completed = useBiFilters && typeof getBiFilteredTickets === 'function' ? getBiFilteredTickets('Concluído').filter(function(t) { return t.durationDays !== null; }) : allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
       var map = {};
-      var defaultServices = ['Contestação', 'Chamado T.I', 'Isenção', 'Logistica', 'Cancelamento', 'Cobrança fora da TAG', 'Outros'];
+      var defaultServices = ['Contestação', 'Chamado T.I', 'Layout XML', 'Isenção', 'Logistica', 'Cancelamento', 'Cobrança fora da TAG', 'Outros'];
       defaultServices.forEach(function(s) {
         map[s] = { count: 0, sum: 0, vals: [], mean: 0, median: 0 };
       });
       completed.forEach(function(t) {
         var s = String(t.solicitacao || 'Outros');
-        if (!map[s]) map[s] = { count: 0, sum: 0, vals: [], mean: 0, median: 0 };
-        var dur = parseFloat(t.durationDays);
-        if (!isNaN(dur)) {
-          map[s].count++;
-          map[s].sum += dur;
-          map[s].vals.push(dur);
-        }
+        var productKey = normalizeProduct(t.product) + '|' + s;
+        [s, productKey].forEach(function(key) {
+          if (!map[key]) map[key] = { count: 0, sum: 0, vals: [], mean: 0, median: 0 };
+          var dur = parseFloat(t.durationDays);
+          if (!isNaN(dur)) {
+            map[key].count++;
+            map[key].sum += dur;
+            map[key].vals.push(dur);
+          }
+        });
       });
       Object.keys(map).forEach(function(s) {
         if (map[s].count > 0) {
@@ -124,12 +134,41 @@
       };
     }
 
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-collapsed');
+      var collapsed = document.body.classList.contains('sidebar-collapsed');
+      var icon = document.getElementById('sidebarToggleIcon');
+      if (icon) icon.textContent = collapsed ? '›' : '‹';
+      var label = document.querySelector('.sidebar-toggle-label');
+      if (label) label.textContent = collapsed ? 'Expandir menu' : 'Recolher menu';
+    }
+
+    function toggleTheme() {
+      var light = document.body.classList.toggle('theme-light');
+      var icon = document.getElementById('themeToggleIcon');
+      if (icon) icon.textContent = light ? '☾' : '☀';
+      var button = document.getElementById('themeToggle');
+      if (button) { button.title = light ? 'Ativar tema escuro' : 'Ativar tema claro'; button.setAttribute('aria-label', button.title); }
+      try { localStorage.setItem('backoffice-theme', light ? 'light' : 'dark'); } catch(e) {}
+    }
+    function initTheme() {
+      try { if (localStorage.getItem('backoffice-theme') === 'light') { document.body.classList.add('theme-light'); var icon = document.getElementById('themeToggleIcon'); if (icon) icon.textContent = '☾'; } } catch(e) {}
+    }
+    initTheme();
+
     function switchMainTab(tab) {
-      document.getElementById('viewPaneRecords').style.display = (tab === 'records' ? 'block' : 'none');
-      document.getElementById('viewPaneReport').style.display = (tab === 'report' ? 'block' : 'none');
-      document.getElementById('btnTabRecords').className = 'tab-btn ' + (tab === 'records' ? 'active' : '');
-      document.getElementById('btnTabReport').className = 'tab-btn ' + (tab === 'report' ? 'active' : '');
+      document.getElementById('viewPaneQueue').style.display = tab === 'queue' ? 'block' : 'none';
+      document.getElementById('viewPaneRecords').style.display = tab === 'records' ? 'block' : 'none';
+      document.getElementById('viewPaneReport').style.display = tab === 'report' ? 'block' : 'none';
+      var projectionPane = document.getElementById('viewPaneProjection'); if (projectionPane) projectionPane.style.display = tab === 'projection' ? 'block' : 'none';
+      ['Queue','Records','Report','Projection'].forEach(function(key) {
+        var button = document.getElementById('btnTab' + key);
+        if (button) button.classList.toggle('active', (key === 'Queue' && tab === 'queue') || (key === 'Records' && tab === 'records') || (key === 'Report' && tab === 'report') || (key === 'Projection' && tab === 'projection'));
+      });
+      var actions = document.getElementById('operationalTopbarActions');
+      if (actions) actions.style.display = tab === 'queue' ? 'flex' : 'none';
       if (tab === 'report') renderSlaReport();
+      if (tab === 'projection') renderSlaProjection();
     }
 
     function toggleOverdueFilter() {
@@ -142,6 +181,28 @@
       renderAll();
     }
 
+
+    var openSortMode = 'oldest';
+    function toggleOpenSortMode() {
+      openSortMode = openSortMode === 'oldest' ? 'newest' : 'oldest';
+      var btn = document.getElementById('openSortToggle');
+      if (btn) {
+        btn.innerText = openSortMode === 'oldest' ? '↑ Mais antigas' : '↓ Mais recentes';
+        btn.setAttribute('aria-label', openSortMode === 'oldest' ? 'Ordenar demandas mais antigas primeiro' : 'Ordenar demandas mais recentes primeiro');
+      }
+      renderAll();
+    }
+
+    function toggleAdvancedFilters() {
+      var panel = document.getElementById('advancedFiltersPanel');
+      var button = document.getElementById('advancedFiltersToggle');
+      if (!panel || !button) return;
+      var opening = panel.style.display === 'none' || !panel.style.display;
+      panel.style.display = opening ? 'flex' : 'none';
+      button.setAttribute('aria-expanded', opening ? 'true' : 'false');
+      button.innerHTML = opening ? 'Mais filtros <span>⌃</span>' : 'Mais filtros <span>⌄</span>';
+    }
+
     function clearFilters() {
       filterOnlyOverdue = false;
       var box = document.getElementById('kpiOverdueBox');
@@ -152,6 +213,15 @@
       if (document.getElementById('filterServiceSelect')) document.getElementById('filterServiceSelect').value = '';
       if (document.getElementById('filterThirdSelect')) document.getElementById('filterThirdSelect').value = '';
       if (document.getElementById('searchInput')) document.getElementById('searchInput').value = '';
+      openSortMode = 'oldest';
+      var sortButton = document.getElementById('openSortToggle');
+      if (sortButton) sortButton.innerText = '↑ Mais antigas';
+      renderAll();
+    }
+
+
+    function clearRecordsFilters() {
+      ['recordsSearch','recordsProduct','recordsService','recordsThird','recordsAgent','recordsFrom','recordsTo'].forEach(function(id) { var el=document.getElementById(id); if(el) el.value=''; });
       renderAll();
     }
 
@@ -194,9 +264,9 @@
         if (agent && t.operator !== agent) return false;
         if (prod && normalizeProduct(t.product) !== prod) return false;
         if (serv && t.solicitacao !== serv) return false;
-        if (third && t.terceiro !== third) return false;
+        if (third && getTicketThird(t) !== third) return false;
         if (search) {
-          var s = (String(t.client || "") + " " + String(t.contact || "") + " " + String(t.solicitacao || "") + " " + String(t.terceiro || "") + " " + String(t.dafRede || "") + " " + String(t.description || "")).toLowerCase();
+          var s = (String(t.client || "") + " " + String(t.contact || "") + " " + String(t.solicitacao || "") + " " + String(getTicketThird(t) || "") + " " + String(t.dafRede || "") + " " + String(t.description || "")).toLowerCase();
           if (s.indexOf(search) === -1) return false;
         }
         return true;
@@ -207,9 +277,17 @@
       var allOpen = filteredTickets.filter(function(t) { return t.status === 'Em andamento'; });
       var urgentCount = 0;
       allOpen.forEach(function(t) {
-        if (getRemainingTime(t.returnDate).isUrgent) urgentCount++;
+        var officialDeadline = getOfficialDeadline(t);
+        var manualReturn = t.solicitacao === 'Isenção' && t.returnDate && t.returnDate !== 'A definir';
+        var target = officialDeadline || (manualReturn ? t.returnDate : '');
+        if (target && (manualReturn ? isManualReturnPastDue(target) : getRemainingTime(target).isUrgent)) urgentCount++;
       });
-      var onTimeCount = Math.max(0, allOpen.length - urgentCount);
+      var onTimeCount = allOpen.filter(function(t) {
+        var due = getOfficialDeadline(t);
+        var manualReturn = t.solicitacao === 'Isenção' && t.returnDate && t.returnDate !== 'A definir';
+        var target = due || (manualReturn ? t.returnDate : '');
+        return !!target && (manualReturn ? !isManualReturnPastDue(target) : !getRemainingTime(target).isUrgent);
+      }).length;
 
       var allDone = filteredTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null; });
 
@@ -217,17 +295,20 @@
       if (document.getElementById('kpiOnTime')) document.getElementById('kpiOnTime').innerText = onTimeCount;
       if (document.getElementById('kpiOverdue')) document.getElementById('kpiOverdue').innerText = urgentCount;
       if (document.getElementById('kpiOverdueSub')) {
-        document.getElementById('kpiOverdueSub').innerText = filterOnlyOverdue ? "Filtro ativo (clique p/ sair)" : "Clique para filtrar críticos";
+        document.getElementById('kpiOverdueSub').innerText = filterOnlyOverdue ? "Ativo" : "Filtrar";
       }
       if (document.getElementById('kpiFinalizedMonth')) document.getElementById('kpiFinalizedMonth').innerText = allDone.length;
 
       var inProg = allOpen.filter(function(t) {
-        if (filterOnlyOverdue && !getRemainingTime(t.returnDate).isUrgent) return false;
+        var officialDeadline = getOfficialDeadline(t);
+        var manualReturn = t.solicitacao === 'Isenção' && t.returnDate && t.returnDate !== 'A definir';
+        var target = officialDeadline || (manualReturn ? t.returnDate : '');
+        if (filterOnlyOverdue && (!target || !(manualReturn ? isManualReturnPastDue(target) : getRemainingTime(target).isUrgent))) return false;
         return true;
       });
 
       var lbl = document.getElementById('inProgressCountLabel');
-      if (lbl) lbl.innerText = '(' + inProg.length + ' em aberto)';
+      if (lbl) lbl.innerText = '';
 
       var abastTickets = inProg.filter(function(t) { return normalizeProduct(t.product) === 'ABASTECIMENTO'; });
       var pedTickets = inProg.filter(function(t) { return normalizeProduct(t.product) === 'PEDÁGIO'; });
@@ -244,16 +325,42 @@
       var finalizedLbl = document.getElementById('finalizedCountLabel');
       if (finalizedLbl) finalizedLbl.innerText = allDone.length + ' demandas finalizadas';
 
+      var recordsAgentSelect = document.getElementById('recordsAgent');
+      if (recordsAgentSelect && recordsAgentSelect.options.length <= 1) {
+        Array.from(new Set(allTickets.map(function(t){return t.operator;}).filter(Boolean))).sort().forEach(function(op){ var opt=document.createElement('option'); opt.value=op; opt.textContent=op; recordsAgentSelect.appendChild(opt); });
+      }
       var tbody = document.getElementById('recordsTableBody');
       if (!tbody) return;
       tbody.innerHTML = '';
-
-      if (allDone.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:22px; color:var(--text-subtle);">Nenhuma demanda finalizada para os filtros selecionados.</td></tr>';
+      var recSearch = (document.getElementById('recordsSearch')?.value || '').toLowerCase().trim();
+      var recProduct = document.getElementById('recordsProduct')?.value || '';
+      var recService = document.getElementById('recordsService')?.value || '';
+      var recThird = document.getElementById('recordsThird')?.value || '';
+      var recAgent = document.getElementById('recordsAgent')?.value || '';
+      var recFrom = document.getElementById('recordsFrom')?.value || '';
+      var recTo = document.getElementById('recordsTo')?.value || '';
+      var recordsDone = allTickets.filter(function(t) {
+        if (t.status !== 'Concluído') return false;
+        if (recProduct && normalizeProduct(t.product) !== recProduct) return false;
+        if (recService && getDisplaySolicitation(t) !== recService) return false;
+        if (recThird && getTicketThird(t) !== recThird) return false;
+        if (recAgent && (t.operator || '') !== recAgent) return false;
+        var d = parseDateBR(t.endDate || t.returnDate || t.startDate);
+        if (recFrom && (!d || d < new Date(recFrom + 'T00:00:00'))) return false;
+        if (recTo && (!d || d > new Date(recTo + 'T23:59:59'))) return false;
+        if (recSearch) {
+          var hay = [t.client,t.contact,t.solicitacao,t.product,t.terceiro,t.operator,t.description,t.dafRede].join(' ').toLowerCase();
+          if (hay.indexOf(recSearch) === -1) return false;
+        }
+        return true;
+      }).sort(function(a,b) { return (parseDateBR(b.endDate || b.returnDate || b.startDate) || 0) - (parseDateBR(a.endDate || a.returnDate || a.startDate) || 0); });
+      if (document.getElementById('finalizedCountLabel')) document.getElementById('finalizedCountLabel').innerText = recordsDone.length + ' demandas finalizadas';
+      if (recordsDone.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:22px; color:var(--text-subtle);">Nenhuma demanda finalizada para os filtros selecionados.</td></tr>';
         return;
       }
 
-      allDone.forEach(function(r) {
+      recordsDone.forEach(function(r) {
         try {
           var tr = document.createElement('tr');
           tr.onclick = function() { openDrawer(r); };
@@ -274,18 +381,28 @@
           tdClient.style.cssText = 'font-weight:800; color:#fff;';
           tdClient.textContent = r.client || '-';
 
-          var tdProd = document.createElement('td');
-          tdProd.textContent = normalizeProduct(r.product);
+          
+var tdProd = document.createElement('td');
+var prodStr = normalizeProduct(r.product);
+var prodClass = prodStr === 'PEDÁGIO' ? 'badge-ped' : (prodStr === 'ABASTECIMENTO' ? 'badge-aba' : (prodStr === 'MANUTENÇÃO' ? 'badge-man' : ''));
+tdProd.innerHTML = '<span class="badge-product ' + prodClass + '">' + prodStr + '</span>';
+
 
           var tdSol = document.createElement('td');
-          tdSol.textContent = r.solicitacao || '-';
+          tdSol.textContent = getDisplaySolicitation(r);
 
           var tdTerc = document.createElement('td');
           tdTerc.style.cssText = 'color:#38BDF8; font-weight:700;';
-          tdTerc.textContent = r.terceiro || '-';
+          tdTerc.textContent = getTicketThird(r) || '-';
 
           var tdSla = document.createElement('td');
           tdSla.innerHTML = '<span style="font-size:11px; font-weight:800; color:var(--tp-green); background:rgba(0,214,89,0.14); padding:2px 7px; border-radius:4px;">✓ ' + escapeHtml(slaText) + '</span>';
+
+          var historical = allTickets.filter(function(x) { return x.status === 'Concluído' && normalizeProduct(x.product) === normalizeProduct(r.product) && getDisplaySolicitation(x) === getDisplaySolicitation(r) && x.durationDays !== null && x.durationDays !== undefined && x.durationDays !== ''; }).map(function(x) { return Number(x.durationDays); }).filter(function(v) { return isFinite(v) && v >= 0; });
+          var historicalAvg = historical.length ? historical.reduce(function(a,b) { return a+b; }, 0) / historical.length : null;
+          var official = getFixedPartnerSla(r.product, r.solicitacao);
+          var tdHistorical = document.createElement('td'); tdHistorical.textContent = historicalAvg === null ? '—' : historicalAvg.toFixed(1).replace('.', ',') + ' dias';
+          var tdOfficial = document.createElement('td'); tdOfficial.innerHTML = official ? '<strong>' + official + ' dias ' + (r.solicitacao === 'Cobrança fora da TAG' ? 'úteis' : 'corridos') + '</strong>' : '<span style="color: var(--text-muted); font-size: 11px;">Sem prazo</span>';
 
           var tdOp = document.createElement('td');
           tdOp.style.cssText = 'color:var(--text-muted); font-weight:600;';
@@ -307,6 +424,8 @@
           tr.appendChild(tdSol);
           tr.appendChild(tdTerc);
           tr.appendChild(tdSla);
+          tr.appendChild(tdHistorical);
+          tr.appendChild(tdOfficial);
           tr.appendChild(tdOp);
           tr.appendChild(tdAct);
 
@@ -318,84 +437,86 @@
     }
 
     function getTicketSlaRisk(ticket) {
-      var stats = calcCurrentSlaStats();
-      var row = stats[String(ticket.solicitacao || 'Outros')];
-      var mean = row && Number(row.mean) > 0 ? Number(row.mean) : 0;
+      var officialDays = getFixedPartnerSla(ticket.product, ticket.solicitacao);
+      if (!officialDays) return { mean: 0, elapsedDays: 0, ratio: 0, percent: 0, level: 'risk-unknown', label: '' };
       var start = parseDateBR(ticket.startDate);
-      var elapsedDays = start ? Math.max(0, (Date.now() - start.getTime()) / 86400000) : 0;
-      var ratio = mean > 0 ? elapsedDays / mean : 0;
-      var level = !mean ? 'risk-unknown' : (ratio >= 0.90 ? 'risk-red' : (ratio >= 0.65 ? 'risk-yellow' : 'risk-green'));
-      var label = level === 'risk-red' ? 'Crítica' : (level === 'risk-yellow' ? 'Atenção' : (level === 'risk-green' ? 'No radar' : 'Sem histórico'));
-      return { mean: mean, elapsedDays: elapsedDays, ratio: ratio, percent: Math.min(100, Math.max(0, ratio * 100)), level: level, label: label };
+      var elapsedDays = start ? (ticket.solicitacao === 'Cobrança fora da TAG' ? countBusinessDays(start, new Date()) : Math.max(0, (Date.now() - start.getTime()) / 86400000)) : 0;
+      var ratio = officialDays > 0 ? elapsedDays / officialDays : 0;
+      var level = ratio >= 1 ? 'risk-red' : (ratio >= 0.75 ? 'risk-yellow' : 'risk-green');
+      var label = level === 'risk-red' ? 'Prazo vencido' : (level === 'risk-yellow' ? 'Próximo do prazo' : 'Dentro do prazo');
+      return { mean: officialDays, elapsedDays: elapsedDays, ratio: ratio, percent: Math.min(100, Math.max(0, ratio * 100)), level: level, label: label };
     }
 
     function renderProductCardsColumn(containerId, list, prodClass) {
       var container = document.getElementById(containerId);
       if (!container) return;
       container.innerHTML = '';
-
       if (list.length === 0) {
-        container.innerHTML = '<div style="padding:20px 8px; text-align:center; color:var(--text-subtle); font-size:11px;">Sem demandas em aberto.</div>';
+        container.innerHTML = '<div class="empty-column-state">Nenhuma demanda em aberto neste produto.</div>';
         return;
       }
-
-      // Ordena primeiro pelo risco relativo ao SLA histórico; em empate, pela demanda mais antiga.
       list = list.slice().sort(function(a, b) {
-        var riskA = getTicketSlaRisk(a), riskB = getTicketSlaRisk(b);
-        if (riskA.ratio !== riskB.ratio) return riskB.ratio - riskA.ratio;
-        return riskB.elapsedDays - riskA.elapsedDays;
+        var da = parseDateBR(a.startDate), db = parseDateBR(b.startDate);
+        var ta = da ? da.getTime() : 0, tb = db ? db.getTime() : 0;
+        return openSortMode === 'newest' ? tb - ta : ta - tb;
       });
-
       list.forEach(function(t) {
         try {
-          var cleanRetDate = formatOnlyDateBR(t.returnDate);
-          var rem = getRemainingTime(cleanRetDate);
           var elapsed = getElapsedTime(t.startDate);
           var openedAt = formatDateDisplay(t.startDate);
-          var returnLabel = (t.isAutoReturn === true || t.isAutoReturn === "true") ? "Retorno agendado" : "Retorno em";
+          var partnerDays = getFixedPartnerSla(t.product, t.solicitacao);
+          var deadline = getOfficialDeadline(t);
+          var deadlineStatus = partnerDays ? getRemainingTime(deadline) : null;
           var risk = getTicketSlaRisk(t);
-          var riskClass = risk.level === 'risk-unknown' ? 'risk-neutral' : risk.level;
-          var riskWidth = risk.mean > 0 ? risk.percent : 0;
-
-          var card = document.createElement('div');
-          card.className = 'progress-card ' + prodClass;
+          var card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'progress-card ' + prodClass + ' card-readable';
+          card.setAttribute('aria-label', 'Abrir demanda de ' + String(t.client || 'cliente') + ', ' + String(t.solicitacao || 'solicitação'));
           card.onclick = function() { openDrawer(t); };
+          var isExemption = t.solicitacao === 'Isenção' && (normalizeProduct(t.product) === 'PEDÁGIO' || normalizeProduct(t.product) === 'ABASTECIMENTO');
+          var returnStatus = isExemption ? getRemainingTime(t.returnDate) : null;
+          
+          
+          var deadlineHtml = partnerDays ?
+            '<div class="card-metric card-official"><span class="card-metric-label">Prazo oficial (' + partnerDays + 'd)</span><strong class="card-metric-value">' + escapeHtml(deadline) + '</strong><span class="card-deadline-state ' + deadlineStatus.class + '">' + escapeHtml(deadlineStatus.text) + '</span></div>' :
+            (isExemption && t.returnDate && t.returnDate !== 'A definir' ? 
+            '<div class="card-metric card-finance-return"><span class="card-metric-label">Retorno Financeiro</span><strong class="card-metric-value">' + escapeHtml(formatDateDisplay(t.returnDate)) + '</strong><span class="card-deadline-state ' + returnStatus.class + '">' + (returnStatus.text === 'Vence Hoje' ? 'Retorno hoje' : escapeHtml(returnStatus.text)) + '</span></div>' : 
+            '<div class="card-no-official-note">Sem prazo definido.</div>');
+          
+          var riskPill = partnerDays ? '<span class="card-priority-dot ' + risk.level + '"></span>' : '';
+          
           card.innerHTML =
-            '<div class="card-top-meta">' +
-              '<div class="card-client-title" title="' + escapeHtml(t.client) + '">' + escapeHtml(t.client || 'Sem Nome') + '</div>' +
-              '<span class="card-agent-pill">' + escapeHtml(t.operator || '') + '</span>' +
-            '</div>' +
-            '<div class="card-solicitation-line">' +
-              '<span><strong>' + escapeHtml(t.solicitacao || '') + '</strong> • ' + escapeHtml(t.terceiro || '') + '</span>' +
-              '<span class="card-priority-pill ' + riskClass + '">' + risk.label + '</span>' +
-            '</div>' +
-            '<div class="card-opened-at">Abertura: ' + escapeHtml(openedAt) + '</div>' +
-            '<div class="timers-box">' +
-              '<div class="timer-item">' +
-                '<span class="timer-label">' + returnLabel + '</span>' +
-                '<span class="timer-val ' + rem.class + '">' + escapeHtml(cleanRetDate || '-') + ' <small style="font-weight:normal; font-size:10px;">(' + rem.text + ')</small></span>' +
-              '</div>' +
-              '<div class="timer-item">' +
-                '<span class="timer-label">Tempo em Aberto</span>' +
-                '<span class="timer-val ' + riskClass + '">' + escapeHtml(elapsed) + '</span>' +
-              '</div>' +
-            '</div>' +
-            '<div class="sla-risk-track" title="Indicador visual baseado na média histórica da solicitação; a média numérica fica no Relatório Gerencial">' +
-              '<div class="sla-risk-fill ' + riskClass + '" style="width:' + riskWidth.toFixed(1) + '%"></div>' +
+            '<div class="card-readable-head">' + riskPill + '<div class="card-client-title" title="' + escapeHtml(t.client) + '">' + escapeHtml(t.client || 'Sem cliente') + '</div><span class="card-agent-pill">' + escapeHtml(t.operator || '') + '</span></div>' +
+            '<div class="card-readable-service"><span>' + escapeHtml(getDisplaySolicitation(t)) + '</span><span class="card-third-label">' + escapeHtml(getTicketThird(t)) + '</span></div>' +
+            '<div class="card-metrics-grid">' +
+              '<div class="card-metric"><span class="card-metric-label">Aberto em</span><strong class="card-metric-value">' + escapeHtml(openedAt || 'Não informada') + '</strong></div>' +
+              '<div class="card-metric"><span class="card-metric-label">Em aberto</span><strong class="card-metric-value card-elapsed-value">' + escapeHtml(elapsed) + '</strong></div>' +
+              deadlineHtml +
             '</div>';
-          container.appendChild(card);
-        } catch(errCard) {
-          console.warn("Erro ao renderizar card:", errCard);
-        }
+
+container.appendChild(card);
+        } catch(errCard) { console.warn('Erro ao renderizar card:', errCard); }
       });
     }
 
+    function exportFullBackup() {
+      try {
+        var backup = { application: 'TruckPag BackOffice', backupVersion: 1, exportedAt: new Date().toISOString(), tickets: allTickets, deletedIds: getDeletedIds(), pendingOperations: getPendingOps() };
+        var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'truckpag-backup-' + new Date().toISOString().slice(0,10) + '.json';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url);
+        showToast('Backup local gerado. Guarde o arquivo em local seguro.');
+      } catch (err) { console.error('Falha ao gerar backup:', err); showToast('Não foi possível gerar o backup. Verifique o navegador.', true); }
+    }
+
     function buildCustomerOpeningMessage(ticket) {
-      var opened = formatDateDisplay(ticket.startDate);
-      var service = String(ticket.solicitacao || 'solicitação').toLowerCase();
-      var client = String(ticket.client || 'sua empresa');
-      var partner = String(ticket.terceiro || 'área responsável');
-      return 'Olá! Sua solicitação de ' + service + ' para ' + client + ' foi registrada em ' + opened + '.\n\nA tratativa já está em andamento junto a ' + partner + '. O prazo estimado de retorno é de até ' + CUSTOMER_MESSAGE_ESTIMATED_DAYS + ' dias corridos, podendo variar conforme a análise e o retorno do responsável. Assim que houver uma atualização, entraremos em contato.\n\nAgradecemos a compreensão.';
+      var client = String(ticket.client || 'cliente').trim();
+      var plateMatch = String(ticket.description || '').match(/placa\\s*[:=-]?\\s*([A-Z0-9-]{6,8})/i);
+      var plate = plateMatch ? plateMatch[1].toUpperCase() : '[PLACA]';
+      return 'Olá, ' + client + '!\\n\\nSua solicitação já foi encaminhada à Move Mais. Solicitamos a inclusão na TAG das passagens que permanecem em aberto, vinculadas à placa ' + plate + '.\\n\\nO prazo de retorno informado pelo parceiro é de até 10 dias úteis. Assim que recebermos uma atualização, entraremos em contato diretamente por este canal.\\n\\nAgradecemos pela compreensão e permanecemos à disposição!';
     }
 
     function copyCustomerOpeningMessage() {
@@ -425,17 +546,23 @@
 
       try {
         document.getElementById('drawerClientTitle').innerText = String(ticket.client || "Cliente");
-        document.getElementById('drawerProductBadge').innerText = normalizeProduct(ticket.product);
-        document.getElementById('drawerSolicitationBadge').innerText = String(ticket.solicitacao || "SOLICITAÇÃO");
+        
+        var prodNorm = normalizeProduct(ticket.product);
+        var badgeEl = document.getElementById('drawerProductBadge');
+        badgeEl.innerText = prodNorm;
+        badgeEl.className = 'badge-product ' + (prodNorm === 'PEDÁGIO' ? 'badge-ped' : (prodNorm === 'ABASTECIMENTO' ? 'badge-aba' : (prodNorm === 'MANUTENÇÃO' ? 'badge-man' : '')));
+
+        document.getElementById('drawerSolicitationBadge').innerText = getDisplaySolicitation(ticket);
         document.getElementById('drawerStatusVal').innerText = String(ticket.status || "-");
         document.getElementById('drawerAgentVal').innerText = String(ticket.operator || "-");
-        document.getElementById('drawerThirdVal').innerText = String(ticket.terceiro || "-");
+        document.getElementById('drawerThirdVal').innerText = String(getTicketThird(ticket) || '-');
         document.getElementById('drawerDescVal').innerText = String(ticket.description || "Nenhum relato ou informação adicional informada.");
         var customerMessageBox = document.getElementById('drawerCustomerMessageBox');
         var customerMessageText = document.getElementById('drawerCustomerMessageText');
         if (customerMessageBox && customerMessageText) {
+          var isTagChargePilot = normalizeProduct(ticket.product) === 'PEDÁGIO' && ticket.solicitacao === 'Cobrança fora da TAG';
           customerMessageText.innerText = buildCustomerOpeningMessage(ticket);
-          customerMessageBox.style.display = ticket.status === 'Em andamento' ? 'block' : 'none';
+          customerMessageBox.style.display = ticket.status === 'Em andamento' && isTagChargePilot ? 'block' : 'none';
         }
 
         var phoneDisplay = document.getElementById('drawerPhoneDisplay');
@@ -468,9 +595,11 @@
         document.getElementById('btnToggleEdit').style.display = isOpen ? 'block' : 'none';
         
         var displayStart = formatDateDisplay(ticket.startDate);
+        var openedAtNode = document.getElementById('drawerOpenedAt');
+        if (openedAtNode) openedAtNode.innerText = displayStart || 'Não informada';
         document.getElementById('step1Time').innerText = displayStart;
         document.getElementById('step2Time').innerText = displayStart;
-        document.getElementById('step2Title').innerText = 'Acionado ' + String(ticket.terceiro || 'Terceiro');
+        document.getElementById('step2Title').innerText = 'Acionado ' + String(getTicketThird(ticket) || 'Terceiro');
         document.getElementById('step2Desc').innerText = normalizeProduct(ticket.product) === 'PEDÁGIO' ? 'Aguardando parecer técnico / laudo de rodovia.' : 'Aguardando validação técnica e retorno do terceiro.';
 
         var step3 = document.getElementById('step3Container');
@@ -479,6 +608,17 @@
         var clocksBox = document.getElementById('drawerProgressClocks');
 
         var cleanRet = formatOnlyDateBR(ticket.returnDate);
+        var historicalSlaBox = document.getElementById('drawerHistoricalSla');
+        if (historicalSlaBox) {
+          var historyStats = calcCurrentSlaStats();
+          var historyRow = ticket.solicitacao === 'Isenção' ? historyStats['Isenção'] : (historyStats[normalizeProduct(ticket.product) + '|' + String(ticket.solicitacao || 'Outros')] || historyStats[String(ticket.solicitacao || 'Outros')]);
+          var historyMean = historyRow && Number(historyRow.mean) > 0 ? String(historyRow.mean).replace('.', ',') + ' dias' : 'Ainda sem histórico';
+          var partnerDays = getFixedPartnerSla(ticket.product, ticket.solicitacao);
+          historicalSlaBox.style.display = (partnerDays || (historyRow && Number(historyRow.mean) > 0)) ? 'block' : 'none';
+          var historicalSlaValue = document.getElementById('drawerHistoricalSlaValue');
+          if (historicalSlaValue) historicalSlaValue.innerText = (partnerDays ? 'SLA oficial do parceiro: ' + partnerDays + (ticket.solicitacao === 'Cobrança fora da TAG' ? ' dias úteis. ' : ' dias corridos. ') : '') +
+            'SLA médio para esta solicitação: ' + historyMean + ' (referência histórica, não é prazo oficial).';
+        }
 
         if (ticket.status === 'Concluído') {
           step3.style.display = 'block';
@@ -492,11 +632,16 @@
           slaHighlight.style.display = 'none';
           clocksBox.style.display = 'block';
 
-          var rem = getRemainingTime(cleanRet);
+          var partnerSlaDays = getFixedPartnerSla(ticket.product, ticket.solicitacao);
+          var officialDeadline = getOfficialDeadline(ticket);
           var elapsed = getElapsedTime(ticket.startDate);
-          var returnHeaderLabel = (ticket.isAutoReturn === true || ticket.isAutoReturn === "true") ? "Retorno agendado" : "Retorno em";
-          document.getElementById('drawerClockRem').innerText = returnHeaderLabel + ': ' + (cleanRet || '-') + ' (' + rem.text + ')';
-          document.getElementById('drawerClockElapsed').innerText = 'Total em processo: ' + elapsed;
+          if (partnerSlaDays) {
+            var officialStatus = getRemainingTime(officialDeadline);
+            document.getElementById('drawerClockRem').innerText = officialDeadline + ' · ' + officialStatus.text + ' (' + partnerSlaDays + (ticket.solicitacao === 'Cobrança fora da TAG' ? ' dias úteis)' : ' dias corridos)');
+          } else {
+            document.getElementById('drawerClockRem').innerText = 'Não definido';
+          }
+          document.getElementById('drawerClockElapsed').innerText = elapsed;
         }
 
         document.getElementById('drawerOverlay').style.display = 'flex';
@@ -511,6 +656,8 @@
       if (prod === 'PEDÁGIO') {
         options = [
           { v: 'Contestação', l: 'Contestação' },
+          { v: 'Integração API', l: 'Integração API' },
+          { v: 'Exceção VPO', l: 'Exceção VPO' },
           { v: 'Chamado T.I', l: 'Chamado T.I' },
           { v: 'Isenção', l: 'Isenção' },
           { v: 'Logistica', l: 'Logística' },
@@ -519,7 +666,7 @@
         ];
       } else if (prod === 'MANUTENÇÃO') {
         options = [
-          { v: 'Chamado T.I', l: 'Chamado T.I' },
+          { v: 'Layout XML', l: 'Layout XML' },
           { v: 'Outros', l: 'Outros' }
         ];
       } else {
@@ -545,7 +692,7 @@
       
       var terceiroSel = document.getElementById('editDrawerTerceiro');
       if (prod === 'PEDÁGIO') terceiroSel.value = 'MoveMais';
-      else if (prod === 'MANUTENÇÃO') terceiroSel.value = 'Financeiro';
+      else if (prod === 'MANUTENÇÃO') terceiroSel.value = 'Outros';
       else terceiroSel.value = 'Cadastro';
       
       onEditDrawerSolicitacaoChange();
@@ -558,12 +705,23 @@
       var linkLabel = document.getElementById('editDrawerLinkLabel');
       var terceiroSel = document.getElementById('editDrawerTerceiro');
       var descLabel = document.getElementById('editDrawerDescLabel');
+      var editReturnInput = document.getElementById('editDrawerReturnDate');
+      var fixedDays = getFixedPartnerSla(prod, sol);
+      var isManualExemption = sol === 'Isenção' && (prod === 'PEDÁGIO' || prod === 'ABASTECIMENTO');
+      if (editReturnInput) {
+        var returnLabel = document.getElementById('editDrawerReturnLabel');
+        if (returnLabel) returnLabel.innerText = isManualExemption ? 'Retorno agendado ao Financeiro * (um dia antes do fechamento)' : 'Data Prevista Retorno (DD/MM/AAAA)';
+        editReturnInput.title = isManualExemption ? 'Agende para um dia antes do fechamento do cliente.' : '';
+        editReturnInput.readOnly = !!fixedDays;
+        editReturnInput.placeholder = fixedDays ? 'Prazo fixo do parceiro' : (isManualExemption ? 'Obrigatório: retorno ao Financeiro' : 'Opcional: DD/MM/AAAA');
+      }
 
-      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I'].indexOf(sol) !== -1;
+      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I', 'Layout XML'].indexOf(sol) !== -1 || (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(sol) !== -1);
       
       if (needsLink) {
         linkGroup.style.display = 'block';
-        if (sol === 'Chamado T.I') linkLabel.innerText = 'Link Card Bitrix * (Obrigatório)';
+        if (sol === 'Chamado T.I' || sol === 'Layout XML') linkLabel.innerText = 'Link Card Bitrix * (Obrigatório)';
+        else if (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(sol) !== -1) linkLabel.innerText = 'Link do e-mail de solicitação * (Obrigatório)';
         else linkLabel.innerText = 'Link do E-mail / Chamado Externo * (Obrigatório)';
       } else {
         linkGroup.style.display = 'none';
@@ -577,10 +735,12 @@
         descLabel.style.color = '#E2E8F0';
       }
 
-      if (sol === 'Chamado T.I') terceiroSel.value = 'T.I';
-      else if (['Contestação', 'Cancelamento', 'Cobrança fora da TAG'].indexOf(sol) !== -1) terceiroSel.value = 'MoveMais';
+      if (sol === 'Chamado T.I' || sol === 'Layout XML') terceiroSel.value = 'T.I';
+      else if (['Contestação', 'Cancelamento', 'Cobrança fora da TAG', 'Integração API'].indexOf(sol) !== -1) terceiroSel.value = 'MoveMais';
       else if (sol === 'Isenção') terceiroSel.value = 'Financeiro';
       else if (sol === 'Logistica') terceiroSel.value = 'Cadastro';
+      else if (prod === 'MANUTENÇÃO' && sol === 'Outros') terceiroSel.value = 'Outros';
+      else if (prod === 'PEDÁGIO' && sol === 'Exceção VPO') terceiroSel.value = 'MoveMais';
     }
 
     function onEditDrawerDafChange(selectedMuni) {
@@ -619,11 +779,14 @@
         var prod = normalizeProduct(activeSelectedTicket.product);
         document.getElementById('editDrawerClient').value = activeSelectedTicket.client || "";
         document.getElementById('editDrawerProduct').value = prod;
-        populateSolicitacaoOptions(document.getElementById('editDrawerSolicitacao'), prod, activeSelectedTicket.solicitacao);
+        populateSolicitacaoOptions(document.getElementById('editDrawerSolicitacao'), prod, (prod === 'MANUTENÇÃO' && activeSelectedTicket.solicitacao === 'Chamado T.I') ? 'Layout XML' : activeSelectedTicket.solicitacao);
         document.getElementById('editDrawerContact').value = activeSelectedTicket.contact || "";
         document.getElementById('editDrawerOperator').value = activeSelectedTicket.operator || getActiveOperator();
         document.getElementById('editDrawerTerceiro').value = activeSelectedTicket.terceiro || "MoveMais";
-        document.getElementById('editDrawerReturnDate').value = formatOnlyDateBR(activeSelectedTicket.returnDate);
+        var editReturnInput = document.getElementById('editDrawerReturnDate');
+        var activeFixedDays = getFixedPartnerSla(prod, activeSelectedTicket.solicitacao);
+        editReturnInput.value = activeFixedDays ? getOfficialDeadline(activeSelectedTicket) : formatOnlyDateBR(activeSelectedTicket.returnDate);
+        editReturnInput.readOnly = !!activeFixedDays;
         document.getElementById('editDrawerDescription').value = activeSelectedTicket.description || "";
         document.getElementById('editDrawerLink').value = activeSelectedTicket.bitrixLink || "";
 
@@ -641,6 +804,9 @@
         }
 
         onEditDrawerSolicitacaoChange();
+        if (prod === 'PEDÁGIO' && activeSelectedTicket.solicitacao === 'Exceção VPO') {
+          document.getElementById('editDrawerTerceiro').value = 'MoveMais';
+        }
         editForm.style.display = 'flex';
         detailGrid.style.display = 'none';
       }
@@ -657,16 +823,28 @@
       var newOp = document.getElementById('editDrawerOperator').value;
       var newTerceiro = document.getElementById('editDrawerTerceiro').value;
       var newReturn = formatOnlyDateBR(document.getElementById('editDrawerReturnDate').value.trim());
+      var fixedEditSla = getFixedPartnerSla(newProd, newSol);
+      var manualEditExemption = newSol === 'Isenção' && (newProd === 'PEDÁGIO' || newProd === 'ABASTECIMENTO');
+      if (fixedEditSla) {
+        var openedAtForDeadline = parseDateBR(activeSelectedTicket.startDate) || new Date();
+        newReturn = formatOnlyDateBR(formatDateInput(addCalendarDays(openedAtForDeadline, fixedEditSla)));
+      }
+      if (manualEditExemption && !newReturn) {
+        showToast('Agende a data obrigatória de retorno ao Financeiro para Isenção.', true);
+        return;
+      }
       var newDesc = document.getElementById('editDrawerDescription').value.trim();
       var newLink = document.getElementById('editDrawerLink').value.trim();
       var newDafRede = newProd === 'MANUTENÇÃO' ? document.getElementById('editDrawerDafRede').value : "";
       var newDafMuni = newProd === 'MANUTENÇÃO' ? document.getElementById('editDrawerDafMuni').value : "";
 
-      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I'].indexOf(newSol) !== -1;
+      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I', 'Layout XML'].indexOf(newSol) !== -1 ||
+        (newProd === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(newSol) !== -1);
       if (needsLink && !newLink) {
         showToast("O Link Externo (E-mail ou Bitrix) é obrigatório.", true);
         return;
       }
+      if (newProd === 'PEDÁGIO' && newSol === 'Exceção VPO') newTerceiro = 'MoveMais';
       if (newProd === 'MANUTENÇÃO' && newSol === 'Outros' && !newDesc) {
         showToast("A descrição do assunto 'Outros' é obrigatória.", true);
         return;
@@ -680,7 +858,7 @@
         solicitacao: newSol,
         contact: newContact,
         operator: newOp,
-        terceiro: newTerceiro,
+        terceiro: getResponsibleSector(newProd, newSol) || newTerceiro,
         returnDate: newReturn,
         description: newDesc,
         bitrixLink: newLink,
@@ -826,7 +1004,7 @@
         terceiroSel.value = 'MoveMais';
       } else if (prod === 'MANUTENÇÃO') {
         dafGroup.style.display = 'block';
-        terceiroSel.value = 'Financeiro';
+        terceiroSel.value = 'Outros';
       } else {
         dafGroup.style.display = 'none';
         terceiroSel.value = 'Cadastro';
@@ -845,6 +1023,74 @@
       }
     }
 
+    function addCalendarDays(baseDate, days) {
+      var result = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+      result.setDate(result.getDate() + days);
+      return result;
+    }
+
+    function formatDateInput(date) {
+      return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    }
+
+    function getFixedPartnerSla(product, service) {
+      if (normalizeProduct(product) !== 'PEDÁGIO') return 0;
+      if (service === 'Cobrança fora da TAG') return 10;
+      if (service === 'Contestação') return 30;
+      return 0;
+    }
+
+    function getEasterSunday(year) {
+      var a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;
+      return new Date(year,month-1,day);
+    }
+    function isBrazilNationalHoliday(date) {
+      var y=date.getFullYear(), m=date.getMonth()+1, d=date.getDate();
+      var fixed=['1-1','4-21','5-1','9-7','10-12','11-2','11-15','11-20','12-25'];
+      if (fixed.indexOf(m+'-'+d)!==-1) return true;
+      var easter=getEasterSunday(y), goodFriday=new Date(easter); goodFriday.setDate(easter.getDate()-2);
+      return date.getFullYear()===goodFriday.getFullYear() && date.getMonth()===goodFriday.getMonth() && date.getDate()===goodFriday.getDate();
+    }
+    function addBusinessDays(baseDate, days) {
+      var result = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+      var added = 0;
+      while (added < days) { result.setDate(result.getDate() + 1); var weekday = result.getDay(); if (weekday !== 0 && weekday !== 6 && !isBrazilNationalHoliday(result)) added++; }
+      return result;
+    }
+    function countBusinessDays(fromDate, toDate) {
+      if (!fromDate || !toDate || toDate <= fromDate) return 0;
+      var cursor = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+      var end = new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate()); var count = 0;
+      while (cursor < end) { cursor.setDate(cursor.getDate() + 1); var day = cursor.getDay(); if (day !== 0 && day !== 6 && !isBrazilNationalHoliday(cursor)) count++; }
+      return count;
+    }
+    function getOfficialDeadline(ticket) {
+      var days = getFixedPartnerSla(ticket.product, ticket.solicitacao);
+      var start = parseDateBR(ticket.startDate);
+      if (!days || !start) return '';
+      var due = ticket.solicitacao === 'Cobrança fora da TAG' ? addBusinessDays(start, days) : addCalendarDays(start, days);
+      return formatOnlyDateBR(formatDateInput(due));
+    }
+
+    function getResponsibleSector(product, service) {
+      var p = normalizeProduct(product);
+      if (service === 'Isenção') return 'Financeiro';
+      if (service === 'Chamado T.I' || service === 'Layout XML') return 'T.I';
+      if (p === 'PEDÁGIO' && ['Cancelamento', 'Cobrança fora da TAG', 'Contestação', 'Integração API', 'Exceção VPO'].indexOf(service) !== -1) return 'MoveMais';
+      if (p === 'ABASTECIMENTO' && service === 'Logistica') return 'Cadastro';
+      if (p === 'MANUTENÇÃO' && service === 'Outros') return 'Outros';
+      return '';
+    }
+
+    function getDisplaySolicitation(ticket) {
+      if (normalizeProduct(ticket.product) === 'MANUTENÇÃO' && ticket.solicitacao === 'Chamado T.I') return 'Layout XML';
+      return String(ticket.solicitacao || 'Solicitação não informada');
+    }
+
+    function getTicketThird(ticket) {
+      return getResponsibleSector(ticket.product, ticket.solicitacao) || ticket.terceiro || 'Outros';
+    }
+
     function onModalServiceChange() {
       var serv = document.getElementById('modalServiceSelect').value;
       var prod = normalizeProduct(document.getElementById('modalProductSelect').value);
@@ -852,16 +1098,19 @@
       var linkLabel = document.getElementById('modalLinkLabel');
       var descLabel = document.getElementById('modalDescLabel');
       var terceiroSel = document.getElementById('modalTerceiroSelect');
+      var returnInput = document.getElementById('modalReturnDateInput');
+      var returnLabel = document.getElementById('modalReturnDateLabel');
+      var calcButton = document.getElementById('btnCalculateReturnDate');
+      var feedback = document.getElementById('modalFeedbackText');
+      var fixedDays = getFixedPartnerSla(prod, serv);
+      var isManualExemption = serv === 'Isenção' && (prod === 'PEDÁGIO' || prod === 'ABASTECIMENTO');
 
-      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I'].indexOf(serv) !== -1;
-      
-      if (needsLink) {
-        linkGroup.style.display = 'block';
-        if (serv === 'Chamado T.I') linkLabel.innerText = 'Link Card Bitrix * (Obrigatório)';
-        else linkLabel.innerText = 'Link do E-mail / Chamado Externo * (Obrigatório)';
-      } else {
-        linkGroup.style.display = 'none';
-      }
+      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I', 'Layout XML'].indexOf(serv) !== -1 ||
+        (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(serv) !== -1);
+
+      linkGroup.style.display = needsLink ? 'block' : 'none';
+      linkLabel.innerText = (serv === 'Chamado T.I' || serv === 'Layout XML') ? 'Link Card Bitrix * (Obrigatório)' :
+        (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(serv) !== -1 ? 'Link do e-mail de solicitação * (Obrigatório)' : 'Link do E-mail / Chamado Externo * (Obrigatório)');
 
       if (prod === 'MANUTENÇÃO' && serv === 'Outros') {
         descLabel.innerText = 'Descrição detalhada do Assunto * (Obrigatório)';
@@ -871,37 +1120,40 @@
         descLabel.style.color = '#E2E8F0';
       }
 
-      if (serv === 'Chamado T.I') terceiroSel.value = 'T.I';
-      else if (['Contestação', 'Cancelamento', 'Cobrança fora da TAG'].indexOf(serv) !== -1) terceiroSel.value = 'MoveMais';
+      if (serv === 'Chamado T.I' || serv === 'Layout XML') terceiroSel.value = 'T.I';
+      else if (['Contestação', 'Cancelamento', 'Cobrança fora da TAG', 'Integração API'].indexOf(serv) !== -1) terceiroSel.value = 'MoveMais';
       else if (serv === 'Isenção') terceiroSel.value = 'Financeiro';
       else if (serv === 'Logistica') terceiroSel.value = 'Cadastro';
+      else if (prod === 'MANUTENÇÃO' && serv === 'Outros') terceiroSel.value = 'Outros';
+      else if (prod === 'PEDÁGIO' && serv === 'Exceção VPO') terceiroSel.value = 'MoveMais';
 
-      if (serv === 'Isenção') {
-        document.getElementById('modalFeedbackText').innerText = '💡 Dica: Para Isenção, defina a data próxima ao fechamento.';
-      } else if (!modalAutoReturnFlag) {
-        document.getElementById('modalFeedbackText').innerText = '';
+      returnInput.required = !!fixedDays || isManualExemption;
+      returnInput.readOnly = !!fixedDays;
+      returnInput.disabled = false;
+      calcButton.style.display = fixedDays ? 'none' : 'none';
+      returnLabel.innerText = fixedDays ? 'Data de retorno (prazo fixo do parceiro) *' :
+        (isManualExemption ? 'Retorno agendado ao Financeiro *' : 'Data para Retorno ao Cliente (opcional)');
+
+      if (fixedDays) {
+        returnInput.value = formatDateInput(serv === 'Cobrança fora da TAG' ? addBusinessDays(new Date(), fixedDays) : addCalendarDays(new Date(), fixedDays));
+        modalAutoReturnFlag = true;
+        feedback.innerText = 'Prazo definido pelo parceiro: ' + fixedDays + (serv === 'Cobrança fora da TAG' ? ' dias úteis. Data calculada automaticamente e não editável.' : ' dias corridos. Data calculada automaticamente e não editável.');
+      } else {
+        returnInput.value = '';
+        modalAutoReturnFlag = false;
+        feedback.innerText = isManualExemption ? 'Retorno destinado ao Financeiro: agende para um dia antes do fechamento do cliente.' : '';
       }
     }
 
     function markManualReturnDate() {
       modalAutoReturnFlag = false;
-      document.getElementById('modalFeedbackText').innerText = 'Data de retorno agendada manualmente ("Retorno em").';
+      var feedback = document.getElementById('modalFeedbackText');
+      if (feedback) feedback.innerText = 'Data de retorno informada manualmente pelo operador.';
     }
 
     function calculateModalReturnDate() {
-      var currentStats = calcCurrentSlaStats();
-      var serv = document.getElementById('modalServiceSelect').value;
-      var mean = currentStats[serv] && currentStats[serv].mean > 0 ? parseFloat(currentStats[serv].mean) : 10;
-      
-      var now = new Date();
-      now.setDate(now.getDate() + Math.ceil(mean));
-      var y = now.getFullYear();
-      var m = String(now.getMonth() + 1).padStart(2, '0');
-      var d = String(now.getDate()).padStart(2, '0');
-
-      document.getElementById('modalReturnDateInput').value = y + '-' + m + '-' + d;
-      modalAutoReturnFlag = true;
-      document.getElementById('modalFeedbackText').innerText = 'Data de retorno sugerida: +' + Math.ceil(mean) + ' dias.';
+      // O cálculo automático é restrito aos prazos oficiais da Move Mais.
+      onModalServiceChange();
     }
 
     function handleSaveDemandForm(e) {
@@ -918,7 +1170,8 @@
         }
       }
 
-      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I'].indexOf(serv) !== -1;
+      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I', 'Layout XML'].indexOf(serv) !== -1 ||
+        (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(serv) !== -1);
       if (needsLink && !linkVal) {
         showToast("O Link Externo (E-mail ou Bitrix) é obrigatório.", true);
         return;
@@ -936,6 +1189,13 @@
       var min = String(now.getMinutes()).padStart(2, '0');
 
       var rawReturn = f.returnDate.value;
+      var fixedSlaDays = getFixedPartnerSla(prod, serv);
+      var isManualExemption = serv === 'Isenção' && (prod === 'PEDÁGIO' || prod === 'ABASTECIMENTO');
+      if ((fixedSlaDays || isManualExemption) && !rawReturn) {
+        showToast('Informe a data obrigatória de retorno desta solicitação.', true);
+        return;
+      }
+      if (fixedSlaDays) rawReturn = formatDateInput(addCalendarDays(now, fixedSlaDays));
       var formattedReturn = formatOnlyDateBR(rawReturn) || 'A definir';
       var uniqueId = "REC-" + String(Date.now()).slice(-6) + "-" + Math.floor(100 + Math.random() * 900);
 
@@ -947,7 +1207,7 @@
         client: f.client.value.trim(),
         contact: f.contact.value.trim(),
         solicitacao: serv,
-        terceiro: f.terceiro.value,
+        terceiro: getResponsibleSector(prod, serv) || f.terceiro.value,
         bitrixLink: linkVal,
         dafRede: prod === 'MANUTENÇÃO' ? f.dafRede.value : "",
         dafMunicipio: prod === 'MANUTENÇÃO' ? f.dafMunicipio.value : "",
@@ -976,124 +1236,130 @@
     // =========================================================================
     function getBiCategory(t) {
       var p = normalizeProduct(t.product);
-      var s = String(t.solicitacao || "").trim();
+      var s = String(t.solicitacao || '').trim();
+      if (s === 'Isenção') return 'Isenção';
       if (p === 'PEDÁGIO') {
         if (s === 'Cancelamento') return 'Pedágio MoveMais - Cancelamento';
         if (s === 'Contestação') return 'Pedágio MoveMais - Contestação';
-        if (s === 'Isenção') return 'Pedágio Financeiro - Isenção';
-        if (s === 'Chamado T.I') return 'Pedágio T.I - Chamado T.I';
+        if (s === 'Chamado T.I') return 'Pedágio - Chamado T.I';
         if (s === 'Cobrança fora da TAG') return 'Pedágio MoveMais - Cobrança fora da TAG';
-        if (s === 'Logistica') return 'Pedágio Cadastro - Logística';
+        if (s === 'Integração API') return 'Pedágio MoveMais - Integração API';
+        if (s === 'Exceção VPO') return 'Pedágio - Exceção VPO';
         return 'Pedágio - ' + s;
       }
       if (p === 'MANUTENÇÃO') {
-        if (s === 'Chamado T.I') return 'Manutenção T.I - Chamado T.I';
-        if (s === 'Outros') return 'Manutenção Financeiro - Outros';
+        if (s === 'Chamado T.I' || s === 'Layout XML') return 'Manutenção - Layout XML';
+        if (s === 'Outros') return 'Manutenção - Outros';
         return 'Manutenção - ' + s;
       }
       if (p === 'ABASTECIMENTO') {
-        if (s === 'Logistica') return 'Abastecimento Cadastro - Logística';
-        if (s === 'Chamado T.I') return 'Abastecimento T.I - Chamado T.I';
-        if (s === 'Isenção') return 'Abastecimento Financeiro - Isenção';
+        if (s === 'Logistica') return 'Abastecimento - Logística';
+        if (s === 'Chamado T.I') return 'Abastecimento - Chamado T.I';
         return 'Abastecimento - ' + s;
       }
       return p + ' - ' + s;
     }
 
-    function renderSlaReport() {
-      // 1. SLA por Produto
-      var prodStats = calcProductSlaStats();
-      var prodTbody = document.getElementById('productSlaTableBody');
-      if (prodTbody) {
-        prodTbody.innerHTML = '';
-        Object.keys(prodStats).forEach(function(p) {
-          var row = prodStats[p];
-          var grad = getSlaGradientColors(row.mean);
-          var tr = document.createElement('tr');
-          tr.innerHTML = 
-            '<td style="font-weight:800; color:#fff;">' + p + '</td>' +
-            '<td>' + row.count + ' chamados</td>' +
-            '<td><span class="sla-pill-gradient" style="color:' + grad.color + '; background:' + grad.bg + '; border:1px solid ' + grad.border + ';">' + (row.count > 0 ? String(row.mean).replace('.', ',') + ' d' : '-') + '</span></td>' +
-            '<td style="color:#CBD5E1; font-family:monospace;">' + (row.count > 0 ? String(row.median).replace('.', ',') + ' d' : '-') + '</td>';
-          prodTbody.appendChild(tr);
-        });
-      }
-
-      // 2. Gráfico e Tabela Detalhada por Categoria Específica
-      var completed = allTickets.filter(function(t) { return t.status === 'Concluído' && t.durationDays !== null && !isNaN(parseFloat(t.durationDays)); });
-
-      var extVals = [];
-      var intVals = [];
-      completed.forEach(function(t) {
-        var d = parseFloat(t.durationDays);
-        var terc = String(t.terceiro || "").toLowerCase();
-        if (terc.indexOf('movemais') !== -1 || terc.indexOf('connect') !== -1) extVals.push(d);
-        else intVals.push(d);
-      });
-      if (document.getElementById('slaExternoMedia')) {
-        var eMean = extVals.length ? (extVals.reduce(function(a,b){return a+b;},0)/extVals.length).toFixed(1).replace('.', ',') + ' dias' : '16,3 dias';
-        document.getElementById('slaExternoMedia').innerText = eMean;
-      }
-      if (document.getElementById('slaInternoMedia')) {
-        var iMean = intVals.length ? (intVals.reduce(function(a,b){return a+b;},0)/intVals.length).toFixed(1).replace('.', ',') + ' dias' : '11,6 dias';
-        document.getElementById('slaInternoMedia').innerText = iMean;
-      }
-      
-      var catMap = {};
-      completed.forEach(function(t) {
-        var cat = getBiCategory(t);
-        if (!catMap[cat]) catMap[cat] = { count: 0, sum: 0, vals: [], terceiro: t.terceiro };
-        var d = parseFloat(t.durationDays);
-        catMap[cat].count++;
-        catMap[cat].sum += d;
-        catMap[cat].vals.push(d);
-      });
-
-      var catList = Object.keys(catMap).map(function(k) {
-        return { 
-          name: k, 
-          count: catMap[k].count, 
-          mean: (catMap[k].sum / catMap[k].count), 
-          median: calcMedian(catMap[k].vals),
-          terc: catMap[k].terceiro 
-        };
-      }).sort(function(a,b) { return b.count - a.count; });
-
-      var container = document.getElementById('chartBarsContainer');
-      if (container) {
-        container.innerHTML = '';
-        catList.forEach(function(c) {
-          var grad = getSlaGradientColors(c.mean);
-          var row = document.createElement('div');
-          row.className = 'chart-bar-item';
-          row.innerHTML = 
-            '<span class="bar-label" title="' + escapeHtml(c.name) + '">' + escapeHtml(c.name) + '</span>' +
-            '<div class="bar-track">' +
-              '<div class="bar-fill" style="width: ' + grad.pct + '%; background:' + grad.color + ';"></div>' +
-            '</div>' +
-            '<span class="bar-value" style="color:' + grad.color + ';">' + c.mean.toFixed(1).replace('.', ',') + ' d</span>';
-          container.appendChild(row);
-        });
-      }
-
-      var tbody = document.getElementById('partnerMatrixTableBody');
-      if (tbody) {
-        tbody.innerHTML = '';
-        catList.forEach(function(c) {
-          var grad = getSlaGradientColors(c.mean);
-          var tr = document.createElement('tr');
-          tr.innerHTML = 
-            '<td style="font-weight:800; color:#fff;">' + escapeHtml(c.name) + '</td>' +
-            '<td style="color:#38BDF8; font-weight:700;">' + escapeHtml(c.terc) + '</td>' +
-            '<td>' + c.count + ' chamados</td>' +
-            '<td>' +
-              '<div style="display:flex; align-items:center; gap:8px;">' +
-                '<span class="sla-pill-gradient" style="color:' + grad.color + '; background:' + grad.bg + '; border:1px solid ' + grad.border + ';">' + c.mean.toFixed(1).replace('.', ',') + ' d</span>' +
-              '</div>' +
-              '<div class="mini-track"><div class="mini-fill" style="width:' + grad.pct + '%; background:' + grad.color + ';"></div></div>' +
-            '</td>' +
-            '<td style="color:#CBD5E1; font-family:monospace; font-weight:700;">' + c.median.toFixed(1).replace('.', ',') + ' d</td>';
-          tbody.appendChild(tr);
-        });
-      }
+    function getMatrixDefinitions() {
+      return [
+        { name: 'Pedágio - Isenção', third: 'Financeiro', products: ['PEDÁGIO', 'ABASTECIMENTO'], service: 'Isenção' },
+        { name: 'Pedágio MoveMais - Cancelamento', third: 'MoveMais', products: ['PEDÁGIO'], service: 'Cancelamento' },
+        { name: 'Pedágio MoveMais - Cobrança fora da TAG', third: 'MoveMais', products: ['PEDÁGIO'], service: 'Cobrança fora da TAG', partnerDays: 10 },
+        { name: 'Pedágio MoveMais - Contestação', third: 'MoveMais', products: ['PEDÁGIO'], service: 'Contestação', partnerDays: 30 },
+        { name: 'Pedágio - Chamado T.I', third: 'T.I', products: ['PEDÁGIO'], service: 'Chamado T.I' },
+        { name: 'Pedágio MoveMais - Exceção VPO', third: 'MoveMais', products: ['PEDÁGIO'], service: 'Exceção VPO' },
+        { name: 'Abastecimento - Logística', third: 'Cadastro', products: ['ABASTECIMENTO'], service: 'Logistica' },
+        { name: 'Abastecimento - Chamado T.I', third: 'T.I', products: ['ABASTECIMENTO'], service: 'Chamado T.I' },
+        { name: 'Manutenção - Layout XML', third: 'T.I', products: ['MANUTENÇÃO'], service: 'Layout XML' },
+        { name: 'Manutenção - Outros', third: 'Outros', products: ['MANUTENÇÃO'], service: 'Outros' }
+      ];
     }
+
+
+    var biFilterProduct = '';
+    var biFilterThird = '';
+    var biFilterFrom = '';
+    var biFilterTo = '';
+    function getBiFilteredTickets(status) {
+      return allTickets.filter(function(t) {
+        if (status && t.status !== status) return false;
+        if (biFilterProduct && normalizeProduct(t.product) !== biFilterProduct) return false;
+        if (biFilterThird && getTicketThird(t) !== biFilterThird) return false;
+        if (status === 'Concluído' && (biFilterFrom || biFilterTo)) {
+          var d = parseDateBR(t.endDate || t.returnDate || t.startDate);
+          if (biFilterFrom && (!d || d < new Date(biFilterFrom + 'T00:00:00'))) return false;
+          if (biFilterTo && (!d || d > new Date(biFilterTo + 'T23:59:59'))) return false;
+        }
+        return true;
+      });
+    }
+    function applyBiFilters() {
+      biFilterProduct = document.getElementById('biFilterProduct').value;
+      biFilterThird = document.getElementById('biFilterThird').value;
+      biFilterFrom = document.getElementById('biDateFrom').value;
+      biFilterTo = document.getElementById('biDateTo').value;
+      renderSlaReport();
+    }
+    function clearBiFilters() {
+      ['biFilterProduct','biFilterThird','biDateFrom','biDateTo'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+      applyBiFilters();
+    }
+    function formatBiDays(value) { return value === null || !isFinite(value) ? '—' : value.toFixed(1).replace('.', ',') + ' dias'; }
+    function biAverage(items) {
+      var vals=items.filter(function(t){return t.durationDays!==null && t.durationDays!==undefined && t.durationDays!=='';}).map(function(t){return Number(t.durationDays);}).filter(function(v){return isFinite(v) && v >= 0;});
+      return vals.length ? vals.reduce(function(a,b){return a+b;},0)/vals.length : null;
+    }
+    function biOfficialDays(product, service) {
+      var p=normalizeProduct(product), s=String(service||'');
+      if (p==='PEDÁGIO' && s==='Contestação') return 30;
+      if (p==='PEDÁGIO' && (s==='Cobrança fora da TAG' || s.indexOf('fora da TAG') !== -1)) return 10;
+      return null;
+    }
+    function renderBiBars(container, rows, labelKey, valueKey, colorClass) {
+      if (!container) return;
+      var max = Math.max(1, ...rows.map(function(r) { return r[valueKey]; }));
+      container.innerHTML = rows.length ? rows.map(function(r) {
+        var action = '';
+        return '<div class="bi-bar-row"><span class="bi-bar-label">' + escapeHtml(r[labelKey]) + '</span><div class="bi-bar-track"><div class="bi-bar-fill ' + colorClass + '" style="width:' + Math.max(2, r[valueKey] / max * 100) + '%"></div></div><strong class="bi-bar-value">' + r[valueKey] + '</strong></div>';
+      }).join('') : '<div class="bi-empty">Sem dados para os filtros selecionados.</div>';
+    }
+    function selectBiPartner(name) { biFilterThird = name; var el = document.getElementById('biFilterThird'); if (el) el.value = name; renderSlaReport(); }
+    function selectBiProduct(name) { biFilterProduct = name; var el = document.getElementById('biFilterProduct'); if (el) el.value = name; renderSlaReport(); }
+    function renderSlaProjection() {
+      var tbody=document.getElementById('projectionBody'), chart=document.getElementById('projectionVolumeChart'), serviceChart=document.getElementById('projectionServiceChart');
+      if(!tbody)return;
+      var open=allTickets.filter(function(t){ return t.status === 'Em andamento'; }), groups={}, partners={}, services={};
+      open.forEach(function(t){var third=getTicketThird(t)||'Outros', product=normalizeProduct(t.product)||'Não informado', service=getDisplaySolicitation(t)||'Outros', key=third+'|'+service+'|'+product; if(!groups[key])groups[key]={third:third,service:service,product:product,count:0};groups[key].count++;partners[third]=(partners[third]||0)+1;services[service]=(services[service]||0)+1;});
+      var rows=Object.keys(groups).map(function(k){return groups[k];}).sort(function(a,b){return b.count-a.count||a.third.localeCompare(b.third,'pt-BR');});
+      tbody.innerHTML=rows.length?rows.map(function(r){return '<tr><td><span class="bi-partner-tag">'+escapeHtml(r.third)+'</span></td><td>'+escapeHtml(r.service)+'</td><td>'+escapeHtml(r.product)+'</td><td><strong>'+r.count+'</strong></td></tr>';}).join(''):'<tr><td colspan="4">Nenhuma demanda em aberto.</td></tr>';
+      renderBiBars(chart,Object.keys(partners).map(function(k){return {label:k,count:partners[k]};}).sort(function(a,b){return b.count-a.count;}),'label','count','bi-fill-cyan');
+      renderBiBars(serviceChart,Object.keys(services).map(function(k){return {label:k,count:services[k]};}).sort(function(a,b){return b.count-a.count;}),'label','count','bi-fill-orange');
+    }
+    function renderSlaReport() {
+      var completed=getBiFilteredTickets('Concluído');
+      var period=document.getElementById('biPeriodCaption');
+      if(period) period.textContent=(biFilterFrom||biFilterTo)?((biFilterFrom||'Início')+' — '+(biFilterTo||'Hoje')):'Todo o histórico';
+      var products=['PEDÁGIO','ABASTECIMENTO','MANUTENÇÃO'];
+      var productCards=document.getElementById('biProductCards');
+      if(productCards){productCards.innerHTML=products.filter(function(p){return !biFilterProduct||p===biFilterProduct;}).map(function(p){var list=completed.filter(function(t){return normalizeProduct(t.product)===p;});var avg=biAverage(list);var color=p==='PEDÁGIO'?'cyan':(p==='ABASTECIMENTO'?'green':'purple');return '<article class="bi-product-card bi-product-'+color+'"><div class="bi-product-card-top"><span>'+escapeHtml(p)+'</span><i></i></div><div class="bi-product-kpis"><div><strong>'+list.length+'</strong><small>Volume concluído</small></div><div><strong>'+formatBiDays(avg)+'</strong><small>SLA médio</small></div></div></article>';}).join('');}
+      var partnerNames=['MoveMais','Financeiro','T.I','Cadastro','Outros'];
+      var partnerRows=partnerNames.filter(function(n){return !biFilterThird||n===biFilterThird;}).map(function(n){var list=completed.filter(function(t){return getTicketThird(t)===n;});return {name:n,count:list.length,avg:biAverage(list)};}).filter(function(r){return r.count>0;}).sort(function(a,b){return b.count-a.count;});
+      var partnerBody=document.getElementById('biPartnerBody');if(partnerBody)partnerBody.innerHTML=partnerRows.length?partnerRows.map(function(r){return '<tr><td><span class="bi-partner-tag">'+escapeHtml(r.name)+'</span></td><td><strong>'+r.count+'</strong></td><td>'+formatBiDays(r.avg)+'</td></tr>';}).join(''):'<tr><td colspan="3">Sem demandas concluídas para os filtros selecionados.</td></tr>';
+      // renderBiBars(document.getElementById('biPartnerChart'), ... removed}),'label','count','bi-fill-cyan');
+      var groups={};completed.forEach(function(t){
+    var service=getDisplaySolicitation(t)||'Outros';
+    var product=normalizeProduct(t.product)||'Não informado';
+    var third=getTicketThird(t)||'Outros';
+    // Unificar Chamado T.I para Pedágio e Abastecimento
+    if (service === 'Chamado T.I' && (product === 'PEDÁGIO' || product === 'ABASTECIMENTO')) {
+        product = 'PEDÁGIO e ABASTECIMENTO';
+    }
+    var key=service+'|'+product+'|'+third;
+    if(!groups[key]) groups[key]={service:service,product:product,third:third,items:[]};
+    groups[key].items.push(t);
+});
+      var micro=Object.keys(groups).map(function(k){var r=groups[k],official=biOfficialDays(r.product,r.service);return {service:r.service,product:r.product,third:r.third,count:r.items.length,avg:biAverage(r.items),official:official};}).sort(function(a,b){return b.count-a.count||a.service.localeCompare(b.service,'pt-BR');});
+      var microBody=document.getElementById('biSolicitationBody');if(microBody)microBody.innerHTML=micro.length?micro.map(function(r){return '<tr><td><strong>'+escapeHtml(r.service)+'</strong></td><td>'+escapeHtml(r.product)+'</td><td><span class="bi-partner-tag">'+escapeHtml(r.third)+'</span></td><td><strong>'+r.count+'</strong></td><td class="td-sla-medio">'+formatBiDays(r.avg)+'</td><td class="td-sla-oficial">'+(r.official?r.official+' dias '+(r.service.indexOf('fora da TAG') !== -1 ? 'úteis' : 'corridos'):'<span class="bi-no-sla">Não definido</span>')+'</td></tr>';}).join(''):'<tr><td colspan="6">Sem solicitações concluídas para os filtros selecionados.</td></tr>';
+      var microCount=document.getElementById('biSolicitationCount');if(microCount)microCount.textContent=micro.length+' combinações de solicitação';
+    }
+
