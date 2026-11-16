@@ -357,6 +357,10 @@
       if (document.getElementById('finalizedCountLabel')) document.getElementById('finalizedCountLabel').innerText = recordsDone.length + ' demandas finalizadas';
       if (recordsDone.length === 0) {
         tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:22px; color:var(--text-subtle);">Nenhuma demanda finalizada para os filtros selecionados.</td></tr>';
+        try {
+          if (typeof renderSlaReport === 'function') renderSlaReport();
+          if (typeof renderSlaProjection === 'function') renderSlaProjection();
+        } catch(errBi) {}
         return;
       }
 
@@ -439,6 +443,13 @@ tdProd.innerHTML = '<span class="badge-product ' + prodClass + '">' + prodStr + 
           console.warn("Erro ao renderizar linha finalizada:", errRow);
         }
       });
+
+      try {
+        if (typeof renderSlaReport === 'function') renderSlaReport();
+        if (typeof renderSlaProjection === 'function') renderSlaProjection();
+      } catch(errBi) {
+        console.warn("Erro ao atualizar painéis Visão/Projeção:", errBi);
+      }
     }
 
     function getTicketSlaRisk(ticket) {

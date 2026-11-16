@@ -288,6 +288,36 @@
       savePendingOps(ops);
     }
 
+    var KNOWN_SHEET_IDS_KEY = "truckpag_sheet_known_ids_v27";
+    var hasLoadedFromSheet = false;
+
+    function getKnownSheetIds() {
+      try {
+        var raw = localStorage.getItem(KNOWN_SHEET_IDS_KEY);
+        if (raw) {
+          var obj = JSON.parse(raw);
+          if (obj && typeof obj === "object") return obj;
+        }
+      } catch(e) {}
+      return {};
+    }
+
+    function saveKnownSheetIds(map) {
+      try { localStorage.setItem(KNOWN_SHEET_IDS_KEY, JSON.stringify(map)); } catch(e) {}
+    }
+
+    function isTicketSyncedWithSheet(sheetTicket, localTicket) {
+      if (!sheetTicket || !localTicket) return false;
+      return (
+        normalizeStatus(sheetTicket.status) === normalizeStatus(localTicket.status) &&
+        normalizeProduct(sheetTicket.product) === normalizeProduct(localTicket.product) &&
+        String(sheetTicket.solicitacao || "").trim() === String(localTicket.solicitacao || "").trim() &&
+        String(sheetTicket.client || "").trim() === String(localTicket.client || "").trim() &&
+        String(sheetTicket.operator || "").trim() === String(localTicket.operator || "").trim() &&
+        String(sheetTicket.description || "").trim() === String(localTicket.description || "").trim()
+      );
+    }
+
     function confirmPendingOp(ticketId) {
       if (!ticketId) return;
       var ops = getPendingOps();
@@ -295,18 +325,35 @@
       if (ops[key]) {
         ops[key].confirmed = true;
         ops[key].confirmedAt = Date.now();
+        ops[key].lastSentAt = Date.now();
         savePendingOps(ops);
       }
     }
 
-    function pruneConfirmedOps() {
+    function pruneConfirmedOps(sheetMap) {
       var ops = getPendingOps();
       var now = Date.now();
       var changed = false;
       Object.keys(ops).forEach(function(k) {
-        if (ops[k].confirmed && (now - (ops[k].confirmedAt || ops[k].timestamp) > 15000)) {
-          delete ops[k];
-          changed = true;
+        var op = ops[k];
+        if (!op) return;
+        if (sheetMap) {
+          if (op.action === "delete") {
+            if (!sheetMap[k]) {
+              delete ops[k];
+              changed = true;
+              return;
+            }
+          } else if (op.ticket && isTicketSyncedWithSheet(sheetMap[k], op.ticket)) {
+            delete ops[k];
+            changed = true;
+            return;
+          }
+          // Se ainda não refletiu na planilha após 20s, marca para reenvio
+          if (op.confirmed && (now - (op.lastSentAt || op.confirmedAt || op.timestamp) > 20000)) {
+            op.confirmed = false;
+            changed = true;
+          }
         }
       });
       if (changed) savePendingOps(ops);
@@ -419,7 +466,7 @@
     }
 
     function flushPendingOps() {
-      var ops = pruneConfirmedOps();
+      var ops = getPendingOps();
       var unconfirmedIds = Object.keys(ops).filter(function(id) { return !ops[id].confirmed; });
       if (unconfirmedIds.length === 0) return Promise.resolve();
 
@@ -436,20 +483,52 @@
       }
       setSyncBadge('syncing', '⏳ Salvando...');
 
+      var tid = String(ticketData.id || "").trim();
+      var knownIds = getKnownSheetIds();
+      var effectiveAction = actionType;
+      // Se é uma atualização de registro que só existia no config local (ex: REC-RETRO-*, HIST-*), cria na planilha
+      if (actionType === "update" && hasLoadedFromSheet && !knownIds[tid]) {
+        effectiveAction = "create";
+      }
+
       var cleanPayloadTicket = Object.assign({}, ticketData, {
         returnDate: formatOnlyDateBR(ticketData.returnDate)
       });
 
-      return fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: actionType,
-          ticket: cleanPayloadTicket
-        })
+      function postPayload(act) {
+        return fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: act,
+            ticket: cleanPayloadTicket
+          })
+        }).then(function(res) { return res.text(); });
+      }
+
+      return postPayload(effectiveAction)
+      .then(function(rawText) {
+        var parsed = null;
+        try { parsed = JSON.parse(rawText); } catch(e) {}
+        if (parsed && parsed.status === "error" && effectiveAction === "update") {
+          return postPayload("create").then(function(retryText) {
+            var retryParsed = null;
+            try { retryParsed = JSON.parse(retryText); } catch(e) {}
+            if (retryParsed && retryParsed.status === "error") {
+              throw new Error(retryParsed.message || "Erro ao criar linha na planilha");
+            }
+          });
+        }
+        if (parsed && parsed.status === "error") {
+          throw new Error(parsed.message || "Erro retornado pela planilha");
+        }
       })
-      .then(function(res) { return res.text(); })
       .then(function() {
+        if (effectiveAction === "create") {
+          var k = getKnownSheetIds();
+          k[tid] = true;
+          saveKnownSheetIds(k);
+        }
         confirmPendingOp(ticketData.id);
         setSyncBadge('', '↻ ● Sincronizado');
       })
@@ -483,6 +562,7 @@
           return;
         }
 
+        hasLoadedFromSheet = true;
         var delList = getDeletedIds();
         if (Array.isArray(resp.deletedIds)) {
           resp.deletedIds.forEach(function(did) {
@@ -495,15 +575,20 @@
         }
 
         var sheetMap = {};
+        var knownMap = {};
         if (Array.isArray(resp.data)) {
           resp.data.map(mapSheetRowToTicket).forEach(function(t) {
-            if (t.id && !isDeletedTicket(t, delList)) {
-              sheetMap[t.id] = t;
+            if (t.id) {
+              knownMap[t.id] = true;
+              if (!isDeletedTicket(t, delList)) {
+                sheetMap[t.id] = t;
+              }
             }
           });
         }
+        saveKnownSheetIds(knownMap);
 
-        var activePending = pruneConfirmedOps();
+        var activePending = pruneConfirmedOps(sheetMap);
         var mergedMap = {};
 
         RAW_INITIAL_RECORDS.forEach(function(r) {
@@ -518,16 +603,13 @@
           mergedMap[id] = sheetMap[id];
         });
 
-        allTickets.forEach(function(localTicket) {
-          var lid = String(localTicket.id || "").trim();
-          if (!lid || isDeletedTicket(localTicket, delList)) return;
-
-          if (activePending[lid]) {
-            if (activePending[lid].action === "delete") {
-              delete mergedMap[lid];
-            } else if (activePending[lid].ticket) {
-              mergedMap[lid] = activePending[lid].ticket;
-            }
+        Object.keys(activePending).forEach(function(lid) {
+          if (isDeletedTicket({ id: lid }, delList)) return;
+          var op = activePending[lid];
+          if (op.action === "delete") {
+            delete mergedMap[lid];
+          } else if (op.ticket) {
+            mergedMap[lid] = op.ticket;
           }
         });
 
