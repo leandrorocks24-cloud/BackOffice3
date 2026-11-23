@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>TruckPag Backoffice • Central Operacional & B.I. de SLA</title>
+  <link rel="stylesheet" href="css/styles.css?v=18">
+</head>
+<body>
+
+  <aside class="app-sidebar" id="appSidebar">
+    <div class="sidebar-brand">truckpag <span>Backoffice</span></div>
+    <button class="sidebar-toggle" type="button" onclick="toggleSidebar()" aria-label="Expandir ou recolher menu"><span id="sidebarToggleIcon">‹</span><span class="sidebar-toggle-label">Recolher menu</span></button>
+    <nav class="sidebar-nav" aria-label="Navegação principal">
+      <button class="tab-btn active" id="btnTabQueue" onclick="switchMainTab('queue')"><span class="side-icon">▤</span><span class="side-label">Fila</span></button>
+      <button class="tab-btn" id="btnTabRecords" onclick="switchMainTab('records')"><span class="side-icon">▣</span><span class="side-label">Registros</span></button>
+      <button class="tab-btn" id="btnTabReport" onclick="switchMainTab('report')"><span class="side-icon">▥</span><span class="side-label">Visão</span></button>
+      <button class="tab-btn" id="btnTabProjection" onclick="switchMainTab('projection')"><span class="side-icon">◷</span><span class="side-label">Projeção</span></button>
+    </nav>
+    <div class="sidebar-tools">
+      <div class="sidebar-tools-label">DADOS</div>
+      <button type="button" class="sidebar-tool-btn" onclick="exportFullBackup()" title="Backup de dados"><span>⬇</span><span class="side-label">Backup de dados</span></button>
+      <button type="button" class="sidebar-tool-btn" onclick="exportArchivedCSV()" title="Exportar finalizadas"><span>⇩</span><span class="side-label">Exportar finalizadas</span></button>
+    </div>
+  </aside>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand-section">
+      <div class="brand-logo-text">
+        truckpag <span>Backoffice Demandas</span>
+      </div>
+    </div>
+
+
+
+    <div class="topbar-actions" id="operationalTopbarActions">
+      <button type="button" class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema"><span id="themeToggleIcon">☀</span></button>
+      <div class="operator-pill" title="Sessão atual (preenchimento automático)">
+        <span>👤 Operador:</span>
+        <select id="activeOperatorSelect" onchange="handleActiveOperatorChange()"></select>
+      </div>
+
+      <span class="sync-status" id="syncStatusIndicator" onclick="manualSyncNow()" title="Clique para forçar sincronização">
+        ↻ ● Sincronizado
+      </span>
+
+      <button class="btn-action primary" onclick="openNewModal()">
+        + Nova Demanda
+      </button>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    
+    <!-- TELA 1: FILA OPERACIONAL E REGISTROS -->
+    <div id="viewPaneQueue">
+
+      <!-- FILTROS GERAIS (POSICIONADOS NO TOPO) -->
+      <div class="filter-panel">
+        <div class="filter-primary-row">
+          <div class="filter-primary-controls">
+            <span class="filter-label">Fila:</span>
+            <input type="text" class="input-compact filter-search" id="searchInput" placeholder="Pesquisar cliente, protocolo..." onkeyup="renderAll()" />
+            <label class="queue-operator-filter"><span>Operador</span><select class="input-compact" id="filterAgentSelect" onchange="renderAll()"><option value="">Todos</option></select></label>
+            <label class="queue-operator-filter"><span>Mês</span>
+              <select class="input-compact" id="filterMonthSelect" onchange="renderAll()">
+                <option value="12-2026">12-2026</option><option value="11-2026" selected>11-2026 (Vigente)</option><option value="10-2026">10-2026</option><option value="09-2026">09-2026</option><option value="08-2026">08-2026</option><option value="07-2026">07-2026</option><option value="">Todos</option>
+              </select>
+            </label>
+            <button type="button" class="filter-more-toggle" id="advancedFiltersToggle" onclick="toggleAdvancedFilters()" aria-expanded="false">Mais filtros <span>⌄</span></button>
+            <button type="button" class="btn-clear-filters" onclick="clearFilters()" title="Redefinir filtros para o padrão">Limpar</button>
+          </div>
+        </div>
+        <div class="filter-advanced-row" id="advancedFiltersPanel" style="display:none;">
+          <label class="filter-advanced-item"><span>Produto</span><select class="input-compact" id="filterProductSelect" onchange="renderAll()"><option value="">Todos os produtos</option><option value="PEDÁGIO">Pedágio</option><option value="ABASTECIMENTO">Abastecimento</option><option value="MANUTENÇÃO">Manutenção</option></select></label>
+          <label class="filter-advanced-item"><span>Solicitação</span>
+            <select class="input-compact" id="filterServiceSelect" onchange="renderAll()">
+              <option value="">Todas</option><option value="Contestação">Contestação</option><option value="Integração API">Integração API</option><option value="Exceção VPO">Exceção VPO</option><option value="Chamado T.I">Chamado T.I</option><option value="Layout XML">Layout XML</option><option value="Liberação de tela">Liberação de tela</option><option value="Rastreamento TAG">Rastreamento TAG</option><option value="E-mail em supressão">E-mail em supressão</option><option value="Alterar status da TAG">Alterar status da TAG</option><option value="Erro de integração">Erro de integração</option><option value="Isenção">Isenção</option><option value="Logistica">Logística</option><option value="Cancelamento">Cancelamento</option><option value="Cobrança fora da TAG">Cobrança fora da TAG</option><option value="Outros">Outros</option>
+            </select>
+          </label>
+          <label class="filter-advanced-item"><span>Terceiro</span>
+            <select class="input-compact" id="filterThirdSelect" onchange="renderAll()">
+              <option value="">Todos</option><option value="MoveMais">MoveMais</option><option value="ConnectCar">ConnectCar</option><option value="T.I">T.I</option><option value="Financeiro">Financeiro</option><option value="Cadastro">Cadastro</option><option value="Control">Control</option><option value="Outros">Outros</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <!-- PAINEL EXECUTIVO DE KPIS (RESPONDE AOS FILTROS) -->
+      <div class="kpi-strip">
+        <div class="kpi-box">
+          <div class="kpi-head-row">
+            <span class="kpi-title">Em aberto</span>
+          </div>
+          <span class="kpi-value" id="kpiTotalOpen">0</span>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-head-row">
+            <span class="kpi-title">Dentro do prazo</span>
+          </div>
+          <span class="kpi-value" style="color:var(--tp-green);" id="kpiOnTime">0</span>
+        </div>
+        <div class="kpi-box clickable" id="kpiOverdueBox" onclick="toggleOverdueFilter()" title="Clique para filtrar apenas demandas atrasadas ou vencendo hoje">
+          <div class="kpi-head-row">
+            <span class="kpi-title">Atrasados/Críticos</span>
+            <span class="kpi-filter-tag" id="kpiOverdueSub">Filtrar</span>
+          </div>
+          <span class="kpi-value" style="color:#F87171;" id="kpiOverdue">0</span>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-head-row">
+            <span class="kpi-title">Finalizados</span>
+          </div>
+          <span class="kpi-value" style="color:#38BDF8;" id="kpiFinalizedMonth">0</span>
+        </div>
+      </div>
+      <!-- DEMANDAS EM ABERTO: COLUNAS POR PARCEIRO -->
+      <section class="in-progress-section">
+        <div class="section-title-bar">
+          <h2>
+            <button type="button" class="sort-toggle-btn" id="openSortToggle" onclick="toggleOpenSortMode()" title="Alternar ordenação da fila" aria-label="Ordenar demandas mais antigas primeiro">↑ Mais antigas</button>
+          </h2>
+          <span style="font-size:11px; color:var(--text-subtle);">
+            Clique no card para abrir detalhes, editar ou finalizar
+          </span>
+        </div>
+
+        <div class="product-columns-grid" id="openColumnsGrid">
+          <div class="product-column">
+            <div class="product-column-head" style="color:#38BDF8;">
+              MoveMais
+              <span class="col-count-badge" id="countColMoveMais">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsMoveMais"></div>
+          </div>
+
+          <div class="product-column">
+            <div class="product-column-head" style="color:#A78BFA;">
+              T.I
+              <span class="col-count-badge" id="countColTI">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsTI"></div>
+          </div>
+
+          <div class="product-column">
+            <div class="product-column-head" style="color:#10B981;">
+              Financeiro
+              <span class="col-count-badge" id="countColFinanceiro">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsFinanceiro"></div>
+          </div>
+
+          <div class="product-column" id="colWrapperOutros" style="display:none;">
+            <div class="product-column-head" style="color:#FBBF24;">
+              Outros
+              <span class="col-count-badge" id="countColOutros">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsOutros"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- REGISTROS: SOMENTE DEMANDAS FINALIZADAS -->
+    <div id="viewPaneRecords" style="display:none;">
+      <div class="records-heading"><h2>Registros finalizados</h2><p>Histórico das demandas concluídas.</p></div>
+      <div class="records-filter-bar">
+        <input class="input-compact" id="recordsSearch" type="search" placeholder="Buscar cliente, placa ou protocolo" oninput="renderAll()">
+        <select class="input-compact" id="recordsProduct" onchange="renderAll()"><option value="">Todos os produtos</option><option value="PEDÁGIO">Pedágio</option><option value="ABASTECIMENTO">Abastecimento</option><option value="MANUTENÇÃO">Manutenção</option></select>
+        <select class="input-compact" id="recordsService" onchange="renderAll()"><option value="">Todas as solicitações</option><option>Cancelamento</option><option>Contestação</option><option>Isenção</option><option>Integração API</option><option>Exceção VPO</option><option>Cobrança fora da TAG</option><option>Layout XML</option><option>Liberação de tela</option><option>Rastreamento TAG</option><option>E-mail em supressão</option><option>Alterar status da TAG</option><option>Erro de integração</option><option>Logistica</option><option>Chamado T.I</option><option>Outros</option></select>
+        <select class="input-compact" id="recordsThird" onchange="renderAll()"><option value="">Todos os terceiros</option><option>MoveMais</option><option>ConnectCar</option><option>Financeiro</option><option>T.I</option><option>Cadastro</option><option>Control</option><option>Outros</option></select>
+        <select class="input-compact" id="recordsAgent" onchange="renderAll()"><option value="">Todos os operadores</option></select>
+        <input class="input-compact" id="recordsFrom" type="date" aria-label="Conclusão a partir de" onchange="renderAll()">
+        <input class="input-compact" id="recordsTo" type="date" aria-label="Conclusão até" onchange="renderAll()">
+        <button type="button" class="btn-clear-filters" onclick="clearRecordsFilters()">Limpar filtros</button>
+      </div>
+      <!-- TABELA DE REGISTROS FINALIZADOS -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <h3>✓ Demandas concluídas</h3>
+          <span style="font-size:11px; color:#A7F3D0; font-weight:700;" id="finalizedCountLabel">0 demandas finalizadas</span>
+        </div>
+        <div class="table-scroll-wrap"><table class="dense-table">
+          <thead>
+            <tr>
+              <th id="thMonthOrDate">Data de Registro</th>
+              <th>Data de Conclusão</th>
+              <th>Cliente / Transportadora</th>
+              <th>Solicitação</th>
+              <th>Terceiro Acionado</th>
+              <th class="th-product-muted">Produto</th>
+              <th>SLA Final</th>
+              <th>SLA médio da solicitação</th>
+              <th>SLA oficial</th>
+              <th>Agente</th>
+              <th style="text-align:center;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTableBody"></tbody>
+        </table></div>
+      </div>
+
+    </div>
+
+    <!-- VISÃO GERENCIAL (REFORMULADA POR PARCEIRO) -->
+    <div id="viewPaneReport" style="display:none;">
+      <div class="bi-page-heading"><div><span class="bi-eyebrow">INTELIGÊNCIA OPERACIONAL • POR PARCEIRO</span><h1>Visão</h1><p>Análise consolidada de volume concluído e SLA médio por parceiro externo e setor interno.</p></div><div class="bi-period-chip" id="biPeriodCaption">Todo o histórico</div></div>
+      <div class="bi-filter-bar bi-filter-bar-premium">
+        <label>Período de conclusão <div class="bi-date-filter"><input id="biDateFrom" type="date" onchange="applyBiFilters()" aria-label="Data inicial"><span>até</span><input id="biDateTo" type="date" onchange="applyBiFilters()" aria-label="Data final"></div></label>
+        <label>Parceiro <select id="biFilterThird" onchange="applyBiFilters()"><option value="">Todos os parceiros</option><option value="MoveMais">MoveMais (Externo)</option><option value="ConnectCar">ConnectCar (Externo)</option><option value="T.I">T.I (Interno)</option><option value="Financeiro">Financeiro (Interno)</option><option value="Cadastro">Cadastro (Interno)</option><option value="Control">Control (Interno)</option><option value="Outros">Outros (Interno)</option></select></label>
+        <label>Classificação <select id="biFilterPartnerType" onchange="applyBiFilters()"><option value="">Todos (Externo e Interno)</option><option value="Externo">Parceiros Externos</option><option value="Interno">Setores Internos</option></select></label>
+        <label>Produto <select id="biFilterProduct" onchange="applyBiFilters()"><option value="">Todos os produtos</option><option value="PEDÁGIO">Pedágio</option><option value="ABASTECIMENTO">Abastecimento</option><option value="MANUTENÇÃO">Manutenção</option></select></label>
+        <button type="button" class="bi-clear-btn" onclick="clearBiFilters()">Limpar filtros</button>
+      </div>
+      <section class="bi-section bi-section-macro">
+        <div class="bi-section-heading"><div><span class="bi-step">01</span><div><h2>Resultado por parceiro</h2><p>Indicadores executivos separados entre parceiros externos e setores internos. Clique em um parceiro para filtrar.</p></div></div><span class="bi-section-note">MACRO POR PARCEIRO</span></div>
+        <div id="biProductCards"></div>
+      </section>
+      <section class="bi-section">
+        <div class="bi-section-heading"><div><span class="bi-step bi-step-blue">02</span><div><h2>Comparativo de desempenho por parceiro</h2><p>Volume concluído, participação na operação, SLA médio e distribuição por produto.</p></div></div><span class="bi-section-note">RANKING DE PARCEIROS</span></div>
+        <div id="biPartnerVolumeChart" class="bi-horizontal-chart" style="margin-bottom:16px;"></div>
+        <div class="bi-compact-table-wrap"><table class="bi-data-table"><thead><tr><th>Parceiro</th><th>Classificação</th><th>Volume concluído</th><th>SLA médio</th><th>Composição por produto</th></tr></thead><tbody id="biPartnerBody"></tbody></table></div>
+      </section>
+      <section class="bi-section">
+        <div class="bi-section-heading"><div><span class="bi-step bi-step-purple">03</span><div><h2>Solicitações por parceiro</h2><p>Detalhamento das solicitações atendidas por cada parceiro e seus respectivos tempos médios.</p></div></div><span class="bi-section-note">VISÃO ANALÍTICA</span></div>
+        <div class="bi-micro-toolbar"><span id="biSolicitationCount">—</span><span>O SLA oficial é exibido somente nas solicitações com prazo formal.</span></div>
+        <div class="bi-compact-table-wrap"><table class="bi-data-table"><thead><tr><th>Parceiro</th><th>Solicitação</th><th class="th-product-muted">Produto</th><th>Volume concluído</th><th class="th-sla-medio">SLA médio</th><th class="th-sla-oficial">SLA oficial</th></tr></thead><tbody id="biSolicitationBody"></tbody></table></div>
+      </section>
+      <div class="bi-footnote">SLA médio calculado a partir das demandas concluídas com duração registrada. O SLA oficial é o prazo formal do parceiro; não representa o SLA do operador da ferramenta.</div>
+    </div>
+
+    <div id="viewPaneProjection" style="display:none;">
+      <section class="bi-section bi-projection-section projection-page-section">
+        <div class="bi-page-heading"><div><span class="bi-eyebrow">ACOMPANHAMENTO OPERACIONAL</span><h1>Projeção da fila atual</h1><p>Distribuição das demandas que ainda aguardam conclusão.</p></div></div>
+        <div class="bi-projection-grid"><div><h3>Demandas por parceiro</h3><div id="projectionVolumeChart" class="bi-horizontal-chart"></div></div><div><h3>Demandas por solicitação</h3><div id="projectionServiceChart" class="bi-horizontal-chart"></div></div></div>
+        <div class="bi-compact-table-wrap"><table class="bi-data-table"><thead><tr><th>Parceiro</th><th>Solicitação</th><th>Produto</th><th>Em aberto</th></tr></thead><tbody id="projectionBody"></tbody></table></div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- DRAWER LATERAL -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
+    <div class="drawer-content" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <div class="drawer-header-left">
+          <div class="drawer-client-title" id="drawerClientTitle">Cliente</div>
+          <div class="drawer-meta-badges">
+            <span class="badge-product" id="drawerProductBadge">PRODUTO</span>
+            <span class="badge-solicitation" id="drawerSolicitationBadge">SOLICITAÇÃO</span>
+          </div>
+        </div>
+        <button onclick="closeDrawerDirect()" title="Fechar (ESC)" style="border:none; background:none; cursor:pointer; font-size:18px; color:var(--text-muted); padding:4px;">✖</button>
+      </div>
+
+      <div class="drawer-body">
+        
+        <!-- Telefone Corporativo -->
+        <div class="contact-clean-box">
+          <div>
+            <div class="contact-clean-label">Telefone de Retorno</div>
+            <div class="contact-clean-phone" id="drawerPhoneDisplay">(00) 00000-0000</div>
+          </div>
+          <button class="btn-copy-clean" id="btnCopyPhoneDrawer" onclick="copyDrawerPhone()">Copiar Número</button>
+        </div>
+
+        <div class="customer-message-box" id="drawerCustomerMessageBox" style="display:none;">
+          <div class="customer-message-head">
+            <strong>Mensagem padronizada ao cliente</strong>
+            <button type="button" class="btn-copy-clean" onclick="copyCustomerOpeningMessage()">Copiar mensagem</button>
+          </div>
+          <p id="drawerCustomerMessageText"></p>
+          <small>Texto sugerido para revisão antes do envio. Prazo configurável em js/config.js.</small>
+        </div>
+        <!-- Ações do Card -->
+        <div style="display:flex; gap:8px;">
+          <button 
+            class="btn-action primary" 
+            id="btnCompleteTicket"
+            style="flex:1; justify-content:center; padding:10px; font-size:12px;"
+            onclick="completeSelectedTicket()"
+          >
+            ✓ Finalizar Demanda
+          </button>
+          <button 
+            class="btn-action btn-reopen-ticket" 
+            id="btnReopenTicket"
+            style="display:none; flex:1; justify-content:center; padding:10px; font-size:12px;"
+            onclick="reopenSelectedTicket()"
+            title="Reverter demanda finalizada para Em Aberto mantendo o SLA desde a abertura"
+          >
+            ↺ Reverter para Em Aberto
+          </button>
+          <button 
+            class="btn-action" 
+            id="btnToggleEdit"
+            style="padding:10px 14px; font-size:12px;"
+            onclick="toggleEditDrawerForm()"
+          >
+            Editar Demanda
+          </button>
+          <button 
+            class="btn-action" 
+            id="btnDeleteTicket"
+            style="background:rgba(239, 68, 68, 0.15); color:#F87171; border-color:rgba(239, 68, 68, 0.3); padding:10px 14px; font-size:12px;"
+            onclick="deleteSelectedTicket()"
+            title="Excluir demanda definitivamente"
+          >
+            Excluir
+          </button>
+        </div>
+
+        <!-- FORMULÁRIO DE EDIÇÃO NO DRAWER -->
+        <form class="drawer-edit-form" id="drawerEditForm" onsubmit="handleSaveDrawerEdit(event)">
+          <div style="font-weight:800; font-size:12px; color:var(--tp-green); border-bottom:1px solid var(--border-subtle); padding-bottom:6px;">
+            Editar Demanda (Sincroniza com Toda a Equipe)
+          </div>
+
+          <div>
+            <label class="edit-label">Cliente / Transportadora *</label>
+            <input class="edit-input" type="text" id="editDrawerClient" required />
+          </div>
+
+          <div class="edit-grid-2">
+            <div>
+              <label class="edit-label">Produto</label>
+              <select class="edit-select" id="editDrawerProduct" onchange="onEditDrawerProductChange()">
+                <option value="PEDÁGIO">Pedágio</option>
+                <option value="MANUTENÇÃO">Manutenção</option>
+                <option value="ABASTECIMENTO">Abastecimento</option>
+              </select>
+            </div>
+            <div>
+              <label class="edit-label">Solicitação</label>
+              <select class="edit-select" id="editDrawerSolicitacao" onchange="onEditDrawerSolicitacaoChange()"></select>
+            </div>
+          </div>
+
+          <div class="edit-grid-2">
+            <div>
+              <label class="edit-label">Telefone / Contato</label>
+              <input class="edit-input" type="text" id="editDrawerContact" />
+            </div>
+            <div>
+              <label class="edit-label">Agente</label>
+              <select class="edit-select" id="editDrawerOperator"></select>
+            </div>
+          </div>
+
+          <div class="edit-grid-2">
+            <div>
+              <label class="edit-label">Terceiro / Setor</label>
+              <select class="edit-select" id="editDrawerTerceiro" required>
+                <option value="">Selecione o responsável...</option>
+                <option value="MoveMais">MoveMais</option>
+                <option value="ConnectCar">ConnectCar</option>
+                <option value="Financeiro">Financeiro</option>
+                <option value="T.I">T.I</option>
+                <option value="Cadastro">Cadastro</option>
+                <option value="Control">Control</option>
+                <option value="Outros">Outros</option>
+              </select>
+            </div>
+            <div>
+              <label class="edit-label" id="editDrawerReturnLabel">Data Prevista Retorno (DD/MM/AAAA)</label>
+              <input class="edit-input" type="text" id="editDrawerReturnDate" placeholder="DD/MM/AAAA" />
+            </div>
+          </div>
+
+          <div id="editDrawerManutTipoGroup" style="display:none;">
+            <label class="edit-label" style="color:var(--tp-green);">Tipo de Cadastro (Manutenção) *</label>
+            <select class="edit-select" id="editDrawerManutTipo" onchange="onEditDrawerManutTipoChange()">
+              <option value="">Selecione Cliente ou Estabelecimento...</option>
+              <option value="Estabelecimento">Estabelecimento</option>
+              <option value="Cliente">Cliente</option>
+            </select>
+          </div>
+
+          <div id="editDrawerDafGroup" style="display:none;" class="edit-grid-2">
+            <div>
+              <label class="edit-label" style="color:var(--tp-green);">Casa DAF</label>
+              <select class="edit-select" id="editDrawerDafRede" onchange="onEditDrawerDafChange()">
+                <option value="">Selecione...</option>
+              </select>
+            </div>
+            <div>
+              <label class="edit-label" style="color:var(--tp-green);">Município DAF</label>
+              <select class="edit-select" id="editDrawerDafMuni">
+                <option value="">Selecione...</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="editDrawerLinkGroup" style="display:none;">
+            <label class="edit-label" id="editDrawerLinkLabel" style="color:#818CF8;">Link do E-mail / Chamado *</label>
+            <input class="edit-input" type="url" id="editDrawerLink" placeholder="https://..." />
+          </div>
+
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <label class="edit-label" style="margin:0;" id="editDrawerDescLabel">Informações Complementares / Pareceres</label>
+              <button type="button" onclick="appendTimestampedNote()" style="background:var(--bg-input); color:var(--tp-green); border:1px solid var(--tp-green-border); border-radius:4px; padding:2px 7px; font-size:10px; font-weight:700; cursor:pointer;">
+                + Carimbo Data/Hora
+              </button>
+            </div>
+            <textarea class="edit-textarea" id="editDrawerDescription" rows="5" placeholder="Adicione relatos, pareceres e atualizações complementares..."></textarea>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:4px;">
+            <button type="button" class="btn-action" onclick="toggleEditDrawerForm()">Cancelar</button>
+            <button type="submit" class="btn-action primary">Salvar Alterações</button>
+          </div>
+        </form>
+
+        <!-- GRID DE DETALHES -->
+        <div class="detail-grid" id="drawerDetailGrid">
+          <div class="detail-cell">
+            <div class="detail-cell-label">Status</div>
+            <div class="detail-cell-val" id="drawerStatusVal">-</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-cell-label">Agente Responsável</div>
+            <div class="detail-cell-val" id="drawerAgentVal">-</div>
+          </div>
+          <div class="detail-cell full">
+            <div class="detail-cell-label">Terceiro / Setor Acionado</div>
+            <div class="detail-cell-val" style="color:#38BDF8;" id="drawerThirdVal">-</div>
+          </div>
+          <div class="detail-cell full sla-indicator-box" id="drawerHistoricalSla" style="display:none;">
+            <div class="sla-indicator-head">
+              <span class="detail-cell-label">Indicador de SLA da Solicitação</span>
+              <span class="sla-ref-badge" id="drawerSlaRefBadge">Referência histórica</span>
+            </div>
+            <div class="sla-indicator-metrics" id="drawerHistoricalSlaValue"></div>
+          </div>
+          <div class="detail-cell full" id="drawerManutTipoCell" style="display:none;">
+            <div class="detail-cell-label">Tipo de Cadastro (Manutenção)</div>
+            <div class="detail-cell-val" id="drawerManutTipoVal">-</div>
+          </div>
+          <div class="detail-cell full" id="drawerDafCell" style="display:none;">
+            <div class="detail-cell-label">Concessionária DAF & Município</div>
+            <div class="detail-cell-val" id="drawerDafVal">-</div>
+          </div>
+          <div class="detail-cell full" id="drawerBitrixCell" style="display:none;">
+            <div class="detail-cell-label" id="drawerBitrixLabel">Link (E-mail/Chamado)</div>
+            <div class="detail-cell-val">
+              <a href="#" target="_blank" rel="noreferrer" style="color:#818CF8; font-weight:800;" id="drawerBitrixLink">
+                Acessar Referência ↗
+              </a>
+            </div>
+          </div>
+          <div class="detail-cell full">
+            <div class="detail-cell-label">Informações Complementares / Relato IP</div>
+            <div class="complementary-text" id="drawerDescVal">-</div>
+          </div>
+        </div>
+
+        <div class="pareceres-box">
+          <div class="pareceres-header">Histórico & Pareceres</div>
+          
+          <div class="pareceres-step">
+            <div class="step-time" id="step1Time">-</div>
+            <div class="step-title">Atendimento IP Finalizado</div>
+            <div class="step-desc">Demanda recebida e planilhada para acionamento externo.</div>
+          </div>
+
+          <div class="pareceres-step">
+            <div class="step-time" id="step2Time">-</div>
+            <div class="step-title" id="step2Title">Acionado Terceiro</div>
+            <div class="step-desc" id="step2Desc">Aguardando parecer técnico.</div>
+          </div>
+
+          <div class="pareceres-step" id="step3Container" style="display:none; border-top:1px dashed var(--border-subtle); padding-top:8px;">
+            <div class="step-time" id="step3Time">-</div>
+            <div class="step-title" style="color:var(--tp-green);">Retorno Prestado ao Cliente</div>
+            <div class="step-desc">Resolução comunicada ao cliente. Caso finalizado.</div>
+          </div>
+        </div>
+
+        <div class="sla-final-highlight" id="slaFinalHighlight" style="display:none;">
+          SLA do atendimento deste card: - dias.
+        </div>
+
+        <div id="drawerProgressClocks" style="background:var(--bg-card); padding:10px 14px; border-radius:6px; border:1px solid var(--border-subtle); font-size:11.5px;">
+          <div style="font-weight:800; margin-bottom:7px; color:#fff;">Acompanhamento da demanda</div>
+          <div class="drawer-clock-row"><span>Data de abertura</span><strong id="drawerOpenedAt">-</strong></div>
+          <div class="drawer-clock-row"><span>Tempo em aberto</span><strong id="drawerClockElapsed">-</strong></div>
+          <div class="drawer-clock-row official-deadline-row"><span>Prazo oficial</span><strong id="drawerClockRem">Sem prazo oficial</strong></div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NOVA DEMANDA -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModalDirect(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <h2>Nova Demanda (Pós-Atendimento IP)</h2>
+        <button onclick="closeModalDirect(null)" title="Fechar (ESC)" style="border:none; background:none; cursor:pointer; font-size:18px; color:var(--text-muted);">✖</button>
+      </div>
+
+      <form class="modal-form" id="newDemandForm" onsubmit="handleSaveDemandForm(event)">
+        <div class="form-col-full" id="modalManutTipoGroup" style="display:none; background:rgba(139, 92, 246, 0.10); padding:10px; border-radius:6px; border:1px solid rgba(139, 92, 246, 0.30);">
+          <label class="field-label" style="color:#C4B5FD;">Tipo de Cadastro (Manutenção) *</label>
+          <select class="field-select" id="modalManutTipoSelect" name="manutencaoTipo" onchange="onModalManutTipoChange()">
+            <option value="">Selecione Cliente ou Estabelecimento...</option>
+            <option value="Estabelecimento">Estabelecimento</option>
+            <option value="Cliente">Cliente</option>
+          </select>
+        </div>
+
+        <div class="form-col-full">
+          <label class="field-label" id="modalClientLabel">Cliente / Transportadora *</label>
+          <input class="field-input" type="text" name="client" id="modalClientInput" required placeholder="Razão social ou nome do cliente" />
+        </div>
+
+        <div>
+          <label class="field-label">Telefone para Retorno *</label>
+          <input class="field-input" type="text" name="contact" required placeholder="(00) 00000-0000" />
+        </div>
+
+        <div>
+          <label class="field-label">Agente Responsável</label>
+          <select class="field-select" id="modalOperatorSelect" name="operator"></select>
+        </div>
+
+        <div>
+          <label class="field-label">Produto *</label>
+          <select class="field-select" id="modalProductSelect" name="product" onchange="onModalProductChange()">
+            <option value="PEDÁGIO">Pedágio</option>
+            <option value="MANUTENÇÃO">Manutenção</option>
+            <option value="ABASTECIMENTO">Abastecimento</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label">Solicitação *</label>
+          <select class="field-select" id="modalServiceSelect" name="solicitacao" onchange="onModalServiceChange()">
+          </select>
+        </div>
+
+        <div class="form-col-full">
+          <label class="field-label">Terceiro / Setor *</label>
+          <select class="field-select" name="terceiro" id="modalTerceiroSelect" required>
+            <option value="">Selecione o responsável...</option>
+            <option value="MoveMais">MoveMais</option>
+            <option value="ConnectCar">ConnectCar</option>
+            <option value="Financeiro">Financeiro</option>
+            <option value="T.I">T.I</option>
+            <option value="Cadastro">Cadastro</option>
+            <option value="Control">Control</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+
+        <div class="form-col-full" id="modalDafGroup" style="display:none; background:var(--tp-green-subtle); padding:10px; border-radius:6px; border:1px solid var(--tp-green-border);">
+          <div style="font-weight:800; color:var(--tp-green); font-size:11px; margin-bottom:6px;">
+            Casa DAF & Município * (Obrigatório para Manutenção)
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <div>
+              <label class="field-label" style="color:var(--tp-green);">Casa DAF *</label>
+              <select class="field-select" id="modalDafSelect" name="dafRede" onchange="onModalDafCasaChange()">
+                <option value="">Selecione a Casa DAF...</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" style="color:var(--tp-green);">Município da Casa *</label>
+              <select class="field-select" id="modalDafMunicipioSelect" name="dafMunicipio">
+                <option value="">Selecione a Casa primeiro...</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-col-full" id="modalLinkGroup" style="display:none; background:rgba(99, 102, 241, 0.15); padding:8px 12px; border-radius:6px; border:1px solid rgba(99, 102, 241, 0.35);">
+          <label class="field-label" id="modalLinkLabel" style="color:#A5B4FC;">Link do E-mail / Chamado *</label>
+          <input class="field-input" type="url" id="modalLinkInput" name="bitrixLink" placeholder="https://..." />
+        </div>
+
+        <div class="form-col-full" style="background:var(--bg-input); padding:10px; border-radius:6px; border:1px solid var(--border-subtle);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <label class="field-label" id="modalReturnDateLabel" style="color:var(--tp-green); margin:0;">Data para Retorno ao Cliente</label>
+            <button
+              id="btnCalculateReturnDate"
+              type="button"
+              onclick="calculateModalReturnDate()"
+              style="background:var(--bg-card); color:#fff; border:1px solid var(--border-subtle); border-radius:4px; padding:3px 8px; font-size:10.5px; font-weight:700; cursor:pointer;"
+            >
+              Calcular Prazo Estimado
+            </button>
+          </div>
+          <input class="field-input" type="date" name="returnDate" id="modalReturnDateInput" oninput="markManualReturnDate()" />
+          <div style="font-size:10.5px; color:var(--tp-green); font-weight:700; margin-top:4px;" id="modalFeedbackText"></div>
+        </div>
+
+        <div class="form-col-full">
+          <label class="field-label" id="modalDescLabel">Informações Complementares / Ocorrência no IP</label>
+          <textarea class="field-textarea" name="desc" id="modalDescInput" rows="3" placeholder="Descreva os detalhes da demanda..."></textarea>
+        </div>
+
+        <div class="form-col-full" style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+          <button type="button" class="btn-action" onclick="closeModalDirect(null)">Cancelar</button>
+          <button type="submit" class="btn-action primary">+ Planilhar Demanda</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONTAINER DE TOAST (NOTIFICAÇÕES) -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script defer src="js/config.js?v=18"></script>
+  <script defer src="js/core.js?v=18"></script>
+  <script defer src="js/ui.js?v=18"></script>
+  <script defer src="js/bootstrap.js?v=18"></script>
+</body>
+</html>
