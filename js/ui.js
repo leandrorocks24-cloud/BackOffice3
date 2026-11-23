@@ -596,6 +596,8 @@
     // =========================================================================
     function openDrawer(ticket, keepViewMode) {
       if (!ticket) return;
+      var latestTicket = allTickets.find(function(x) { return String(x.id).trim() === String(ticket.id).trim(); }) || ticket;
+      ticket = latestTicket;
       activeSelectedTicket = ticket;
 
       if (!keepViewMode) {
@@ -603,6 +605,9 @@
         if (editForm) editForm.style.display = 'none';
         var detailGrid = document.getElementById('drawerDetailGrid');
         if (detailGrid) detailGrid.style.display = 'grid';
+        if (typeof syncFromGoogleSheets === 'function' && !isSyncingNow) {
+          setTimeout(function() { syncFromGoogleSheets(false); }, 50);
+        }
       }
 
       try {

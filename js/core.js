@@ -313,18 +313,55 @@
       try { localStorage.setItem(KNOWN_SHEET_IDS_KEY, JSON.stringify(map)); } catch(e) {}
     }
 
+    function normTextVal(v) {
+      return String(v === null || v === undefined ? "" : v).replace(/\r\n/g, "\n").trim();
+    }
+
     function isTicketSyncedWithSheet(sheetTicket, localTicket) {
       if (!sheetTicket || !localTicket) return false;
       return (
         normalizeStatus(sheetTicket.status) === normalizeStatus(localTicket.status) &&
         normalizeProduct(sheetTicket.product) === normalizeProduct(localTicket.product) &&
-        String(sheetTicket.solicitacao || "").trim() === String(localTicket.solicitacao || "").trim() &&
-        String(sheetTicket.terceiro || "").trim() === String(localTicket.terceiro || "").trim() &&
-        String(sheetTicket.client || "").trim() === String(localTicket.client || "").trim() &&
-        String(sheetTicket.operator || "").trim() === String(localTicket.operator || "").trim() &&
-        String(sheetTicket.description || "").trim() === String(localTicket.description || "").trim() &&
-        String(sheetTicket.endDate || "").trim() === String(localTicket.endDate || "").trim()
+        normTextVal(sheetTicket.solicitacao) === normTextVal(localTicket.solicitacao) &&
+        normTextVal(sheetTicket.terceiro) === normTextVal(localTicket.terceiro) &&
+        normTextVal(sheetTicket.client) === normTextVal(localTicket.client) &&
+        normTextVal(sheetTicket.operator) === normTextVal(localTicket.operator) &&
+        normTextVal(sheetTicket.contact) === normTextVal(localTicket.contact) &&
+        formatOnlyDateBR(sheetTicket.returnDate) === formatOnlyDateBR(localTicket.returnDate) &&
+        normTextVal(sheetTicket.bitrixLink) === normTextVal(localTicket.bitrixLink) &&
+        normTextVal(sheetTicket.manutencaoTipo) === normTextVal(localTicket.manutencaoTipo) &&
+        normTextVal(sheetTicket.dafRede) === normTextVal(localTicket.dafRede) &&
+        normTextVal(sheetTicket.dafMunicipio) === normTextVal(localTicket.dafMunicipio) &&
+        normTextVal(sheetTicket.description) === normTextVal(localTicket.description) &&
+        normTextVal(sheetTicket.endDate) === normTextVal(localTicket.endDate)
       );
+    }
+
+    function countPopulatedFields(t) {
+      if (!t) return 0;
+      var score = 0;
+      if (t.description) score += 2 + Math.min(5, Math.floor(String(t.description).length / 20));
+      if (t.bitrixLink) score += 2;
+      if (t.contact) score += 1;
+      if (t.returnDate && t.returnDate !== 'A definir') score += 1;
+      if (t.dafRede) score += 1;
+      if (t.dafMunicipio) score += 1;
+      if (t.manutencaoTipo) score += 1;
+      if (t.endDate) score += 2;
+      return score;
+    }
+
+    function pickBestSheetTicket(existing, candidate) {
+      if (!existing) return candidate;
+      if (!candidate) return existing;
+      var eTime = existing.updatedAt ? Date.parse(existing.updatedAt) : NaN;
+      var cTime = candidate.updatedAt ? Date.parse(candidate.updatedAt) : NaN;
+      if (!isNaN(eTime) && !isNaN(cTime) && eTime !== cTime) {
+        return cTime > eTime ? candidate : existing;
+      }
+      if (!isNaN(cTime) && isNaN(eTime)) return candidate;
+      if (!isNaN(eTime) && isNaN(cTime)) return existing;
+      return countPopulatedFields(candidate) >= countPopulatedFields(existing) ? candidate : existing;
     }
 
     function confirmPendingOp(ticketId) {
@@ -339,16 +376,18 @@
       }
     }
 
-    function pruneConfirmedOps(sheetMap) {
+    function pruneConfirmedOps(sheetMap, delList) {
       var ops = getPendingOps();
       var now = Date.now();
       var changed = false;
+      var deletedSet = delList || getDeletedIds();
       Object.keys(ops).forEach(function(k) {
         var op = ops[k];
         if (!op) return;
         if (sheetMap) {
           if (op.action === "delete") {
-            if (!sheetMap[k] || normalizeStatus(sheetMap[k].status) === "Excluído") {
+            // Só considera exclusão concluída quando a planilha confirmar o tombstone (status Excluído)
+            if (deletedSet.indexOf(k) !== -1 && !sheetMap[k]) {
               delete ops[k];
               changed = true;
               return;
@@ -358,8 +397,8 @@
             changed = true;
             return;
           }
-          // Se ainda não refletiu na planilha após 8s, marca para reenvio imediato
-          if (op.confirmed && (now - (op.lastSentAt || op.confirmedAt || op.timestamp) > 8000)) {
+          // Se ainda não refletiu na planilha após 6s, marca para reenvio imediato
+          if (op.confirmed && (now - (op.lastSentAt || op.confirmedAt || op.timestamp) > 6000)) {
             op.confirmed = false;
             changed = true;
           }
@@ -423,6 +462,7 @@
     var modalAutoReturnFlag = false;
     var filterOnlyOverdue = false;
     var isSyncingNow = false;
+    var inFlightMutations = {};
 
     function mapSheetRowToTicket(row) {
       var tid = String(row.id || row['ID'] || row['Código'] || "").trim();
@@ -478,23 +518,29 @@
 
     function flushPendingOps() {
       var ops = getPendingOps();
-      var unconfirmedIds = Object.keys(ops).filter(function(id) { return !ops[id].confirmed; });
-      if (unconfirmedIds.length === 0) return Promise.resolve();
+      var ids = Object.keys(ops);
+      if (ids.length === 0) return Promise.resolve();
 
-      var promises = unconfirmedIds.map(function(id) {
+      var promises = ids.map(function(id) {
+        if (inFlightMutations[id]) {
+          return inFlightMutations[id];
+        }
         var op = ops[id];
-        return sendMutationToSheet(op.action, op.ticket, true);
+        if (!op.confirmed) {
+          return sendMutationToSheet(op.action, op.ticket, true);
+        }
+        return Promise.resolve();
       });
       return Promise.all(promises);
     }
 
     function sendMutationToSheet(actionType, ticketData, isRetry) {
+      var tid = String(ticketData.id || "").trim();
       if (!isRetry) {
         registerPendingOp(actionType, ticketData);
       }
       setSyncBadge('syncing', '⏳ Salvando...');
 
-      var tid = String(ticketData.id || "").trim();
       var knownIds = getKnownSheetIds();
       var isInitialSeed = typeof INITIAL_ID_SET !== "undefined" && !!INITIAL_ID_SET[tid];
 
@@ -515,83 +561,88 @@
         }).then(function(res) { return res.text(); });
       }
 
-      // Se for exclusão:
-      // 1) Para registros base do config.js (INITIAL_ID_SET), grava tombstone status="Excluído" na planilha
-      //    para que todos os 3 operadores saibam que foi excluído e não recarreguem do config.js.
-      // 2) Para registros criados dinamicamente, marca status="Excluído" e dispara action="delete".
+      var reqPromise;
+
+      // Exclusão permanente compartilhada entre os 3 operadores:
+      // Grava status="Excluído" e isDeleted=true na planilha (sem apagar o tombstone),
+      // garantindo que Mirian, Leandro e Isabelli recebam o bloqueio automaticamente ao carregar/sincronizar.
       if (actionType === "delete") {
         var tombstoneTicket = Object.assign({}, cleanPayloadTicket, {
           status: "Excluído",
           isDeleted: true,
           updatedAt: new Date().toISOString()
         });
-        var delPromise;
-        if (isInitialSeed) {
-          var tombAct = knownIds[tid] ? "update" : "create";
-          delPromise = postPayload(tombAct, tombstoneTicket).then(function(rawText) {
+        var tombAct = (knownIds[tid] || !hasLoadedFromSheet) ? "update" : "create";
+        reqPromise = postPayload(tombAct, tombstoneTicket)
+          .then(function(rawText) {
             var parsed = null;
             try { parsed = JSON.parse(rawText); } catch(e) {}
             if (parsed && parsed.status === "error" && tombAct === "update") {
               return postPayload("create", tombstoneTicket);
             }
-          });
-        } else {
-          delPromise = postPayload("update", tombstoneTicket)
-            .catch(function() {})
-            .then(function() { return postPayload("delete", tombstoneTicket); });
-        }
-        return delPromise
+          })
           .then(function() {
-            if (isInitialSeed) {
-              var k = getKnownSheetIds();
-              k[tid] = true;
-              saveKnownSheetIds(k);
-            }
+            var k = getKnownSheetIds();
+            k[tid] = true;
+            saveKnownSheetIds(k);
             confirmPendingOp(tid);
             setSyncBadge('', '↻ ● Sincronizado');
+            if (!isRetry) {
+              setTimeout(function() { syncFromGoogleSheets(false); }, 1500);
+            }
           })
           .catch(function(err) {
             console.warn("Falha temporária na exclusão:", err);
             setSyncBadge('offline', '↻ ● Pendente');
           });
+      } else {
+        var effectiveAction = actionType;
+        if (actionType === "update" && !knownIds[tid] && (hasLoadedFromSheet || isInitialSeed)) {
+          effectiveAction = "create";
+        }
+
+        reqPromise = postPayload(effectiveAction, cleanPayloadTicket)
+        .then(function(rawText) {
+          var parsed = null;
+          try { parsed = JSON.parse(rawText); } catch(e) {}
+          if (parsed && parsed.status === "error" && effectiveAction === "update") {
+            return postPayload("create", cleanPayloadTicket).then(function(retryText) {
+              var retryParsed = null;
+              try { retryParsed = JSON.parse(retryText); } catch(e) {}
+              if (retryParsed && retryParsed.status === "error") {
+                throw new Error(retryParsed.message || "Erro ao criar linha na planilha");
+              }
+            });
+          }
+          if (parsed && parsed.status === "error") {
+            throw new Error(parsed.message || "Erro retornado pela planilha");
+          }
+        })
+        .then(function() {
+          if (effectiveAction === "create") {
+            var k = getKnownSheetIds();
+            k[tid] = true;
+            saveKnownSheetIds(k);
+          }
+          confirmPendingOp(tid);
+          setSyncBadge('', '↻ ● Sincronizado');
+          if (!isRetry) {
+            setTimeout(function() { syncFromGoogleSheets(false); }, 1500);
+          }
+        })
+        .catch(function(err) {
+          console.warn("Falha temporária no envio:", err);
+          setSyncBadge('offline', '↻ ● Pendente');
+        });
       }
 
-      var effectiveAction = actionType;
-      // Se é uma atualização de registro que ainda não está na planilha (ex: REC-RETRO-*, HIST-*), cria na planilha
-      if (actionType === "update" && !knownIds[tid] && (hasLoadedFromSheet || isInitialSeed)) {
-        effectiveAction = "create";
+      if (tid) {
+        inFlightMutations[tid] = reqPromise.finally(function() {
+          delete inFlightMutations[tid];
+        });
+        return inFlightMutations[tid];
       }
-
-      return postPayload(effectiveAction, cleanPayloadTicket)
-      .then(function(rawText) {
-        var parsed = null;
-        try { parsed = JSON.parse(rawText); } catch(e) {}
-        if (parsed && parsed.status === "error" && effectiveAction === "update") {
-          return postPayload("create", cleanPayloadTicket).then(function(retryText) {
-            var retryParsed = null;
-            try { retryParsed = JSON.parse(retryText); } catch(e) {}
-            if (retryParsed && retryParsed.status === "error") {
-              throw new Error(retryParsed.message || "Erro ao criar linha na planilha");
-            }
-          });
-        }
-        if (parsed && parsed.status === "error") {
-          throw new Error(parsed.message || "Erro retornado pela planilha");
-        }
-      })
-      .then(function() {
-        if (effectiveAction === "create") {
-          var k = getKnownSheetIds();
-          k[tid] = true;
-          saveKnownSheetIds(k);
-        }
-        confirmPendingOp(tid);
-        setSyncBadge('', '↻ ● Sincronizado');
-      })
-      .catch(function(err) {
-        console.warn("Falha temporária no envio:", err);
-        setSyncBadge('offline', '↻ ● Pendente');
-      });
+      return reqPromise;
     }
 
     function syncFromGoogleSheets(isManualClick) {
@@ -633,23 +684,41 @@
 
         var sheetMap = {};
         var knownMap = {};
+        var activeDuplicateOfDeleted = [];
         if (Array.isArray(resp.data)) {
-          resp.data.map(mapSheetRowToTicket).forEach(function(t) {
-            if (t.id) {
-              knownMap[t.id] = true;
-              if (t.status === "Excluído" || isDeletedTicket(t, delList)) {
-                if (delList.indexOf(t.id) === -1) {
-                  delList.push(t.id);
-                  delChanged = true;
-                }
-              } else {
-                sheetMap[t.id] = t;
+          var mappedRows = resp.data.map(mapSheetRowToTicket);
+          // 1ª passagem: identifica todos os IDs conhecidos e todos os tombstones ("Excluído") na planilha
+          mappedRows.forEach(function(t) {
+            if (!t.id) return;
+            knownMap[t.id] = true;
+            if (t.status === "Excluído" || isDeletedTicket(t, delList)) {
+              if (delList.indexOf(t.id) === -1) {
+                delList.push(t.id);
+                delChanged = true;
               }
             }
+          });
+          // 2ª passagem: consolida linhas ativas usando pickBestSheetTicket para nunca deixar duplicata antiga sobrescrever edição recente
+          mappedRows.forEach(function(t) {
+            if (!t.id) return;
+            if (delList.indexOf(t.id) !== -1 || isDeletedTicket(t, delList)) {
+              if (t.status !== "Excluído" && activeDuplicateOfDeleted.indexOf(t.id) === -1) {
+                activeDuplicateOfDeleted.push(t.id);
+              }
+              return;
+            }
+            sheetMap[t.id] = pickBestSheetTicket(sheetMap[t.id], t);
           });
         }
         if (delChanged) saveDeletedIds(delList);
         saveKnownSheetIds(knownMap);
+
+        // Se havia linha duplicada ativa de um ID já excluído, propaga status="Excluído" para limpar a duplicata na planilha
+        activeDuplicateOfDeleted.forEach(function(dupId) {
+          if (!inFlightMutations[dupId]) {
+            sendMutationToSheet("delete", { id: dupId, status: "Excluído", isDeleted: true }, true);
+          }
+        });
 
         // Se existe uma operação pendente não-delete para um ID que ainda não consta na planilha, re-envia como create
         var currentOps = getPendingOps();
@@ -661,12 +730,7 @@
         });
         savePendingOps(currentOps);
 
-        var activePending = pruneConfirmedOps(sheetMap);
-        var localById = {};
-        allTickets.forEach(function(lt) {
-          if (lt && lt.id) localById[String(lt.id).trim()] = lt;
-        });
-
+        var activePending = pruneConfirmedOps(sheetMap, delList);
         var mergedMap = {};
 
         RAW_INITIAL_RECORDS.forEach(function(r) {
@@ -677,23 +741,13 @@
           }
         });
 
+        // A planilha é a fonte oficial compartilhada entre os 3 operadores
         Object.keys(sheetMap).forEach(function(id) {
           if (delList.indexOf(id) !== -1) return;
-          var sTicket = sheetMap[id];
-          var lTicket = localById[id];
-          // Proteção contra leitura defasada entre os 3 operadores: se o registro local tem updatedAt mais recente, preserva o local
-          if (lTicket && lTicket.updatedAt && sTicket.updatedAt) {
-            var lTime = Date.parse(lTicket.updatedAt);
-            var sTime = Date.parse(sTicket.updatedAt);
-            if (!isNaN(lTime) && !isNaN(sTime) && lTime > sTime + 1500) {
-              mergedMap[id] = lTicket;
-              return;
-            }
-          }
-          mergedMap[id] = sTicket;
+          mergedMap[id] = sheetMap[id];
         });
 
-        // Aplica todas as mutações locais pendentes por cima para nunca perder edição/finalização/reversão/exclusão
+        // Aplica apenas as mutações locais ainda não confirmadas na planilha
         Object.keys(activePending).forEach(function(lid) {
           var op = activePending[lid];
           if (op.action === "delete" || delList.indexOf(lid) !== -1) {
@@ -726,7 +780,11 @@
           if (!editForm || editForm.style.display !== 'flex') {
             var refreshed = allTickets.find(function(x) { return x.id === activeSelectedTicket.id; });
             if (refreshed) {
+              var changedWhileOpen = !isTicketSyncedWithSheet(refreshed, activeSelectedTicket);
               openDrawer(refreshed, true);
+              if (changedWhileOpen) {
+                showToast("Card atualizado com alterações recentes da equipe!");
+              }
             } else {
               closeDrawerDirect();
             }
@@ -747,7 +805,7 @@
     var lastFocusSyncAt = 0;
     function triggerVisibilitySync() {
       var now = Date.now();
-      if (now - lastFocusSyncAt < 5000) return;
+      if (now - lastFocusSyncAt < 3000) return;
       lastFocusSyncAt = now;
       var modal = document.getElementById('modalOverlay');
       var editForm = document.getElementById('drawerEditForm');
@@ -771,6 +829,6 @@
       if (!modalOpen && !editOpen) {
         syncFromGoogleSheets(false);
       }
-    }, 12000);
+    }, 8000);
 
     // =========================================================================
