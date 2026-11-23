@@ -115,7 +115,8 @@
 
     function normalizeStatus(st) {
       var raw = String(st || "").trim().toLowerCase();
-      if (raw.indexOf("concl") !== -1) return "Concluído";
+      if (raw.indexOf("excl") !== -1 || raw.indexOf("delet") !== -1 || raw.indexOf("remov") !== -1) return "Excluído";
+      if (raw.indexOf("concl") !== -1 || raw.indexOf("finaliz") !== -1 || raw.indexOf("encerr") !== -1 || raw.indexOf("resolv") !== -1) return "Concluído";
       if (raw.indexOf("canc") !== -1) return "Cancelado";
       return "Em andamento";
     }
@@ -123,6 +124,9 @@
     function normalizeMes(m) {
       if (!m) return "11-2026";
       var s = String(m).trim().toLowerCase();
+      var mmYyyy = s.match(/^(\d{2})-(\d{4})$/);
+      if (mmYyyy) return mmYyyy[1] + "-" + mmYyyy[2];
+      if (s.indexOf("12") !== -1 || s.indexOf("dez") !== -1) return "12-2026";
       if (s.indexOf("11") !== -1 || s.indexOf("nov") !== -1) return "11-2026";
       if (s.indexOf("10") !== -1 || s.indexOf("out") !== -1) return "10-2026";
       if (s.indexOf("09") !== -1 || s.indexOf("set") !== -1 || s.indexOf("9") !== -1) return "09-2026";
@@ -256,6 +260,9 @@
     function isDeletedTicket(ticket, delList) {
       if (!ticket) return false;
       if (isBlacklisted(ticket)) return true;
+      if (ticket.isDeleted === true || ticket.isDeleted === "true") return true;
+      var rawSt = ticket.status !== undefined ? ticket.status : ticket['Status'];
+      if (rawSt && normalizeStatus(rawSt) === "Excluído") return true;
       var list = delList || getDeletedIds();
       var tid = String(ticket.id || ticket['id'] || ticket['ID'] || "").trim();
       return tid ? (list.indexOf(tid) !== -1) : false;
@@ -312,9 +319,11 @@
         normalizeStatus(sheetTicket.status) === normalizeStatus(localTicket.status) &&
         normalizeProduct(sheetTicket.product) === normalizeProduct(localTicket.product) &&
         String(sheetTicket.solicitacao || "").trim() === String(localTicket.solicitacao || "").trim() &&
+        String(sheetTicket.terceiro || "").trim() === String(localTicket.terceiro || "").trim() &&
         String(sheetTicket.client || "").trim() === String(localTicket.client || "").trim() &&
         String(sheetTicket.operator || "").trim() === String(localTicket.operator || "").trim() &&
-        String(sheetTicket.description || "").trim() === String(localTicket.description || "").trim()
+        String(sheetTicket.description || "").trim() === String(localTicket.description || "").trim() &&
+        String(sheetTicket.endDate || "").trim() === String(localTicket.endDate || "").trim()
       );
     }
 
@@ -339,7 +348,7 @@
         if (!op) return;
         if (sheetMap) {
           if (op.action === "delete") {
-            if (!sheetMap[k]) {
+            if (!sheetMap[k] || normalizeStatus(sheetMap[k].status) === "Excluído") {
               delete ops[k];
               changed = true;
               return;
@@ -349,8 +358,8 @@
             changed = true;
             return;
           }
-          // Se ainda não refletiu na planilha após 20s, marca para reenvio
-          if (op.confirmed && (now - (op.lastSentAt || op.confirmedAt || op.timestamp) > 20000)) {
+          // Se ainda não refletiu na planilha após 8s, marca para reenvio imediato
+          if (op.confirmed && (now - (op.lastSentAt || op.confirmedAt || op.timestamp) > 8000)) {
             op.confirmed = false;
             changed = true;
           }
@@ -427,6 +436,7 @@
       var bitrix = String(row.bitrixLink || row['Bitrix'] || "").trim();
       var dafRede = String(row.dafRede || row['Casa DAF'] || "").trim();
       var dafMuni = String(row.dafMunicipio || row['Município'] || "").trim();
+      var manutTipo = String(row.manutencaoTipo || row['Tipo Manutenção'] || (prod === "MANUTENÇÃO" && dafRede ? "Estabelecimento" : "")).trim();
       var desc = String(row.description || row['Descrição'] || "").trim();
       var start = formatDateDisplay(row.startDate || row['Data de início'] || "");
       var end = formatDateDisplay(row.endDate || row['Data de término'] || "");
@@ -445,6 +455,7 @@
         solicitacao: sol,
         terceiro: terceiro,
         bitrixLink: bitrix,
+        manutencaoTipo: manutTipo,
         dafRede: dafRede,
         dafMunicipio: dafMuni,
         status: st,
@@ -485,33 +496,78 @@
 
       var tid = String(ticketData.id || "").trim();
       var knownIds = getKnownSheetIds();
-      var effectiveAction = actionType;
-      // Se é uma atualização de registro que só existia no config local (ex: REC-RETRO-*, HIST-*), cria na planilha
-      if (actionType === "update" && hasLoadedFromSheet && !knownIds[tid]) {
-        effectiveAction = "create";
-      }
+      var isInitialSeed = typeof INITIAL_ID_SET !== "undefined" && !!INITIAL_ID_SET[tid];
 
       var cleanPayloadTicket = Object.assign({}, ticketData, {
+        id: tid,
         returnDate: formatOnlyDateBR(ticketData.returnDate)
       });
 
-      function postPayload(act) {
+      function postPayload(act, payloadObj) {
         return fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({
             action: act,
-            ticket: cleanPayloadTicket
+            id: tid,
+            ticket: payloadObj
           })
         }).then(function(res) { return res.text(); });
       }
 
-      return postPayload(effectiveAction)
+      // Se for exclusão:
+      // 1) Para registros base do config.js (INITIAL_ID_SET), grava tombstone status="Excluído" na planilha
+      //    para que todos os 3 operadores saibam que foi excluído e não recarreguem do config.js.
+      // 2) Para registros criados dinamicamente, marca status="Excluído" e dispara action="delete".
+      if (actionType === "delete") {
+        var tombstoneTicket = Object.assign({}, cleanPayloadTicket, {
+          status: "Excluído",
+          isDeleted: true,
+          updatedAt: new Date().toISOString()
+        });
+        var delPromise;
+        if (isInitialSeed) {
+          var tombAct = knownIds[tid] ? "update" : "create";
+          delPromise = postPayload(tombAct, tombstoneTicket).then(function(rawText) {
+            var parsed = null;
+            try { parsed = JSON.parse(rawText); } catch(e) {}
+            if (parsed && parsed.status === "error" && tombAct === "update") {
+              return postPayload("create", tombstoneTicket);
+            }
+          });
+        } else {
+          delPromise = postPayload("update", tombstoneTicket)
+            .catch(function() {})
+            .then(function() { return postPayload("delete", tombstoneTicket); });
+        }
+        return delPromise
+          .then(function() {
+            if (isInitialSeed) {
+              var k = getKnownSheetIds();
+              k[tid] = true;
+              saveKnownSheetIds(k);
+            }
+            confirmPendingOp(tid);
+            setSyncBadge('', '↻ ● Sincronizado');
+          })
+          .catch(function(err) {
+            console.warn("Falha temporária na exclusão:", err);
+            setSyncBadge('offline', '↻ ● Pendente');
+          });
+      }
+
+      var effectiveAction = actionType;
+      // Se é uma atualização de registro que ainda não está na planilha (ex: REC-RETRO-*, HIST-*), cria na planilha
+      if (actionType === "update" && !knownIds[tid] && (hasLoadedFromSheet || isInitialSeed)) {
+        effectiveAction = "create";
+      }
+
+      return postPayload(effectiveAction, cleanPayloadTicket)
       .then(function(rawText) {
         var parsed = null;
         try { parsed = JSON.parse(rawText); } catch(e) {}
         if (parsed && parsed.status === "error" && effectiveAction === "update") {
-          return postPayload("create").then(function(retryText) {
+          return postPayload("create", cleanPayloadTicket).then(function(retryText) {
             var retryParsed = null;
             try { retryParsed = JSON.parse(retryText); } catch(e) {}
             if (retryParsed && retryParsed.status === "error") {
@@ -529,7 +585,7 @@
           k[tid] = true;
           saveKnownSheetIds(k);
         }
-        confirmPendingOp(ticketData.id);
+        confirmPendingOp(tid);
         setSyncBadge('', '↻ ● Sincronizado');
       })
       .catch(function(err) {
@@ -564,14 +620,15 @@
 
         hasLoadedFromSheet = true;
         var delList = getDeletedIds();
+        var delChanged = false;
         if (Array.isArray(resp.deletedIds)) {
           resp.deletedIds.forEach(function(did) {
             var cleanDid = String(did || "").trim();
             if (cleanDid && delList.indexOf(cleanDid) === -1) {
               delList.push(cleanDid);
+              delChanged = true;
             }
           });
-          saveDeletedIds(delList);
         }
 
         var sheetMap = {};
@@ -580,15 +637,36 @@
           resp.data.map(mapSheetRowToTicket).forEach(function(t) {
             if (t.id) {
               knownMap[t.id] = true;
-              if (!isDeletedTicket(t, delList)) {
+              if (t.status === "Excluído" || isDeletedTicket(t, delList)) {
+                if (delList.indexOf(t.id) === -1) {
+                  delList.push(t.id);
+                  delChanged = true;
+                }
+              } else {
                 sheetMap[t.id] = t;
               }
             }
           });
         }
+        if (delChanged) saveDeletedIds(delList);
         saveKnownSheetIds(knownMap);
 
+        // Se existe uma operação pendente não-delete para um ID que ainda não consta na planilha, re-envia como create
+        var currentOps = getPendingOps();
+        Object.keys(currentOps).forEach(function(opId) {
+          var op = currentOps[opId];
+          if (op && op.action !== "delete" && op.ticket && !sheetMap[opId] && !isDeletedTicket(op.ticket, delList)) {
+            op.confirmed = false;
+          }
+        });
+        savePendingOps(currentOps);
+
         var activePending = pruneConfirmedOps(sheetMap);
+        var localById = {};
+        allTickets.forEach(function(lt) {
+          if (lt && lt.id) localById[String(lt.id).trim()] = lt;
+        });
+
         var mergedMap = {};
 
         RAW_INITIAL_RECORDS.forEach(function(r) {
@@ -600,17 +678,34 @@
         });
 
         Object.keys(sheetMap).forEach(function(id) {
-          mergedMap[id] = sheetMap[id];
+          if (delList.indexOf(id) !== -1) return;
+          var sTicket = sheetMap[id];
+          var lTicket = localById[id];
+          // Proteção contra leitura defasada entre os 3 operadores: se o registro local tem updatedAt mais recente, preserva o local
+          if (lTicket && lTicket.updatedAt && sTicket.updatedAt) {
+            var lTime = Date.parse(lTicket.updatedAt);
+            var sTime = Date.parse(sTicket.updatedAt);
+            if (!isNaN(lTime) && !isNaN(sTime) && lTime > sTime + 1500) {
+              mergedMap[id] = lTicket;
+              return;
+            }
+          }
+          mergedMap[id] = sTicket;
         });
 
+        // Aplica todas as mutações locais pendentes por cima para nunca perder edição/finalização/reversão/exclusão
         Object.keys(activePending).forEach(function(lid) {
-          if (isDeletedTicket({ id: lid }, delList)) return;
           var op = activePending[lid];
-          if (op.action === "delete") {
+          if (op.action === "delete" || delList.indexOf(lid) !== -1) {
             delete mergedMap[lid];
-          } else if (op.ticket) {
+          } else if (op.ticket && !isDeletedTicket(op.ticket, delList)) {
             mergedMap[lid] = op.ticket;
           }
+        });
+
+        // Garante remoção absoluta de qualquer ID na lista de excluídos
+        delList.forEach(function(did) {
+          delete mergedMap[did];
         });
 
         var nextList = Object.keys(mergedMap).map(function(k) { return mergedMap[k]; });
@@ -649,12 +744,33 @@
       syncFromGoogleSheets(true);
     }
 
-    setInterval(function() {
-      var modalOpen = document.getElementById('modalOverlay').style.display === 'flex';
-      var editOpen = document.getElementById('drawerEditForm').style.display === 'flex';
+    var lastFocusSyncAt = 0;
+    function triggerVisibilitySync() {
+      var now = Date.now();
+      if (now - lastFocusSyncAt < 5000) return;
+      lastFocusSyncAt = now;
+      var modal = document.getElementById('modalOverlay');
+      var editForm = document.getElementById('drawerEditForm');
+      var modalOpen = modal && modal.style.display === 'flex';
+      var editOpen = editForm && editForm.style.display === 'flex';
       if (!modalOpen && !editOpen) {
         syncFromGoogleSheets(false);
       }
-    }, 20000);
+    }
+
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) triggerVisibilitySync();
+    });
+    window.addEventListener('focus', triggerVisibilitySync);
+
+    setInterval(function() {
+      var modal = document.getElementById('modalOverlay');
+      var editForm = document.getElementById('drawerEditForm');
+      var modalOpen = modal && modal.style.display === 'flex';
+      var editOpen = editForm && editForm.style.display === 'flex';
+      if (!modalOpen && !editOpen) {
+        syncFromGoogleSheets(false);
+      }
+    }, 12000);
 
     // =========================================================================

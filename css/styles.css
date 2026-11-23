@@ -657,3 +657,289 @@ body.theme-light .btn-edit-highlight {
   color: #0284C7 !important;
   border-color: rgba(2, 132, 199, 0.35) !important;
 }
+
+/* ==========================================================================
+   V16: UX/DESIGN INDICADOR DE SLA NO DRAWER & RESULTADO POR PARCEIRO (VISÃO)
+   ========================================================================== */
+.sla-indicator-box {
+  background: linear-gradient(145deg, rgba(56, 189, 248, 0.08), rgba(15, 23, 42, 0.25)) !important;
+  border: 1px solid rgba(56, 189, 248, 0.28) !important;
+  border-left: 3px solid #38BDF8 !important;
+  padding: 11px 13px !important;
+}
+.sla-indicator-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.sla-ref-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  color: #7DD3FC;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+.sla-ref-badge.has-official {
+  background: rgba(0, 214, 89, 0.14);
+  color: #4ADE80;
+  border-color: rgba(0, 214, 89, 0.32);
+}
+.sla-indicator-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 8px;
+}
+.sla-metric-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+}
+.sla-metric-pill.historical .sla-pill-num {
+  color: #38BDF8;
+}
+.sla-metric-pill.official .sla-pill-num {
+  color: var(--tp-green);
+}
+.sla-pill-kicker {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.sla-pill-num {
+  font-size: 16px;
+  font-weight: 900;
+  font-family: monospace;
+  line-height: 1.2;
+}
+.sla-pill-note {
+  font-size: 9.5px;
+  color: var(--text-subtle);
+}
+
+/* Light theme support for SLA Indicator */
+body.theme-light .sla-indicator-box {
+  background: linear-gradient(145deg, #F0F9FF, #F8FAFC) !important;
+  border-color: #BAE6FD !important;
+  border-left-color: #0284C7 !important;
+}
+body.theme-light .sla-ref-badge {
+  background: #E0F2FE;
+  color: #0369A1;
+  border-color: #BAE6FD;
+}
+body.theme-light .sla-ref-badge.has-official {
+  background: #DCFCE7;
+  color: #15803D;
+  border-color: #BBF7D0;
+}
+body.theme-light .sla-metric-pill {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+}
+body.theme-light .sla-metric-pill.historical .sla-pill-num {
+  color: #0284C7;
+}
+body.theme-light .sla-metric-pill.official .sla-pill-num {
+  color: #059669;
+}
+
+/* Visão: Resultado por parceiro (Externo & Interno) */
+.bi-partner-macro-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.bi-partner-subgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+}
+@media (max-width: 900px) {
+  .bi-partner-macro-grid { grid-template-columns: 1fr; }
+}
+.bi-type-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.bi-type-badge.ext {
+  background: rgba(56, 189, 248, 0.14);
+  color: #38BDF8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+.bi-type-badge.int {
+  background: rgba(167, 139, 250, 0.14);
+  color: #C4B5FD;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+}
+body.theme-light .bi-type-badge.ext {
+  background: #E0F2FE;
+  color: #0369A1;
+  border-color: #BAE6FD;
+}
+body.theme-light .bi-type-badge.int {
+  background: #F3E8FF;
+  color: #6D28D9;
+  border-color: #DDD6FE;
+}
+
+/* ==========================================================================
+   V17: REVERTER DEMANDA FINALIZADA & HIERARQUIA DE SLA (SOLICITAÇÃO > TERCEIRO > PRODUTO APAGADO)
+   ========================================================================== */
+.btn-reopen-ticket {
+  background: rgba(245, 158, 11, 0.14) !important;
+  color: #FBBF24 !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  font-weight: 800;
+}
+.btn-reopen-ticket:hover {
+  background: rgba(245, 158, 11, 0.24) !important;
+}
+.btn-row-reopen {
+  background: rgba(245, 158, 11, 0.14);
+  color: #FBBF24;
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  padding: 4px 9px;
+  font-size: 10.5px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 6px;
+}
+.btn-row-reopen:hover {
+  background: rgba(245, 158, 11, 0.25);
+}
+body.theme-light .btn-reopen-ticket,
+body.theme-light .btn-row-reopen {
+  background: rgba(217, 119, 6, 0.1) !important;
+  color: #B45309 !important;
+  border-color: rgba(217, 119, 6, 0.32) !important;
+}
+
+/* Produto como 3ª importância (apagado/discreto) nos contextos de SLA */
+.th-product-muted {
+  color: var(--text-subtle) !important;
+  opacity: 0.72;
+  font-weight: 700 !important;
+}
+.sla-product-muted {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  opacity: 0.65;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+body.theme-light .sla-product-muted {
+  color: #64748B;
+  opacity: 0.72;
+  background: #F1F5F9;
+  border-color: #E2E8F0;
+}
+
+/* Hierarquia no card da fila: Solicitação (1º) > Terceiro (2º) > Produto apagado (3º) */
+.card-service-primary {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+.card-service-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.card-third-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #7DD3FC;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+body.theme-light .card-third-badge {
+  color: #0369A1;
+  background: #E0F2FE;
+  border-color: #BAE6FD;
+}
+.card-product-muted {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-subtle);
+  opacity: 0.58;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Drawer SLA Indicator strip */
+.sla-context-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 7px;
+  border-bottom: 1px dashed var(--border-subtle);
+  font-size: 12px;
+  color: var(--text-main);
+}
+.sla-pills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 8px;
+}
+.sla-indicator-metrics {
+  display: block;
+}
+
+/* ==========================================================================
+   V18: COLUNAS POR PARCEIRO (MOVEMAIS, T.I, FINANCEIRO, OUTROS) & VISÃO REFORMULADA
+   ========================================================================== */
+.product-columns-grid.has-four-cols {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 1280px) {
+  .product-columns-grid.has-four-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .product-columns-grid.has-four-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card-prod-pill {
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  padding: 2px 7px !important;
+  border-radius: 4px !important;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.bi-card-selected {
+  border-color: var(--tp-green) !important;
+  box-shadow: 0 0 0 1px var(--tp-green), 0 8px 20px rgba(0, 214, 89, 0.16) !important;
+}

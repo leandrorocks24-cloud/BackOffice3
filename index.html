@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>TruckPag Backoffice • Central Operacional & B.I. de SLA</title>
-  <link rel="stylesheet" href="css/styles.css?v=15">
+  <link rel="stylesheet" href="css/styles.css?v=19">
 </head>
 <body>
 
@@ -66,25 +66,25 @@
             <span class="filter-label">Fila:</span>
             <input type="text" class="input-compact filter-search" id="searchInput" placeholder="Pesquisar cliente, protocolo..." onkeyup="renderAll()" />
             <label class="queue-operator-filter"><span>Operador</span><select class="input-compact" id="filterAgentSelect" onchange="renderAll()"><option value="">Todos</option></select></label>
+            <label class="queue-operator-filter"><span>Mês</span>
+              <select class="input-compact" id="filterMonthSelect" onchange="renderAll()">
+                <option value="12-2026">12-2026</option><option value="11-2026" selected>11-2026 (Vigente)</option><option value="10-2026">10-2026</option><option value="09-2026">09-2026</option><option value="08-2026">08-2026</option><option value="07-2026">07-2026</option><option value="">Todos</option>
+              </select>
+            </label>
             <button type="button" class="filter-more-toggle" id="advancedFiltersToggle" onclick="toggleAdvancedFilters()" aria-expanded="false">Mais filtros <span>⌄</span></button>
             <button type="button" class="btn-clear-filters" onclick="clearFilters()" title="Redefinir filtros para o padrão">Limpar</button>
           </div>
         </div>
         <div class="filter-advanced-row" id="advancedFiltersPanel" style="display:none;">
           <label class="filter-advanced-item"><span>Produto</span><select class="input-compact" id="filterProductSelect" onchange="renderAll()"><option value="">Todos os produtos</option><option value="PEDÁGIO">Pedágio</option><option value="ABASTECIMENTO">Abastecimento</option><option value="MANUTENÇÃO">Manutenção</option></select></label>
-          <label class="filter-advanced-item"><span>Mês</span>
-            <select class="input-compact" id="filterMonthSelect" onchange="renderAll()">
-              <option value="11-2026" selected>11-2026 (Vigente)</option><option value="10-2026">10-2026</option><option value="09-2026">09-2026</option><option value="08-2026">08-2026</option><option value="07-2026">07-2026</option><option value="">Todos</option>
-            </select>
-          </label>
           <label class="filter-advanced-item"><span>Solicitação</span>
             <select class="input-compact" id="filterServiceSelect" onchange="renderAll()">
-              <option value="">Todas</option><option value="Contestação">Contestação</option><option value="Integração API">Integração API</option><option value="Exceção VPO">Exceção VPO</option><option value="Chamado T.I">Chamado T.I</option><option value="Layout XML">Layout XML</option><option value="Isenção">Isenção</option><option value="Logistica">Logística</option><option value="Cancelamento">Cancelamento</option><option value="Cobrança fora da TAG">Cobrança fora da TAG</option><option value="Outros">Outros</option>
+              <option value="">Todas</option><option value="Contestação">Contestação</option><option value="Integração API">Integração API</option><option value="Exceção VPO">Exceção VPO</option><option value="Chamado T.I">Chamado T.I</option><option value="Layout XML">Layout XML</option><option value="Liberação de tela">Liberação de tela</option><option value="Rastreamento TAG">Rastreamento TAG</option><option value="E-mail em supressão">E-mail em supressão</option><option value="Alterar status da TAG">Alterar status da TAG</option><option value="Erro de integração">Erro de integração</option><option value="Isenção">Isenção</option><option value="Logistica">Logística</option><option value="Cancelamento">Cancelamento</option><option value="Cobrança fora da TAG">Cobrança fora da TAG</option><option value="Outros">Outros</option>
             </select>
           </label>
           <label class="filter-advanced-item"><span>Terceiro</span>
             <select class="input-compact" id="filterThirdSelect" onchange="renderAll()">
-              <option value="">Todos</option><option value="MoveMais">MoveMais</option><option value="T.I">T.I</option><option value="Financeiro">Financeiro</option><option value="Cadastro">Cadastro</option><option value="Outros">Outros</option>
+              <option value="">Todos</option><option value="MoveMais">MoveMais</option><option value="ConnectCar">ConnectCar</option><option value="T.I">T.I</option><option value="Financeiro">Financeiro</option><option value="Cadastro">Cadastro</option><option value="Control">Control</option><option value="Outros">Outros</option>
             </select>
           </label>
         </div>
@@ -118,7 +118,7 @@
           <span class="kpi-value" style="color:#38BDF8;" id="kpiFinalizedMonth">0</span>
         </div>
       </div>
-      <!-- DEMANDAS EM ABERTO: 3 COLUNAS -->
+      <!-- DEMANDAS EM ABERTO: COLUNAS POR PARCEIRO -->
       <section class="in-progress-section">
         <div class="section-title-bar">
           <h2>
@@ -129,29 +129,37 @@
           </span>
         </div>
 
-        <div class="product-columns-grid">
+        <div class="product-columns-grid" id="openColumnsGrid">
           <div class="product-column">
             <div class="product-column-head" style="color:#38BDF8;">
-              Pedágio
-              <span class="col-count-badge" id="countColPed">0</span>
+              MoveMais
+              <span class="col-count-badge" id="countColMoveMais">0</span>
             </div>
-            <div class="column-cards-list" id="colCardsPed"></div>
+            <div class="column-cards-list" id="colCardsMoveMais"></div>
           </div>
 
           <div class="product-column">
-            <div class="product-column-head" style="color:#8B5CF6;">
-              Manutenção
-              <span class="col-count-badge" id="countColManut">0</span>
+            <div class="product-column-head" style="color:#A78BFA;">
+              T.I
+              <span class="col-count-badge" id="countColTI">0</span>
             </div>
-            <div class="column-cards-list" id="colCardsManut"></div>
+            <div class="column-cards-list" id="colCardsTI"></div>
           </div>
 
           <div class="product-column">
             <div class="product-column-head" style="color:#10B981;">
-              Abastecimento
-              <span class="col-count-badge" id="countColAbast">0</span>
+              Financeiro
+              <span class="col-count-badge" id="countColFinanceiro">0</span>
             </div>
-            <div class="column-cards-list" id="colCardsAbast"></div>
+            <div class="column-cards-list" id="colCardsFinanceiro"></div>
+          </div>
+
+          <div class="product-column" id="colWrapperOutros" style="display:none;">
+            <div class="product-column-head" style="color:#FBBF24;">
+              Outros
+              <span class="col-count-badge" id="countColOutros">0</span>
+            </div>
+            <div class="column-cards-list" id="colCardsOutros"></div>
           </div>
         </div>
       </section>
@@ -164,8 +172,8 @@
       <div class="records-filter-bar">
         <input class="input-compact" id="recordsSearch" type="search" placeholder="Buscar cliente, placa ou protocolo" oninput="renderAll()">
         <select class="input-compact" id="recordsProduct" onchange="renderAll()"><option value="">Todos os produtos</option><option value="PEDÁGIO">Pedágio</option><option value="ABASTECIMENTO">Abastecimento</option><option value="MANUTENÇÃO">Manutenção</option></select>
-        <select class="input-compact" id="recordsService" onchange="renderAll()"><option value="">Todas as solicitações</option><option>Cancelamento</option><option>Contestação</option><option>Isenção</option><option>Integração API</option><option>Exceção VPO</option><option>Cobrança fora da TAG</option><option>Layout XML</option><option>Logistica</option><option>Chamado T.I</option><option>Outros</option></select>
-        <select class="input-compact" id="recordsThird" onchange="renderAll()"><option value="">Todos os terceiros</option><option>MoveMais</option><option>Financeiro</option><option>T.I</option><option>Cadastro</option><option>Outros</option></select>
+        <select class="input-compact" id="recordsService" onchange="renderAll()"><option value="">Todas as solicitações</option><option>Cancelamento</option><option>Contestação</option><option>Isenção</option><option>Integração API</option><option>Exceção VPO</option><option>Cobrança fora da TAG</option><option>Layout XML</option><option>Liberação de tela</option><option>Rastreamento TAG</option><option>E-mail em supressão</option><option>Alterar status da TAG</option><option>Erro de integração</option><option>Logistica</option><option>Chamado T.I</option><option>Outros</option></select>
+        <select class="input-compact" id="recordsThird" onchange="renderAll()"><option value="">Todos os terceiros</option><option>MoveMais</option><option>ConnectCar</option><option>Financeiro</option><option>T.I</option><option>Cadastro</option><option>Control</option><option>Outros</option></select>
         <select class="input-compact" id="recordsAgent" onchange="renderAll()"><option value="">Todos os operadores</option></select>
         <input class="input-compact" id="recordsFrom" type="date" aria-label="Conclusão a partir de" onchange="renderAll()">
         <input class="input-compact" id="recordsTo" type="date" aria-label="Conclusão até" onchange="renderAll()">
@@ -183,9 +191,9 @@
               <th id="thMonthOrDate">Data de Registro</th>
               <th>Data de Conclusão</th>
               <th>Cliente / Transportadora</th>
-              <th>Produto</th>
               <th>Solicitação</th>
               <th>Terceiro Acionado</th>
+              <th class="th-product-muted">Produto</th>
               <th>SLA Final</th>
               <th>SLA médio da solicitação</th>
               <th>SLA oficial</th>
@@ -199,28 +207,29 @@
 
     </div>
 
-    <!-- VISÃO GERENCIAL -->
+    <!-- VISÃO GERENCIAL (REFORMULADA POR PARCEIRO) -->
     <div id="viewPaneReport" style="display:none;">
-      <div class="bi-page-heading"><div><span class="bi-eyebrow">INTELIGÊNCIA OPERACIONAL</span><h1>Visão</h1><p>Desempenho das demandas concluídas por produto, parceiro e solicitação.</p></div><div class="bi-period-chip" id="biPeriodCaption">Todo o histórico</div></div>
+      <div class="bi-page-heading"><div><span class="bi-eyebrow">INTELIGÊNCIA OPERACIONAL • POR PARCEIRO</span><h1>Visão</h1><p>Análise consolidada de volume concluído e SLA médio por parceiro externo e setor interno.</p></div><div class="bi-period-chip" id="biPeriodCaption">Todo o histórico</div></div>
       <div class="bi-filter-bar bi-filter-bar-premium">
         <label>Período de conclusão <div class="bi-date-filter"><input id="biDateFrom" type="date" onchange="applyBiFilters()" aria-label="Data inicial"><span>até</span><input id="biDateTo" type="date" onchange="applyBiFilters()" aria-label="Data final"></div></label>
+        <label>Parceiro <select id="biFilterThird" onchange="applyBiFilters()"><option value="">Todos os parceiros</option><option value="MoveMais">MoveMais (Externo)</option><option value="ConnectCar">ConnectCar (Externo)</option><option value="T.I">T.I (Interno)</option><option value="Financeiro">Financeiro (Interno)</option><option value="Cadastro">Cadastro (Interno)</option><option value="Control">Control (Interno)</option><option value="Outros">Outros (Interno)</option></select></label>
+        <label>Classificação <select id="biFilterPartnerType" onchange="applyBiFilters()"><option value="">Todos (Externo e Interno)</option><option value="Externo">Parceiros Externos</option><option value="Interno">Setores Internos</option></select></label>
         <label>Produto <select id="biFilterProduct" onchange="applyBiFilters()"><option value="">Todos os produtos</option><option value="PEDÁGIO">Pedágio</option><option value="ABASTECIMENTO">Abastecimento</option><option value="MANUTENÇÃO">Manutenção</option></select></label>
-        <label>Parceiro <select id="biFilterThird" onchange="applyBiFilters()"><option value="">Todos os parceiros</option><option value="MoveMais">MoveMais</option><option value="Financeiro">Financeiro</option><option value="T.I">T.I</option><option value="Cadastro">Cadastro</option><option value="Outros">Outros</option></select></label>
         <button type="button" class="bi-clear-btn" onclick="clearBiFilters()">Limpar filtros</button>
       </div>
       <section class="bi-section bi-section-macro">
-        <div class="bi-section-heading"><div><span class="bi-step">01</span><div><h2>Resultado por produto</h2><p>Visão executiva do volume concluído e do SLA médio.</p></div></div><span class="bi-section-note">MACRO</span></div>
-        <div class="bi-product-grid" id="biProductCards"></div>
+        <div class="bi-section-heading"><div><span class="bi-step">01</span><div><h2>Resultado por parceiro</h2><p>Indicadores executivos separados entre parceiros externos e setores internos. Clique em um parceiro para filtrar.</p></div></div><span class="bi-section-note">MACRO POR PARCEIRO</span></div>
+        <div id="biProductCards"></div>
       </section>
       <section class="bi-section">
-        <div class="bi-section-heading"><div><span class="bi-step bi-step-blue">02</span><div><h2>Desempenho por parceiro</h2><p>Volume concluído e SLA médio por área responsável.</p></div></div><span class="bi-section-note">GESTÃO DE TERCEIROS</span></div>
-        
-        <div class="bi-compact-table-wrap"><table class="bi-data-table"><thead><tr><th>Parceiro</th><th>Volume concluído</th><th>SLA médio</th></tr></thead><tbody id="biPartnerBody"></tbody></table></div>
+        <div class="bi-section-heading"><div><span class="bi-step bi-step-blue">02</span><div><h2>Comparativo de desempenho por parceiro</h2><p>Volume concluído, participação na operação, SLA médio e distribuição por produto.</p></div></div><span class="bi-section-note">RANKING DE PARCEIROS</span></div>
+        <div id="biPartnerVolumeChart" class="bi-horizontal-chart" style="margin-bottom:16px;"></div>
+        <div class="bi-compact-table-wrap"><table class="bi-data-table"><thead><tr><th>Parceiro</th><th>Classificação</th><th>Volume concluído</th><th>SLA médio</th><th>Composição por produto</th></tr></thead><tbody id="biPartnerBody"></tbody></table></div>
       </section>
       <section class="bi-section">
-        <div class="bi-section-heading"><div><span class="bi-step bi-step-purple">03</span><div><h2>Detalhamento por solicitação</h2><p>Volume, tempo médio realizado e prazo oficial quando definido.</p></div></div><span class="bi-section-note">VISÃO ANALÍTICA</span></div>
+        <div class="bi-section-heading"><div><span class="bi-step bi-step-purple">03</span><div><h2>Solicitações por parceiro</h2><p>Detalhamento das solicitações atendidas por cada parceiro e seus respectivos tempos médios.</p></div></div><span class="bi-section-note">VISÃO ANALÍTICA</span></div>
         <div class="bi-micro-toolbar"><span id="biSolicitationCount">—</span><span>O SLA oficial é exibido somente nas solicitações com prazo formal.</span></div>
-        <div class="bi-compact-table-wrap"><table class="bi-data-table"><thead><tr><th>Solicitação</th><th>Produto</th><th>Parceiro</th><th>Volume concluído</th><th class="th-sla-medio">SLA médio</th><th class="th-sla-oficial">SLA oficial</th></tr></thead><tbody id="biSolicitationBody"></tbody></table></div>
+        <div class="bi-compact-table-wrap"><table class="bi-data-table"><thead><tr><th>Parceiro</th><th>Solicitação</th><th class="th-product-muted">Produto</th><th>Volume concluído</th><th class="th-sla-medio">SLA médio</th><th class="th-sla-oficial">SLA oficial</th></tr></thead><tbody id="biSolicitationBody"></tbody></table></div>
       </section>
       <div class="bi-footnote">SLA médio calculado a partir das demandas concluídas com duração registrada. O SLA oficial é o prazo formal do parceiro; não representa o SLA do operador da ferramenta.</div>
     </div>
@@ -277,6 +286,15 @@
             onclick="completeSelectedTicket()"
           >
             ✓ Finalizar Demanda
+          </button>
+          <button 
+            class="btn-action btn-reopen-ticket" 
+            id="btnReopenTicket"
+            style="display:none; flex:1; justify-content:center; padding:10px; font-size:12px;"
+            onclick="reopenSelectedTicket()"
+            title="Reverter demanda finalizada para Em Aberto mantendo o SLA desde a abertura"
+          >
+            ↺ Reverter para Em Aberto
           </button>
           <button 
             class="btn-action" 
@@ -344,6 +362,7 @@
                 <option value="Financeiro">Financeiro</option>
                 <option value="T.I">T.I</option>
                 <option value="Cadastro">Cadastro</option>
+                <option value="Control">Control</option>
                 <option value="Outros">Outros</option>
               </select>
             </div>
@@ -351,6 +370,15 @@
               <label class="edit-label" id="editDrawerReturnLabel">Data Prevista Retorno (DD/MM/AAAA)</label>
               <input class="edit-input" type="text" id="editDrawerReturnDate" placeholder="DD/MM/AAAA" />
             </div>
+          </div>
+
+          <div id="editDrawerManutTipoGroup" style="display:none;">
+            <label class="edit-label" style="color:var(--tp-green);">Tipo de Cadastro (Manutenção) *</label>
+            <select class="edit-select" id="editDrawerManutTipo" onchange="onEditDrawerManutTipoChange()">
+              <option value="">Selecione Cliente ou Estabelecimento...</option>
+              <option value="Estabelecimento">Estabelecimento</option>
+              <option value="Cliente">Cliente</option>
+            </select>
           </div>
 
           <div id="editDrawerDafGroup" style="display:none;" class="edit-grid-2">
@@ -403,9 +431,16 @@
             <div class="detail-cell-label">Terceiro / Setor Acionado</div>
             <div class="detail-cell-val" style="color:#38BDF8;" id="drawerThirdVal">-</div>
           </div>
-          <div class="detail-cell full" id="drawerHistoricalSla" style="display:none;">
-            <div class="detail-cell-label">Indicador de SLA da Solicitação</div>
-            <div class="detail-cell-val" id="drawerHistoricalSlaValue">-</div>
+          <div class="detail-cell full sla-indicator-box" id="drawerHistoricalSla" style="display:none;">
+            <div class="sla-indicator-head">
+              <span class="detail-cell-label">Indicador de SLA da Solicitação</span>
+              <span class="sla-ref-badge" id="drawerSlaRefBadge">Referência histórica</span>
+            </div>
+            <div class="sla-indicator-metrics" id="drawerHistoricalSlaValue"></div>
+          </div>
+          <div class="detail-cell full" id="drawerManutTipoCell" style="display:none;">
+            <div class="detail-cell-label">Tipo de Cadastro (Manutenção)</div>
+            <div class="detail-cell-val" id="drawerManutTipoVal">-</div>
           </div>
           <div class="detail-cell full" id="drawerDafCell" style="display:none;">
             <div class="detail-cell-label">Concessionária DAF & Município</div>
@@ -472,9 +507,18 @@
       </div>
 
       <form class="modal-form" id="newDemandForm" onsubmit="handleSaveDemandForm(event)">
+        <div class="form-col-full" id="modalManutTipoGroup" style="display:none; background:rgba(139, 92, 246, 0.10); padding:10px; border-radius:6px; border:1px solid rgba(139, 92, 246, 0.30);">
+          <label class="field-label" style="color:#C4B5FD;">Tipo de Cadastro (Manutenção) *</label>
+          <select class="field-select" id="modalManutTipoSelect" name="manutencaoTipo" onchange="onModalManutTipoChange()">
+            <option value="">Selecione Cliente ou Estabelecimento...</option>
+            <option value="Estabelecimento">Estabelecimento</option>
+            <option value="Cliente">Cliente</option>
+          </select>
+        </div>
+
         <div class="form-col-full">
-          <label class="field-label">Cliente / Transportadora *</label>
-          <input class="field-input" type="text" name="client" required placeholder="Razão social ou nome do cliente" />
+          <label class="field-label" id="modalClientLabel">Cliente / Transportadora *</label>
+          <input class="field-input" type="text" name="client" id="modalClientInput" required placeholder="Razão social ou nome do cliente" />
         </div>
 
         <div>
@@ -511,6 +555,7 @@
             <option value="Financeiro">Financeiro</option>
             <option value="T.I">T.I</option>
             <option value="Cadastro">Cadastro</option>
+            <option value="Control">Control</option>
             <option value="Outros">Outros</option>
           </select>
         </div>
@@ -572,9 +617,9 @@
   <!-- CONTAINER DE TOAST (NOTIFICAÇÕES) -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <script defer src="js/config.js?v=15"></script>
-  <script defer src="js/core.js?v=15"></script>
-  <script defer src="js/ui.js?v=15"></script>
-  <script defer src="js/bootstrap.js?v=15"></script>
+  <script defer src="js/config.js?v=19"></script>
+  <script defer src="js/core.js?v=19"></script>
+  <script defer src="js/ui.js?v=19"></script>
+  <script defer src="js/bootstrap.js?v=19"></script>
 </body>
 </html>

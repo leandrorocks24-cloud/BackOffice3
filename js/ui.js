@@ -58,9 +58,13 @@
         map[s] = { count: 0, sum: 0, vals: [], mean: 0, median: 0 };
       });
       completed.forEach(function(t) {
-        var s = String(t.solicitacao || 'Outros');
+        var s = getDisplaySolicitation(t) || 'Outros';
+        var rawS = String(t.solicitacao || 'Outros');
+        var third = getTicketThird(t) || 'Outros';
+        var serviceThirdKey = s + '|' + third;
         var productKey = normalizeProduct(t.product) + '|' + s;
-        [s, productKey].forEach(function(key) {
+        var keys = Array.from(new Set([s, rawS, serviceThirdKey, productKey]));
+        keys.forEach(function(key) {
           if (!map[key]) map[key] = { count: 0, sum: 0, vals: [], mean: 0, median: 0 };
           var dur = parseFloat(t.durationDays);
           if (!isNaN(dur)) {
@@ -310,17 +314,36 @@
       var lbl = document.getElementById('inProgressCountLabel');
       if (lbl) lbl.innerText = '';
 
-      var abastTickets = inProg.filter(function(t) { return normalizeProduct(t.product) === 'ABASTECIMENTO'; });
-      var pedTickets = inProg.filter(function(t) { return normalizeProduct(t.product) === 'PEDÁGIO'; });
-      var manutTickets = inProg.filter(function(t) { return normalizeProduct(t.product) === 'MANUTENÇÃO'; });
+      function getQueuePartnerColumnKey(ticket) {
+        var raw = String(getTicketThird(ticket) || '').trim().toLowerCase();
+        if (raw === 'movemais' || raw === 'move mais') return 'MoveMais';
+        if (raw === 't.i' || raw === 'ti') return 'T.I';
+        if (raw === 'financeiro') return 'Financeiro';
+        return 'Outros';
+      }
 
-      if (document.getElementById('countColAbast')) document.getElementById('countColAbast').innerText = abastTickets.length;
-      if (document.getElementById('countColPed')) document.getElementById('countColPed').innerText = pedTickets.length;
-      if (document.getElementById('countColManut')) document.getElementById('countColManut').innerText = manutTickets.length;
+      var moveMaisTickets = inProg.filter(function(t) { return getQueuePartnerColumnKey(t) === 'MoveMais'; });
+      var tiTickets = inProg.filter(function(t) { return getQueuePartnerColumnKey(t) === 'T.I'; });
+      var financeiroTickets = inProg.filter(function(t) { return getQueuePartnerColumnKey(t) === 'Financeiro'; });
+      var outrosTickets = inProg.filter(function(t) { return getQueuePartnerColumnKey(t) === 'Outros'; });
 
-      renderProductCardsColumn('colCardsAbast', abastTickets, 'prod-abastecimento');
-      renderProductCardsColumn('colCardsPed', pedTickets, 'prod-pedagio');
-      renderProductCardsColumn('colCardsManut', manutTickets, 'prod-manutencao');
+      if (document.getElementById('countColMoveMais')) document.getElementById('countColMoveMais').innerText = moveMaisTickets.length;
+      if (document.getElementById('countColTI')) document.getElementById('countColTI').innerText = tiTickets.length;
+      if (document.getElementById('countColFinanceiro')) document.getElementById('countColFinanceiro').innerText = financeiroTickets.length;
+      if (document.getElementById('countColOutros')) document.getElementById('countColOutros').innerText = outrosTickets.length;
+
+      var outrosColWrap = document.getElementById('colWrapperOutros');
+      var openGridEl = document.getElementById('openColumnsGrid');
+      var hasOutros = outrosTickets.length > 0;
+      if (outrosColWrap) outrosColWrap.style.display = hasOutros ? 'flex' : 'none';
+      if (openGridEl) openGridEl.classList.toggle('has-four-cols', hasOutros);
+
+      renderPartnerCardsColumn('colCardsMoveMais', moveMaisTickets, false);
+      renderPartnerCardsColumn('colCardsTI', tiTickets, false);
+      renderPartnerCardsColumn('colCardsFinanceiro', financeiroTickets, false);
+      if (hasOutros) {
+        renderPartnerCardsColumn('colCardsOutros', outrosTickets, true);
+      }
 
       var finalizedLbl = document.getElementById('finalizedCountLabel');
       if (finalizedLbl) finalizedLbl.innerText = allDone.length + ' demandas finalizadas';
@@ -385,24 +408,21 @@
           tdClient.style.cssText = 'font-weight:800; color:#fff;';
           tdClient.textContent = r.client || '-';
 
-          
-var tdProd = document.createElement('td');
-var prodStr = normalizeProduct(r.product);
-var prodClass = prodStr === 'PEDÁGIO' ? 'badge-ped' : (prodStr === 'ABASTECIMENTO' ? 'badge-aba' : (prodStr === 'MANUTENÇÃO' ? 'badge-man' : ''));
-tdProd.innerHTML = '<span class="badge-product ' + prodClass + '">' + prodStr + '</span>';
-
-
           var tdSol = document.createElement('td');
+          tdSol.style.cssText = 'font-weight:800; color:var(--text-main);';
           tdSol.textContent = getDisplaySolicitation(r);
 
           var tdTerc = document.createElement('td');
-          tdTerc.style.cssText = 'color:#38BDF8; font-weight:700;';
-          tdTerc.textContent = getTicketThird(r) || '-';
+          tdTerc.innerHTML = '<span class="bi-partner-tag">' + escapeHtml(getTicketThird(r) || '-') + '</span>';
+
+          var tdProd = document.createElement('td');
+          var prodStr = normalizeProduct(r.product);
+          tdProd.innerHTML = '<span class="sla-product-muted">' + escapeHtml(prodStr) + '</span>';
 
           var tdSla = document.createElement('td');
           tdSla.innerHTML = '<span style="font-size:11px; font-weight:800; color:var(--tp-green); background:rgba(0,214,89,0.14); padding:2px 7px; border-radius:4px;">✓ ' + escapeHtml(slaText) + '</span>';
 
-          var historical = allTickets.filter(function(x) { return x.status === 'Concluído' && normalizeProduct(x.product) === normalizeProduct(r.product) && getDisplaySolicitation(x) === getDisplaySolicitation(r) && x.durationDays !== null && x.durationDays !== undefined && x.durationDays !== ''; }).map(function(x) { return Number(x.durationDays); }).filter(function(v) { return isFinite(v) && v >= 0; });
+          var historical = allTickets.filter(function(x) { return x.status === 'Concluído' && getDisplaySolicitation(x) === getDisplaySolicitation(r) && getTicketThird(x) === getTicketThird(r) && x.durationDays !== null && x.durationDays !== undefined && x.durationDays !== ''; }).map(function(x) { return Number(x.durationDays); }).filter(function(v) { return isFinite(v) && v >= 0; });
           var historicalAvg = historical.length ? historical.reduce(function(a,b) { return a+b; }, 0) / historical.length : null;
           var official = getFixedPartnerSla(r.product, r.solicitacao);
           var tdHistorical = document.createElement('td'); tdHistorical.textContent = historicalAvg === null ? '—' : historicalAvg.toFixed(1).replace('.', ',') + ' dias';
@@ -415,6 +435,11 @@ tdProd.innerHTML = '<span class="badge-product ' + prodClass + '">' + prodStr + 
           var tdAct = document.createElement('td');
           tdAct.style.cssText = 'text-align:center; white-space:nowrap;';
           tdAct.onclick = function(e) { e.stopPropagation(); };
+          var reopenBtn = document.createElement('button');
+          reopenBtn.className = 'btn-row-reopen';
+          reopenBtn.innerHTML = '↺ Reverter';
+          reopenBtn.title = 'Reverter para Em Aberto dando continuidade ao SLA';
+          reopenBtn.onclick = function(e) { reopenTicketById(e, r.id); };
           var editBtn = document.createElement('button');
           editBtn.className = 'btn-row-edit';
           editBtn.innerHTML = '✎ Editar';
@@ -423,15 +448,16 @@ tdProd.innerHTML = '<span class="badge-product ' + prodClass + '">' + prodStr + 
           delBtn.className = 'btn-row-delete';
           delBtn.textContent = 'Excluir';
           delBtn.onclick = function(e) { deleteTicketById(e, r.id); };
+          tdAct.appendChild(reopenBtn);
           tdAct.appendChild(editBtn);
           tdAct.appendChild(delBtn);
 
           tr.appendChild(tdDate);
           tr.appendChild(tdEnd);
           tr.appendChild(tdClient);
-          tr.appendChild(tdProd);
           tr.appendChild(tdSol);
           tr.appendChild(tdTerc);
+          tr.appendChild(tdProd);
           tr.appendChild(tdSla);
           tr.appendChild(tdHistorical);
           tr.appendChild(tdOfficial);
@@ -463,12 +489,26 @@ tdProd.innerHTML = '<span class="badge-product ' + prodClass + '">' + prodStr + 
       return { mean: officialDays, elapsedDays: elapsedDays, ratio: ratio, percent: Math.min(100, Math.max(0, ratio * 100)), level: level, label: label };
     }
 
-    function renderProductCardsColumn(containerId, list, prodClass) {
+    function getProductVisualMeta(product) {
+      var prodNorm = normalizeProduct(product);
+      if (prodNorm === 'PEDÁGIO') {
+        return { cardClass: 'prod-pedagio', badgeClass: 'badge-ped', label: 'Pedágio' };
+      }
+      if (prodNorm === 'ABASTECIMENTO') {
+        return { cardClass: 'prod-abastecimento', badgeClass: 'badge-aba', label: 'Abastecimento' };
+      }
+      if (prodNorm === 'MANUTENÇÃO') {
+        return { cardClass: 'prod-manutencao', badgeClass: 'badge-man', label: 'Manutenção' };
+      }
+      return { cardClass: '', badgeClass: '', label: prodNorm || 'Produto' };
+    }
+
+    function renderPartnerCardsColumn(containerId, list, showSubPartnerTag) {
       var container = document.getElementById(containerId);
       if (!container) return;
       container.innerHTML = '';
       if (list.length === 0) {
-        container.innerHTML = '<div class="empty-column-state">Nenhuma demanda em aberto neste produto.</div>';
+        container.innerHTML = '<div class="empty-column-state">Nenhuma demanda em aberto para este parceiro.</div>';
         return;
       }
       list = list.slice().sort(function(a, b) {
@@ -484,14 +524,14 @@ tdProd.innerHTML = '<span class="badge-product ' + prodClass + '">' + prodStr + 
           var deadline = getOfficialDeadline(t);
           var deadlineStatus = partnerDays ? getRemainingTime(deadline) : null;
           var risk = getTicketSlaRisk(t);
+          var prodMeta = getProductVisualMeta(t.product);
           var card = document.createElement('button');
           card.type = 'button';
-          card.className = 'progress-card ' + prodClass + ' card-readable';
+          card.className = 'progress-card ' + prodMeta.cardClass + ' card-readable';
           card.setAttribute('aria-label', 'Abrir demanda de ' + String(t.client || 'cliente') + ', ' + String(t.solicitacao || 'solicitação'));
           card.onclick = function() { openDrawer(t); };
           var isExemption = t.solicitacao === 'Isenção' && (normalizeProduct(t.product) === 'PEDÁGIO' || normalizeProduct(t.product) === 'ABASTECIMENTO');
           var returnStatus = isExemption ? getRemainingTime(t.returnDate) : null;
-          
           
           var deadlineHtml = partnerDays ?
             '<div class="card-metric card-official"><span class="card-metric-label">Prazo oficial (' + partnerDays + 'd)</span><strong class="card-metric-value">' + escapeHtml(deadline) + '</strong><span class="card-deadline-state ' + deadlineStatus.class + '">' + escapeHtml(deadlineStatus.text) + '</span></div>' :
@@ -500,17 +540,22 @@ tdProd.innerHTML = '<span class="badge-product ' + prodClass + '">' + prodStr + 
             '<div class="card-no-official-note">Sem prazo definido.</div>');
           
           var riskPill = partnerDays ? '<span class="card-priority-dot ' + risk.level + '"></span>' : '';
+          var thirdName = getTicketThird(t);
+          var subPartnerHtml = (showSubPartnerTag && thirdName && thirdName !== 'Outros')
+            ? '<span class="card-third-badge">' + escapeHtml(thirdName) + '</span>'
+            : '';
+          var productBadgeHtml = '<span class="badge-product card-prod-pill ' + prodMeta.badgeClass + '">' + escapeHtml(prodMeta.label) + '</span>';
           
           card.innerHTML =
             '<div class="card-readable-head">' + riskPill + '<div class="card-client-title" title="' + escapeHtml(t.client) + '">' + escapeHtml(t.client || 'Sem cliente') + '</div><span class="card-agent-pill">' + escapeHtml(t.operator || '') + '</span></div>' +
-            '<div class="card-readable-service"><span>' + escapeHtml(getDisplaySolicitation(t)) + '</span><span class="card-third-label">' + escapeHtml(getTicketThird(t)) + '</span></div>' +
+            '<div class="card-readable-service"><span class="card-service-primary">' + escapeHtml(getDisplaySolicitation(t)) + '</span><div class="card-service-meta">' + subPartnerHtml + productBadgeHtml + '</div></div>' +
             '<div class="card-metrics-grid">' +
               '<div class="card-metric"><span class="card-metric-label">Aberto em</span><strong class="card-metric-value">' + escapeHtml(openedAt || 'Não informada') + '</strong></div>' +
               '<div class="card-metric"><span class="card-metric-label">Em aberto</span><strong class="card-metric-value card-elapsed-value">' + escapeHtml(elapsed) + '</strong></div>' +
               deadlineHtml +
             '</div>';
 
-container.appendChild(card);
+          container.appendChild(card);
         } catch(errCard) { console.warn('Erro ao renderizar card:', errCard); }
       });
     }
@@ -585,6 +630,18 @@ container.appendChild(card);
         var rawPhone = ticket.contact !== undefined && ticket.contact !== null ? String(ticket.contact).trim() : "";
         phoneDisplay.innerText = (rawPhone && rawPhone !== "null" && rawPhone !== "undefined") ? rawPhone : "Sem telefone informado";
 
+        var manutTipoCell = document.getElementById('drawerManutTipoCell');
+        var manutTipoVal = document.getElementById('drawerManutTipoVal');
+        if (manutTipoCell && manutTipoVal) {
+          if (prodNorm === 'MANUTENÇÃO') {
+            var resolvedTipo = ticket.manutencaoTipo || (ticket.dafRede ? 'Estabelecimento' : 'Cliente');
+            manutTipoCell.style.display = 'block';
+            manutTipoVal.innerText = resolvedTipo;
+          } else {
+            manutTipoCell.style.display = 'none';
+          }
+        }
+
         var dafCell = document.getElementById('drawerDafCell');
         var dafVal = document.getElementById('drawerDafVal');
         if (ticket.dafRede) {
@@ -598,22 +655,29 @@ container.appendChild(card);
         var bitrixCell = document.getElementById('drawerBitrixCell');
         var bitrixLink = document.getElementById('drawerBitrixLink');
         var bitrixLabel = document.getElementById('drawerBitrixLabel');
+        var bitrixSolList = ['Chamado T.I', 'Layout XML', 'Liberação de tela', 'E-mail em supressão', 'Alterar status da TAG', 'Erro de integração'];
         if (ticket.bitrixLink) {
           bitrixCell.style.display = 'block';
           bitrixLink.href = String(ticket.bitrixLink);
-          bitrixLabel.innerText = ticket.solicitacao === 'Chamado T.I' ? 'Card Bitrix (T.I)' : 'E-mail / Chamado Externo';
+          bitrixLabel.innerText = bitrixSolList.indexOf(ticket.solicitacao) !== -1 ? 'Card Bitrix (T.I)' : 'E-mail / Chamado Externo';
         } else {
           bitrixCell.style.display = 'none';
         }
 
         var isOpen = (ticket.status === 'Em andamento');
-        document.getElementById('btnCompleteTicket').style.display = isOpen ? 'block' : 'none';
+        document.getElementById('btnCompleteTicket').style.display = isOpen ? 'inline-flex' : 'none';
+        var btnReopen = document.getElementById('btnReopenTicket');
+        if (btnReopen) {
+          btnReopen.style.display = !isOpen ? 'inline-flex' : 'none';
+          btnReopen.style.alignItems = 'center';
+          btnReopen.style.justifyContent = 'center';
+        }
         var btnEdit = document.getElementById('btnToggleEdit');
         if (btnEdit) {
           btnEdit.style.display = 'inline-flex';
           btnEdit.style.alignItems = 'center';
           btnEdit.style.justifyContent = 'center';
-          btnEdit.style.flex = isOpen ? '0 0 auto' : '1';
+          btnEdit.style.flex = '0 0 auto';
           btnEdit.innerHTML = '✎ Editar Demanda';
           btnEdit.classList.toggle('btn-edit-highlight', !isOpen);
         }
@@ -635,13 +699,44 @@ container.appendChild(card);
         var historicalSlaBox = document.getElementById('drawerHistoricalSla');
         if (historicalSlaBox) {
           var historyStats = calcCurrentSlaStats();
-          var historyRow = ticket.solicitacao === 'Isenção' ? historyStats['Isenção'] : (historyStats[normalizeProduct(ticket.product) + '|' + String(ticket.solicitacao || 'Outros')] || historyStats[String(ticket.solicitacao || 'Outros')]);
-          var historyMean = historyRow && Number(historyRow.mean) > 0 ? String(historyRow.mean).replace('.', ',') + ' dias' : 'Ainda sem histórico';
+          var dispSol = getDisplaySolicitation(ticket) || 'Outros';
+          var dispThird = getTicketThird(ticket) || 'Outros';
+          var historyRow = historyStats[dispSol + '|' + dispThird] || historyStats[dispSol] || historyStats[String(ticket.solicitacao || 'Outros')];
+          var hasMean = historyRow && Number(historyRow.mean) > 0;
+          var historyMean = hasMean ? String(historyRow.mean).replace('.', ',') + ' dias' : 'Sem histórico';
           var partnerDays = getFixedPartnerSla(ticket.product, ticket.solicitacao);
-          historicalSlaBox.style.display = (partnerDays || (historyRow && Number(historyRow.mean) > 0)) ? 'block' : 'none';
+          historicalSlaBox.style.display = (partnerDays || hasMean) ? 'block' : 'none';
+          var refBadge = document.getElementById('drawerSlaRefBadge');
+          if (refBadge) {
+            refBadge.innerText = partnerDays ? 'SLA Oficial + Histórico' : 'Referência histórica';
+            refBadge.className = 'sla-ref-badge' + (partnerDays ? ' has-official' : '');
+          }
           var historicalSlaValue = document.getElementById('drawerHistoricalSlaValue');
-          if (historicalSlaValue) historicalSlaValue.innerText = (partnerDays ? 'SLA oficial do parceiro: ' + partnerDays + (ticket.solicitacao === 'Cobrança fora da TAG' ? ' dias úteis. ' : ' dias corridos. ') : '') +
-            'SLA médio para esta solicitação: ' + historyMean + ' (referência histórica, não é prazo oficial).';
+          if (historicalSlaValue) {
+            var contextBar =
+              '<div class="sla-context-strip">' +
+                '<strong>' + escapeHtml(dispSol) + '</strong>' +
+                '<span class="bi-partner-tag">' + escapeHtml(dispThird) + '</span>' +
+                '<span class="sla-product-muted">' + escapeHtml(normalizeProduct(ticket.product)) + '</span>' +
+              '</div>';
+            var cardsHtml = '';
+            if (partnerDays) {
+              var unitLabel = ticket.solicitacao === 'Cobrança fora da TAG' ? 'dias úteis' : 'dias corridos';
+              cardsHtml +=
+                '<div class="sla-metric-pill official">' +
+                  '<span class="sla-pill-kicker">Prazo oficial do parceiro</span>' +
+                  '<strong class="sla-pill-num">' + partnerDays + ' ' + unitLabel + '</strong>' +
+                  '<span class="sla-pill-note">Regra formal aplicável</span>' +
+                '</div>';
+            }
+            cardsHtml +=
+              '<div class="sla-metric-pill historical">' +
+                '<span class="sla-pill-kicker">SLA médio (' + escapeHtml(dispSol) + ' • ' + escapeHtml(dispThird) + ')</span>' +
+                '<strong class="sla-pill-num">' + escapeHtml(historyMean) + '</strong>' +
+                '<span class="sla-pill-note">Referência histórica • não é prazo oficial</span>' +
+              '</div>';
+            historicalSlaValue.innerHTML = contextBar + '<div class="sla-pills-grid">' + cardsHtml + '</div>';
+          }
         }
 
         if (ticket.status === 'Concluído') {
@@ -683,6 +778,11 @@ container.appendChild(card);
           { v: 'Integração API', l: 'Integração API' },
           { v: 'Exceção VPO', l: 'Exceção VPO' },
           { v: 'Chamado T.I', l: 'Chamado T.I' },
+          { v: 'Liberação de tela', l: 'Liberação de tela' },
+          { v: 'Rastreamento TAG', l: 'Rastreamento TAG' },
+          { v: 'E-mail em supressão', l: 'E-mail em supressão' },
+          { v: 'Alterar status da TAG', l: 'Alterar status da TAG' },
+          { v: 'Erro de integração', l: 'Erro de integração' },
           { v: 'Isenção', l: 'Isenção' },
           { v: 'Logistica', l: 'Logística' },
           { v: 'Cancelamento', l: 'Cancelamento' },
@@ -691,12 +791,18 @@ container.appendChild(card);
       } else if (prod === 'MANUTENÇÃO') {
         options = [
           { v: 'Layout XML', l: 'Layout XML' },
+          { v: 'Liberação de tela', l: 'Liberação de tela' },
+          { v: 'E-mail em supressão', l: 'E-mail em supressão' },
+          { v: 'Erro de integração', l: 'Erro de integração' },
           { v: 'Outros', l: 'Outros' }
         ];
       } else {
         options = [
           { v: 'Logistica', l: 'Logística' },
           { v: 'Chamado T.I', l: 'Chamado T.I' },
+          { v: 'Liberação de tela', l: 'Liberação de tela' },
+          { v: 'E-mail em supressão', l: 'E-mail em supressão' },
+          { v: 'Erro de integração', l: 'Erro de integração' },
           { v: 'Isenção', l: 'Isenção' }
         ];
       }
@@ -711,15 +817,36 @@ container.appendChild(card);
       }
     }
 
+    function onEditDrawerManutTipoChange() {
+      var prod = normalizeProduct(document.getElementById('editDrawerProduct').value);
+      var tipo = document.getElementById('editDrawerManutTipo').value;
+      var dafGroup = document.getElementById('editDrawerDafGroup');
+      if (prod === 'MANUTENÇÃO' && tipo === 'Estabelecimento') {
+        dafGroup.style.display = 'grid';
+      } else {
+        dafGroup.style.display = 'none';
+        document.getElementById('editDrawerDafRede').value = '';
+        document.getElementById('editDrawerDafMuni').innerHTML = '<option value="">Selecione...</option>';
+      }
+    }
+
     function onEditDrawerProductChange() {
-      var prod = document.getElementById('editDrawerProduct').value;
+      var prod = normalizeProduct(document.getElementById('editDrawerProduct').value);
       var solSel = document.getElementById('editDrawerSolicitacao');
       populateSolicitacaoOptions(solSel, prod, null);
-      document.getElementById('editDrawerDafGroup').style.display = (prod === 'MANUTENÇÃO' ? 'grid' : 'none');
+      var tipoGroup = document.getElementById('editDrawerManutTipoGroup');
+      if (prod === 'MANUTENÇÃO') {
+        tipoGroup.style.display = 'block';
+        onEditDrawerManutTipoChange();
+      } else {
+        tipoGroup.style.display = 'none';
+        document.getElementById('editDrawerManutTipo').value = '';
+        document.getElementById('editDrawerDafGroup').style.display = 'none';
+      }
       
       var terceiroSel = document.getElementById('editDrawerTerceiro');
       if (prod === 'PEDÁGIO') terceiroSel.value = 'MoveMais';
-      else if (prod === 'MANUTENÇÃO') terceiroSel.value = 'Outros';
+      else if (prod === 'MANUTENÇÃO') terceiroSel.value = 'T.I';
       else terceiroSel.value = 'Cadastro';
       
       onEditDrawerSolicitacaoChange();
@@ -743,11 +870,14 @@ container.appendChild(card);
         editReturnInput.placeholder = fixedDays ? 'Prazo fixo do parceiro' : (isManualExemption ? 'Obrigatório: retorno ao Financeiro' : 'Opcional: DD/MM/AAAA');
       }
 
-      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I', 'Layout XML'].indexOf(sol) !== -1 || (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(sol) !== -1);
+      var bitrixRequiredSols = ['Chamado T.I', 'Layout XML', 'Liberação de tela', 'E-mail em supressão', 'Alterar status da TAG', 'Erro de integração'];
+      var needsLink = bitrixRequiredSols.indexOf(sol) !== -1 ||
+        ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG'].indexOf(sol) !== -1 ||
+        (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(sol) !== -1);
       
       if (needsLink) {
         linkGroup.style.display = 'block';
-        if (sol === 'Chamado T.I' || sol === 'Layout XML') linkLabel.innerText = 'Link Card Bitrix * (Obrigatório)';
+        if (bitrixRequiredSols.indexOf(sol) !== -1) linkLabel.innerText = 'Link Card Bitrix * (Obrigatório)';
         else if (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(sol) !== -1) linkLabel.innerText = 'Link do e-mail de solicitação * (Obrigatório)';
         else linkLabel.innerText = 'Link do E-mail / Chamado Externo * (Obrigatório)';
       } else {
@@ -762,7 +892,8 @@ container.appendChild(card);
         descLabel.style.color = '#E2E8F0';
       }
 
-      if (sol === 'Chamado T.I' || sol === 'Layout XML') terceiroSel.value = 'T.I';
+      if (bitrixRequiredSols.indexOf(sol) !== -1) terceiroSel.value = 'T.I';
+      else if (prod === 'PEDÁGIO' && sol === 'Rastreamento TAG') terceiroSel.value = 'Control';
       else if (['Contestação', 'Cancelamento', 'Cobrança fora da TAG', 'Integração API'].indexOf(sol) !== -1) terceiroSel.value = 'MoveMais';
       else if (sol === 'Isenção') terceiroSel.value = 'Financeiro';
       else if (sol === 'Logistica') terceiroSel.value = 'Cadastro';
@@ -825,11 +956,22 @@ container.appendChild(card);
         Object.keys(DAF_CASA_MUNICIPALES).forEach(function(c) {
           dafSel.innerHTML += '<option value="' + c + '">' + c + '</option>';
         });
+        var tipoGroup = document.getElementById('editDrawerManutTipoGroup');
+        var tipoSel = document.getElementById('editDrawerManutTipo');
         if (prod === 'MANUTENÇÃO') {
-          document.getElementById('editDrawerDafGroup').style.display = 'grid';
-          dafSel.value = activeSelectedTicket.dafRede || "";
-          onEditDrawerDafChange(activeSelectedTicket.dafMunicipio || "");
+          tipoGroup.style.display = 'block';
+          var curTipo = activeSelectedTicket.manutencaoTipo || (activeSelectedTicket.dafRede ? 'Estabelecimento' : 'Cliente');
+          tipoSel.value = curTipo;
+          if (curTipo === 'Estabelecimento') {
+            document.getElementById('editDrawerDafGroup').style.display = 'grid';
+            dafSel.value = activeSelectedTicket.dafRede || "";
+            onEditDrawerDafChange(activeSelectedTicket.dafMunicipio || "");
+          } else {
+            document.getElementById('editDrawerDafGroup').style.display = 'none';
+          }
         } else {
+          tipoGroup.style.display = 'none';
+          tipoSel.value = '';
           document.getElementById('editDrawerDafGroup').style.display = 'none';
         }
 
@@ -866,10 +1008,21 @@ container.appendChild(card);
       }
       var newDesc = document.getElementById('editDrawerDescription').value.trim();
       var newLink = document.getElementById('editDrawerLink').value.trim();
-      var newDafRede = newProd === 'MANUTENÇÃO' ? document.getElementById('editDrawerDafRede').value : "";
-      var newDafMuni = newProd === 'MANUTENÇÃO' ? document.getElementById('editDrawerDafMuni').value : "";
+      var newManutTipo = newProd === 'MANUTENÇÃO' ? document.getElementById('editDrawerManutTipo').value : "";
+      if (newProd === 'MANUTENÇÃO' && !newManutTipo) {
+        showToast("Selecione se a manutenção é para Cliente ou Estabelecimento.", true);
+        return;
+      }
+      var newDafRede = (newProd === 'MANUTENÇÃO' && newManutTipo === 'Estabelecimento') ? document.getElementById('editDrawerDafRede').value : "";
+      var newDafMuni = (newProd === 'MANUTENÇÃO' && newManutTipo === 'Estabelecimento') ? document.getElementById('editDrawerDafMuni').value : "";
+      if (newProd === 'MANUTENÇÃO' && newManutTipo === 'Estabelecimento' && (!newDafRede || !newDafMuni)) {
+        showToast("Para Manutenção de Estabelecimento, selecione a Casa DAF e o Município.", true);
+        return;
+      }
 
-      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I', 'Layout XML'].indexOf(newSol) !== -1 ||
+      var bitrixRequiredSols = ['Chamado T.I', 'Layout XML', 'Liberação de tela', 'E-mail em supressão', 'Alterar status da TAG', 'Erro de integração'];
+      var needsLink = bitrixRequiredSols.indexOf(newSol) !== -1 ||
+        ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG'].indexOf(newSol) !== -1 ||
         (newProd === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(newSol) !== -1);
       if (needsLink && !newLink && activeSelectedTicket.status !== 'Concluído') {
         showToast("O Link Externo (E-mail ou Bitrix) é obrigatório.", true);
@@ -893,6 +1046,7 @@ container.appendChild(card);
         returnDate: newReturn,
         description: newDesc,
         bitrixLink: newLink,
+        manutencaoTipo: newManutTipo,
         dafRede: newDafRede,
         dafMunicipio: newDafMuni,
         isAutoReturn: returnChanged ? false : activeSelectedTicket.isAutoReturn,
@@ -955,6 +1109,43 @@ container.appendChild(card);
       openDrawer(updatedTicket);
       renderAll();
       showToast("Demanda finalizada (SLA: " + diffDays + " dias)!");
+    }
+
+    function reopenTicketObject(ticket) {
+      if (!ticket) return;
+      var now = new Date();
+      var officialDue = getOfficialDeadline(ticket);
+      var restoredReturn = officialDue || formatOnlyDateBR(ticket.returnDate) || 'A definir';
+
+      // Mantém startDate original intacto para dar continuidade exata ao SLA
+      var revertedTicket = Object.assign({}, ticket, {
+        status: "Em andamento",
+        endDate: "",
+        durationDays: null,
+        returnDate: restoredReturn,
+        updatedAt: now.toISOString()
+      });
+
+      allTickets = allTickets.map(function(t) { return t.id === revertedTicket.id ? revertedTicket : t; });
+      saveStoredTickets();
+      sendMutationToSheet("update", revertedTicket, false);
+      renderAll();
+      if (activeSelectedTicket && activeSelectedTicket.id === revertedTicket.id) {
+        openDrawer(revertedTicket);
+      }
+      showToast("Demanda revertida para Em Aberto (SLA contínuo desde " + formatDateDisplay(revertedTicket.startDate) + ")!");
+    }
+
+    function reopenSelectedTicket() {
+      if (!activeSelectedTicket) return;
+      reopenTicketObject(activeSelectedTicket);
+    }
+
+    function reopenTicketById(e, id) {
+      if (e) e.stopPropagation();
+      var ticket = allTickets.find(function(t) { return String(t.id).trim() === String(id).trim(); });
+      if (!ticket) return;
+      reopenTicketObject(ticket);
     }
 
     function executeDelete(ticket) {
@@ -1033,24 +1224,53 @@ container.appendChild(card);
       }
     }
 
+    function onModalManutTipoChange() {
+      var prod = normalizeProduct(document.getElementById('modalProductSelect').value);
+      var tipo = document.getElementById('modalManutTipoSelect').value;
+      var dafGroup = document.getElementById('modalDafGroup');
+      var clientLabel = document.getElementById('modalClientLabel');
+      var clientInput = document.getElementById('modalClientInput');
+
+      if (prod === 'MANUTENÇÃO' && tipo === 'Estabelecimento') {
+        dafGroup.style.display = 'block';
+        if (clientLabel) clientLabel.innerText = 'Estabelecimento / Concessionária *';
+        if (clientInput) clientInput.placeholder = 'Razão social ou nome do estabelecimento';
+      } else {
+        dafGroup.style.display = 'none';
+        document.getElementById('modalDafSelect').value = '';
+        document.getElementById('modalDafMunicipioSelect').innerHTML = '<option value="">Selecione a Casa primeiro...</option>';
+        if (clientLabel) clientLabel.innerText = 'Cliente / Transportadora *';
+        if (clientInput) clientInput.placeholder = 'Razão social ou nome do cliente';
+      }
+    }
+
     function onModalProductChange() {
-      var prod = document.getElementById('modalProductSelect').value;
+      var prod = normalizeProduct(document.getElementById('modalProductSelect').value);
       var servSel = document.getElementById('modalServiceSelect');
       var dafGroup = document.getElementById('modalDafGroup');
+      var manutTipoGroup = document.getElementById('modalManutTipoGroup');
+      var manutTipoSel = document.getElementById('modalManutTipoSelect');
       var terceiroSel = document.getElementById('modalTerceiroSelect');
 
       populateSolicitacaoOptions(servSel, prod, null);
 
       if (prod === 'PEDÁGIO') {
+        manutTipoGroup.style.display = 'none';
+        manutTipoSel.value = '';
         dafGroup.style.display = 'none';
         terceiroSel.value = 'MoveMais';
       } else if (prod === 'MANUTENÇÃO') {
-        dafGroup.style.display = 'block';
-        terceiroSel.value = 'Outros';
+        manutTipoGroup.style.display = 'block';
+        manutTipoSel.value = '';
+        dafGroup.style.display = 'none';
+        terceiroSel.value = 'T.I';
       } else {
+        manutTipoGroup.style.display = 'none';
+        manutTipoSel.value = '';
         dafGroup.style.display = 'none';
         terceiroSel.value = 'Cadastro';
       }
+      onModalManutTipoChange();
       onModalServiceChange();
     }
 
@@ -1117,9 +1337,10 @@ container.appendChild(card);
     function getResponsibleSector(product, service) {
       var p = normalizeProduct(product);
       if (service === 'Isenção') return 'Financeiro';
-      if (service === 'Chamado T.I' || service === 'Layout XML') return 'T.I';
+      if (['Chamado T.I', 'Layout XML', 'Liberação de tela', 'E-mail em supressão', 'Alterar status da TAG', 'Erro de integração'].indexOf(service) !== -1) return 'T.I';
+      if (p === 'PEDÁGIO' && service === 'Rastreamento TAG') return 'Control';
       if (p === 'PEDÁGIO' && ['Cancelamento', 'Cobrança fora da TAG', 'Contestação', 'Integração API', 'Exceção VPO'].indexOf(service) !== -1) return 'MoveMais';
-      if (p === 'ABASTECIMENTO' && service === 'Logistica') return 'Cadastro';
+      if (service === 'Logistica') return 'Cadastro';
       if (p === 'MANUTENÇÃO' && service === 'Outros') return 'Outros';
       return '';
     }
@@ -1147,11 +1368,13 @@ container.appendChild(card);
       var fixedDays = getFixedPartnerSla(prod, serv);
       var isManualExemption = serv === 'Isenção' && (prod === 'PEDÁGIO' || prod === 'ABASTECIMENTO');
 
-      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I', 'Layout XML'].indexOf(serv) !== -1 ||
+      var bitrixRequiredSols = ['Chamado T.I', 'Layout XML', 'Liberação de tela', 'E-mail em supressão', 'Alterar status da TAG', 'Erro de integração'];
+      var needsLink = bitrixRequiredSols.indexOf(serv) !== -1 ||
+        ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG'].indexOf(serv) !== -1 ||
         (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(serv) !== -1);
 
       linkGroup.style.display = needsLink ? 'block' : 'none';
-      linkLabel.innerText = (serv === 'Chamado T.I' || serv === 'Layout XML') ? 'Link Card Bitrix * (Obrigatório)' :
+      linkLabel.innerText = bitrixRequiredSols.indexOf(serv) !== -1 ? 'Link Card Bitrix * (Obrigatório)' :
         (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(serv) !== -1 ? 'Link do e-mail de solicitação * (Obrigatório)' : 'Link do E-mail / Chamado Externo * (Obrigatório)');
 
       if (prod === 'MANUTENÇÃO' && serv === 'Outros') {
@@ -1162,7 +1385,8 @@ container.appendChild(card);
         descLabel.style.color = '#E2E8F0';
       }
 
-      if (serv === 'Chamado T.I' || serv === 'Layout XML') terceiroSel.value = 'T.I';
+      if (bitrixRequiredSols.indexOf(serv) !== -1) terceiroSel.value = 'T.I';
+      else if (prod === 'PEDÁGIO' && serv === 'Rastreamento TAG') terceiroSel.value = 'Control';
       else if (['Contestação', 'Cancelamento', 'Cobrança fora da TAG', 'Integração API'].indexOf(serv) !== -1) terceiroSel.value = 'MoveMais';
       else if (serv === 'Isenção') terceiroSel.value = 'Financeiro';
       else if (serv === 'Logistica') terceiroSel.value = 'Cadastro';
@@ -1205,14 +1429,21 @@ container.appendChild(card);
       var serv = document.getElementById('modalServiceSelect').value;
       var linkVal = document.getElementById('modalLinkInput').value.trim();
 
+      var manutTipoVal = prod === 'MANUTENÇÃO' ? (f.manutencaoTipo ? f.manutencaoTipo.value : '') : '';
       if (prod === 'MANUTENÇÃO') {
-        if (!f.dafRede.value || !f.dafMunicipio.value) {
-          showToast("Selecione a Casa DAF e o Município.", true);
+        if (!manutTipoVal) {
+          showToast("Selecione se a manutenção é para Cliente ou Estabelecimento.", true);
+          return;
+        }
+        if (manutTipoVal === 'Estabelecimento' && (!f.dafRede.value || !f.dafMunicipio.value)) {
+          showToast("Para Manutenção de Estabelecimento, selecione a Casa DAF e o Município.", true);
           return;
         }
       }
 
-      var needsLink = ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG', 'Chamado T.I', 'Layout XML'].indexOf(serv) !== -1 ||
+      var bitrixRequiredSols = ['Chamado T.I', 'Layout XML', 'Liberação de tela', 'E-mail em supressão', 'Alterar status da TAG', 'Erro de integração'];
+      var needsLink = bitrixRequiredSols.indexOf(serv) !== -1 ||
+        ['Contestação', 'Isenção', 'Cancelamento', 'Cobrança fora da TAG'].indexOf(serv) !== -1 ||
         (prod === 'PEDÁGIO' && ['Integração API', 'Exceção VPO'].indexOf(serv) !== -1);
       if (needsLink && !linkVal) {
         showToast("O Link Externo (E-mail ou Bitrix) é obrigatório.", true);
@@ -1251,8 +1482,9 @@ container.appendChild(card);
         solicitacao: serv,
         terceiro: getResponsibleSector(prod, serv) || f.terceiro.value,
         bitrixLink: linkVal,
-        dafRede: prod === 'MANUTENÇÃO' ? f.dafRede.value : "",
-        dafMunicipio: prod === 'MANUTENÇÃO' ? f.dafMunicipio.value : "",
+        manutencaoTipo: manutTipoVal,
+        dafRede: (prod === 'MANUTENÇÃO' && manutTipoVal === 'Estabelecimento') ? f.dafRede.value : "",
+        dafMunicipio: (prod === 'MANUTENÇÃO' && manutTipoVal === 'Estabelecimento') ? f.dafMunicipio.value : "",
         status: "Em andamento",
         startDate: d + '/' + m + '/' + y + ' ' + h + ':' + min,
         endDate: "",
@@ -1320,13 +1552,21 @@ container.appendChild(card);
 
     var biFilterProduct = '';
     var biFilterThird = '';
+    var biFilterPartnerType = '';
     var biFilterFrom = '';
     var biFilterTo = '';
+    function getPartnerType(partnerName) {
+      var p = String(partnerName || '').trim();
+      if (p === 'MoveMais' || p === 'ConnectCar') return 'Externo';
+      return 'Interno';
+    }
     function getBiFilteredTickets(status) {
       return allTickets.filter(function(t) {
         if (status && t.status !== status) return false;
+        var third = getTicketThird(t) || 'Outros';
         if (biFilterProduct && normalizeProduct(t.product) !== biFilterProduct) return false;
-        if (biFilterThird && getTicketThird(t) !== biFilterThird) return false;
+        if (biFilterThird && third !== biFilterThird) return false;
+        if (biFilterPartnerType && getPartnerType(third) !== biFilterPartnerType) return false;
         if (status === 'Concluído' && (biFilterFrom || biFilterTo)) {
           var d = parseDateBR(t.endDate || t.returnDate || t.startDate);
           if (biFilterFrom && (!d || d < new Date(biFilterFrom + 'T00:00:00'))) return false;
@@ -1336,14 +1576,15 @@ container.appendChild(card);
       });
     }
     function applyBiFilters() {
-      biFilterProduct = document.getElementById('biFilterProduct').value;
-      biFilterThird = document.getElementById('biFilterThird').value;
-      biFilterFrom = document.getElementById('biDateFrom').value;
-      biFilterTo = document.getElementById('biDateTo').value;
+      biFilterProduct = document.getElementById('biFilterProduct') ? document.getElementById('biFilterProduct').value : '';
+      biFilterThird = document.getElementById('biFilterThird') ? document.getElementById('biFilterThird').value : '';
+      biFilterPartnerType = document.getElementById('biFilterPartnerType') ? document.getElementById('biFilterPartnerType').value : '';
+      biFilterFrom = document.getElementById('biDateFrom') ? document.getElementById('biDateFrom').value : '';
+      biFilterTo = document.getElementById('biDateTo') ? document.getElementById('biDateTo').value : '';
       renderSlaReport();
     }
     function clearBiFilters() {
-      ['biFilterProduct','biFilterThird','biDateFrom','biDateTo'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+      ['biFilterProduct','biFilterThird','biFilterPartnerType','biDateFrom','biDateTo'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
       applyBiFilters();
     }
     function formatBiDays(value) { return value === null || !isFinite(value) ? '—' : value.toFixed(1).replace('.', ',') + ' dias'; }
@@ -1361,11 +1602,21 @@ container.appendChild(card);
       if (!container) return;
       var max = Math.max(1, ...rows.map(function(r) { return r[valueKey]; }));
       container.innerHTML = rows.length ? rows.map(function(r) {
-        var action = '';
         return '<div class="bi-bar-row"><span class="bi-bar-label">' + escapeHtml(r[labelKey]) + '</span><div class="bi-bar-track"><div class="bi-bar-fill ' + colorClass + '" style="width:' + Math.max(2, r[valueKey] / max * 100) + '%"></div></div><strong class="bi-bar-value">' + r[valueKey] + '</strong></div>';
       }).join('') : '<div class="bi-empty">Sem dados para os filtros selecionados.</div>';
     }
-    function selectBiPartner(name) { biFilterThird = name; var el = document.getElementById('biFilterThird'); if (el) el.value = name; renderSlaReport(); }
+    function selectBiPartner(name) {
+      biFilterThird = (biFilterThird === name) ? '' : name;
+      var el = document.getElementById('biFilterThird');
+      if (el) el.value = biFilterThird;
+      renderSlaReport();
+    }
+    function selectBiPartnerType(typeName) {
+      biFilterPartnerType = (biFilterPartnerType === typeName) ? '' : typeName;
+      var el = document.getElementById('biFilterPartnerType');
+      if (el) el.value = biFilterPartnerType;
+      renderSlaReport();
+    }
     function selectBiProduct(name) { biFilterProduct = name; var el = document.getElementById('biFilterProduct'); if (el) el.value = name; renderSlaReport(); }
     function renderSlaProjection() {
       var tbody=document.getElementById('projectionBody'), chart=document.getElementById('projectionVolumeChart'), serviceChart=document.getElementById('projectionServiceChart');
@@ -1377,31 +1628,144 @@ container.appendChild(card);
       renderBiBars(chart,Object.keys(partners).map(function(k){return {label:k,count:partners[k]};}).sort(function(a,b){return b.count-a.count;}),'label','count','bi-fill-cyan');
       renderBiBars(serviceChart,Object.keys(services).map(function(k){return {label:k,count:services[k]};}).sort(function(a,b){return b.count-a.count;}),'label','count','bi-fill-orange');
     }
+
+    function formatPartnerProductBreakdown(items) {
+      var ped = 0, aba = 0, man = 0;
+      items.forEach(function(t) {
+        var p = normalizeProduct(t.product);
+        if (p === 'PEDÁGIO') ped++;
+        else if (p === 'ABASTECIMENTO') aba++;
+        else if (p === 'MANUTENÇÃO') man++;
+      });
+      var parts = [];
+      if (ped > 0) parts.push('Pedágio: ' + ped);
+      if (aba > 0) parts.push('Abastecimento: ' + aba);
+      if (man > 0) parts.push('Manutenção: ' + man);
+      return parts.length ? parts.join(' • ') : 'Sem registros';
+    }
+
     function renderSlaReport() {
       var completed=getBiFilteredTickets('Concluído');
+      var totalCompleted = completed.length;
       var period=document.getElementById('biPeriodCaption');
-      if(period) period.textContent=(biFilterFrom||biFilterTo)?((biFilterFrom||'Início')+' — '+(biFilterTo||'Hoje')):'Todo o histórico';
-      var products=['PEDÁGIO','ABASTECIMENTO','MANUTENÇÃO'];
+      if(period) {
+        var partsCap = [];
+        if (biFilterFrom || biFilterTo) partsCap.push((biFilterFrom||'Início')+' — '+(biFilterTo||'Hoje'));
+        else partsCap.push('Todo o histórico');
+        if (biFilterThird) partsCap.push('Parceiro: ' + biFilterThird);
+        if (biFilterPartnerType) partsCap.push(biFilterPartnerType + 's');
+        period.textContent = partsCap.join(' · ');
+      }
+
+      var knownPartners=['MoveMais','T.I','Financeiro','ConnectCar','Cadastro','Control','Outros'];
+      var dynamicPartners = Array.from(new Set(completed.map(function(t){ return getTicketThird(t) || 'Outros'; })));
+      var allPartnerNames = knownPartners.slice();
+      dynamicPartners.forEach(function(dp){ if (allPartnerNames.indexOf(dp) === -1) allPartnerNames.push(dp); });
+
+      var partnerRows=allPartnerNames.filter(function(n){
+        if (biFilterThird && n !== biFilterThird) return false;
+        if (biFilterPartnerType && getPartnerType(n) !== biFilterPartnerType) return false;
+        return true;
+      }).map(function(n){
+        var list=completed.filter(function(t){return (getTicketThird(t) || 'Outros')===n;});
+        var share = totalCompleted > 0 ? Math.round((list.length / totalCompleted) * 100) : 0;
+        return {
+          name: n,
+          type: getPartnerType(n),
+          count: list.length,
+          share: share,
+          avg: biAverage(list),
+          items: list,
+          breakdown: formatPartnerProductBreakdown(list)
+        };
+      }).filter(function(r){return r.count>0;}).sort(function(a,b){return b.count-a.count || a.name.localeCompare(b.name,'pt-BR');});
+
+      var extList=completed.filter(function(t){return getPartnerType(getTicketThird(t))==='Externo';});
+      var intList=completed.filter(function(t){return getPartnerType(getTicketThird(t))==='Interno';});
+      var extShare = totalCompleted > 0 ? Math.round((extList.length / totalCompleted) * 100) : 0;
+      var intShare = totalCompleted > 0 ? Math.round((intList.length / totalCompleted) * 100) : 0;
+      var extNames=Array.from(new Set(extList.map(function(t){return getTicketThird(t);}))).join(', ') || 'Ex.: MoveMais, ConnectCar';
+      var intNames=Array.from(new Set(intList.map(function(t){return getTicketThird(t);}))).join(', ') || 'Ex.: T.I, Financeiro, Cadastro, Control';
+
       var productCards=document.getElementById('biProductCards');
-      if(productCards){productCards.innerHTML=products.filter(function(p){return !biFilterProduct||p===biFilterProduct;}).map(function(p){var list=completed.filter(function(t){return normalizeProduct(t.product)===p;});var avg=biAverage(list);var color=p==='PEDÁGIO'?'cyan':(p==='ABASTECIMENTO'?'green':'purple');return '<article class="bi-product-card bi-product-'+color+'"><div class="bi-product-card-top"><span>'+escapeHtml(p)+'</span><i></i></div><div class="bi-product-kpis"><div><strong>'+list.length+'</strong><small>Volume concluído</small></div><div><strong>'+formatBiDays(avg)+'</strong><small>SLA médio</small></div></div></article>';}).join('');}
-      var partnerNames=['MoveMais','Financeiro','T.I','Cadastro','Outros'];
-      var partnerRows=partnerNames.filter(function(n){return !biFilterThird||n===biFilterThird;}).map(function(n){var list=completed.filter(function(t){return getTicketThird(t)===n;});return {name:n,count:list.length,avg:biAverage(list)};}).filter(function(r){return r.count>0;}).sort(function(a,b){return b.count-a.count;});
-      var partnerBody=document.getElementById('biPartnerBody');if(partnerBody)partnerBody.innerHTML=partnerRows.length?partnerRows.map(function(r){return '<tr><td><span class="bi-partner-tag">'+escapeHtml(r.name)+'</span></td><td><strong>'+r.count+'</strong></td><td>'+formatBiDays(r.avg)+'</td></tr>';}).join(''):'<tr><td colspan="3">Sem demandas concluídas para os filtros selecionados.</td></tr>';
-      // renderBiBars(document.getElementById('biPartnerChart'), ... removed}),'label','count','bi-fill-cyan');
+      if(productCards){
+        var extActiveClass = biFilterPartnerType === 'Externo' ? ' bi-card-selected' : '';
+        var intActiveClass = biFilterPartnerType === 'Interno' ? ' bi-card-selected' : '';
+        var macroGroupsHtml =
+          '<div class="bi-partner-macro-grid">' +
+            '<article class="bi-product-card bi-product-cyan bi-product-clickable' + extActiveClass + '" data-partner-type="Externo" onclick="selectBiPartnerType(this.getAttribute(\'data-partner-type\'))" title="Clique para filtrar somente parceiros externos">' +
+              '<div class="bi-product-card-top"><span>PARCEIROS EXTERNOS</span><span class="bi-type-badge ext">EXTERNO • ' + extShare + '%</span></div>' +
+              '<div class="bi-product-kpis">' +
+                '<div><strong>' + extList.length + '</strong><small>Volume concluído</small></div>' +
+                '<div><strong>' + formatBiDays(biAverage(extList)) + '</strong><small>SLA médio</small></div>' +
+              '</div>' +
+              '<div class="bi-product-card-foot">' + escapeHtml(extNames) + '</div>' +
+            '</article>' +
+            '<article class="bi-product-card bi-product-purple bi-product-clickable' + intActiveClass + '" data-partner-type="Interno" onclick="selectBiPartnerType(this.getAttribute(\'data-partner-type\'))" title="Clique para filtrar somente setores internos">' +
+              '<div class="bi-product-card-top"><span>SETORES INTERNOS</span><span class="bi-type-badge int">INTERNO • ' + intShare + '%</span></div>' +
+              '<div class="bi-product-kpis">' +
+                '<div><strong>' + intList.length + '</strong><small>Volume concluído</small></div>' +
+                '<div><strong>' + formatBiDays(biAverage(intList)) + '</strong><small>SLA médio</small></div>' +
+              '</div>' +
+              '<div class="bi-product-card-foot">' + escapeHtml(intNames) + '</div>' +
+            '</article>' +
+          '</div>';
+
+        var individualPartnerCardsHtml = partnerRows.length ? (
+          '<div class="bi-partner-subgrid">' +
+          partnerRows.map(function(r){
+            var isExt = r.type === 'Externo';
+            var accent = isExt ? 'cyan' : 'purple';
+            var isSelected = biFilterThird === r.name ? ' bi-card-selected' : '';
+            return '<article class="bi-product-card bi-product-' + accent + ' bi-product-clickable' + isSelected + '" data-partner="' + escapeHtml(r.name) + '" onclick="selectBiPartner(this.getAttribute(\'data-partner\'))" title="Clique para filtrar por ' + escapeHtml(r.name) + '">' +
+              '<div class="bi-product-card-top"><span>' + escapeHtml(r.name) + '</span><span class="bi-type-badge ' + (isExt ? 'ext' : 'int') + '">' + r.type + ' • ' + r.share + '%</span></div>' +
+              '<div class="bi-product-kpis"><div><strong>' + r.count + '</strong><small>Concluídos</small></div><div><strong>' + formatBiDays(r.avg) + '</strong><small>SLA médio</small></div></div>' +
+              '<div class="bi-product-card-foot">' + escapeHtml(r.breakdown) + '</div>' +
+            '</article>';
+          }).join('') +
+          '</div>'
+        ) : '';
+
+        productCards.innerHTML = macroGroupsHtml + individualPartnerCardsHtml;
+      }
+
+      var partnerChartEl = document.getElementById('biPartnerVolumeChart');
+      if (partnerChartEl) {
+        renderBiBars(partnerChartEl, partnerRows.map(function(r){ return { label: r.name + ' (' + r.type + ')', count: r.count }; }), 'label', 'count', 'bi-fill-cyan');
+      }
+
+      var partnerBody=document.getElementById('biPartnerBody');
+      if(partnerBody){
+        partnerBody.innerHTML=partnerRows.length?partnerRows.map(function(r){
+          var isExt = r.type === 'Externo';
+          return '<tr style="cursor:pointer;" data-partner="' + escapeHtml(r.name) + '" onclick="selectBiPartner(this.getAttribute(\'data-partner\'))">' +
+            '<td><span class="bi-partner-tag">'+escapeHtml(r.name)+'</span></td>' +
+            '<td><span class="bi-type-badge '+(isExt?'ext':'int')+'">'+r.type+'</span></td>' +
+            '<td><strong>'+r.count+'</strong> <span style="color:var(--text-muted); font-size:10px;">('+r.share+'%)</span></td>' +
+            '<td class="td-sla-medio">'+formatBiDays(r.avg)+'</td>' +
+            '<td><span class="sla-product-muted">'+escapeHtml(r.breakdown)+'</span></td>' +
+          '</tr>';
+        }).join(''):'<tr><td colspan="5">Sem demandas concluídas para os filtros selecionados.</td></tr>';
+      }
+
       var groups={};completed.forEach(function(t){
-    var service=getDisplaySolicitation(t)||'Outros';
-    var product=normalizeProduct(t.product)||'Não informado';
-    var third=getTicketThird(t)||'Outros';
-    // Unificar Chamado T.I para Pedágio e Abastecimento
-    if (service === 'Chamado T.I' && (product === 'PEDÁGIO' || product === 'ABASTECIMENTO')) {
-        product = 'PEDÁGIO e ABASTECIMENTO';
-    }
-    var key=service+'|'+product+'|'+third;
-    if(!groups[key]) groups[key]={service:service,product:product,third:third,items:[]};
-    groups[key].items.push(t);
-});
-      var micro=Object.keys(groups).map(function(k){var r=groups[k],official=biOfficialDays(r.product,r.service);return {service:r.service,product:r.product,third:r.third,count:r.items.length,avg:biAverage(r.items),official:official};}).sort(function(a,b){return b.count-a.count||a.service.localeCompare(b.service,'pt-BR');});
-      var microBody=document.getElementById('biSolicitationBody');if(microBody)microBody.innerHTML=micro.length?micro.map(function(r){return '<tr><td><strong>'+escapeHtml(r.service)+'</strong></td><td>'+escapeHtml(r.product)+'</td><td><span class="bi-partner-tag">'+escapeHtml(r.third)+'</span></td><td><strong>'+r.count+'</strong></td><td class="td-sla-medio">'+formatBiDays(r.avg)+'</td><td class="td-sla-oficial">'+(r.official?r.official+' dias '+(r.service.indexOf('fora da TAG') !== -1 ? 'úteis' : 'corridos'):'<span class="bi-no-sla">Não definido</span>')+'</td></tr>';}).join(''):'<tr><td colspan="6">Sem solicitações concluídas para os filtros selecionados.</td></tr>';
-      var microCount=document.getElementById('biSolicitationCount');if(microCount)microCount.textContent=micro.length+' combinações de solicitação';
+        var service=getDisplaySolicitation(t)||'Outros';
+        var product=normalizeProduct(t.product)||'Não informado';
+        var third=getTicketThird(t)||'Outros';
+        var key=third+'|'+service;
+        if(!groups[key]) groups[key]={service:service,third:third,products:{},items:[]};
+        groups[key].products[product]=true;
+        groups[key].items.push(t);
+      });
+      var micro=Object.keys(groups).map(function(k){
+        var r=groups[k];
+        var prodList=Object.keys(r.products).sort();
+        var prodLabel=prodList.join(' • ');
+        var official=null;
+        prodList.forEach(function(p){ var o=biOfficialDays(p,r.service); if(o) official=o; });
+        return {service:r.service,product:prodLabel,third:r.third,count:r.items.length,avg:biAverage(r.items),official:official};
+      }).sort(function(a,b){return b.count-a.count||a.third.localeCompare(b.third,'pt-BR')||a.service.localeCompare(b.service,'pt-BR');});
+      var microBody=document.getElementById('biSolicitationBody');if(microBody)microBody.innerHTML=micro.length?micro.map(function(r){return '<tr><td><span class="bi-partner-tag">'+escapeHtml(r.third)+'</span></td><td><strong>'+escapeHtml(r.service)+'</strong></td><td><span class="sla-product-muted">'+escapeHtml(r.product)+'</span></td><td><strong>'+r.count+'</strong></td><td class="td-sla-medio">'+formatBiDays(r.avg)+'</td><td class="td-sla-oficial">'+(r.official?r.official+' dias '+(r.service.indexOf('fora da TAG') !== -1 ? 'úteis' : 'corridos'):'<span class="bi-no-sla">Não definido</span>')+'</td></tr>';}).join(''):'<tr><td colspan="6">Sem solicitações concluídas para os filtros selecionados.</td></tr>';
+      var microCount=document.getElementById('biSolicitationCount');if(microCount)microCount.textContent=micro.length+' combinações de parceiro e solicitação';
     }
 
